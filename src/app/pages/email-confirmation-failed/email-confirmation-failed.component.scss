@@ -1,0 +1,56 @@
+.email-confirmed-page {
+  min-height: 100vh;
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+
+  .content {
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+
+    .icon-fail {
+      font-size: 80px;
+      color: #dc3545; // red
+      margin-bottom: 1rem;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .message {
+      font-size: 18px;
+      color: #dc3545;
+      margin-bottom: 2rem;
+      word-wrap: break-word;
+    }
+
+    .btn-login {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #2878eb;
+      color: #fff;
+      text-decoration: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 16px;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+
+      i {
+        margin-left: 0.5rem;
+        font-size: 18px;
+      }
+
+      &:hover {
+        background-color: #1a5fc7;
+      }
+    }
+  }
+}

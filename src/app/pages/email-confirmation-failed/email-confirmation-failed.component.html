@@ -1,0 +1,17 @@
+<app-inner-page-banner [pageTitle]="'فشل تاكيد البريد'"></app-inner-page-banner>
+
+
+<div class="email-confirmed-page">
+  <div class="content">
+    <div class="icon-fail">
+      <i class="bx bx-x-circle"></i>
+    </div>
+    <h1 class="title">فشل في تأكيد البريد الإلكتروني</h1>
+    <p class="message text-danger">{{ errorMessage }}</p>
+
+    <a routerLink="/login" class="btn-login">
+      <i class="bx bx-log-in"></i>
+      الرجوع إلى تسجيل الدخول
+    </a>
+  </div>
+</div>
