@@ -1,0 +1,43 @@
+<!-- Default -->
+<div
+    class="funfacts-area pb-75"
+    [ngClass]="{'d-none': router.url === '/index-3'}"
+>
+    <div class="container">
+        <div class="row">
+            @for (funfacts of singleFunfactsBox; track funfacts) {
+                <div class="col-lg-3 col-sm-6 col-6 col-md-3">
+                    <div class="single-funfact-box">
+                        <div class="icon">
+                            <img [src]="funfacts.icon" alt="image">
+                        </div>
+                        <h3>{{funfacts.title}}</h3>
+                        <p>{{funfacts.subTitle}}</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Only for Home Demo - 3 -->
+<div
+    class="funfacts-area pb-75"
+    *ngIf="router.url === '/index-3'"
+>
+    <div class="container">
+        <div class="row">
+            @for (funfacts of singleFunfactsBox; track funfacts) {
+                <div class="col-lg-3 col-sm-3 col-6 col-md-3">
+                    <div class="single-funfact-item">
+                        <div class="icon">
+                            <img [src]="funfacts.icon" alt="image">
+                        </div>
+                        <h3>{{funfacts.title}}</h3>
+                        <p>{{funfacts.subTitle}}</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

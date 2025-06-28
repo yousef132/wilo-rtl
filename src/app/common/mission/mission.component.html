@@ -1,0 +1,48 @@
+<div class="our-mission-area ptb-100">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-md-12">
+                <div class="our-mission-content">
+                    @for (content of ourMissionContent; track content) {
+                        <div class="content">
+                            <span class="sub-title">
+                                <img src="images/star-icon.png" alt="image"> {{content.subTitle}}
+                            </span>
+                            <h2>{{content.title}}</h2>
+                            <p>{{content.paragraphText1}}</p>
+                            <ul class="our-mission-list">
+                                @for (list of ourMissionList; track list) {
+                                    <li>
+                                        <div class="inner">
+                                            <div class="icon">
+                                                <i class="{{list.icon}}"></i>
+                                            </div>
+                                            {{list.title}}
+                                            <img src="images/our-mission/shape2.png" alt="image">
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                            <p>{{content.paragraphText2}}</p>
+                            <a routerLink="/{{content.defaultBtnLink}}" class="default-btn">
+                                <i class="{{content.defaultBtnIcon}}"></i>
+                                {{content.defaultBtnText}}
+                                <span></span>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12">
+                @for (image of ourMissionImage; track image) {
+                    <div class="our-mission-image">
+                        <img [src]="image.img" alt="image">
+                        <div class="shape">
+                            <img src="images/our-mission/shape1.png">
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

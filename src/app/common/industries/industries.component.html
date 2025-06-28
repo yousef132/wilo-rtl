@@ -1,0 +1,26 @@
+<div class="industries-serve-area bg-fafafb pt-100 pb-75">
+    <div class="container">
+        @for (sectionTitleContent of sectionTitle; track sectionTitleContent) {
+            <div class="section-title">
+                <h2>{{sectionTitleContent.title}}</h2>
+                <p>{{sectionTitleContent.paragraphText}}</p>
+            </div>
+        }
+        <div class="row">
+            @for (industriesServeContent of singleIndustriesServeBox; track industriesServeContent) {
+                <div class="col-lg-3 col-sm-6 col-md-6">
+                    <div class="single-industry-box">
+                        <div class="icon">
+                            <i class="{{industriesServeContent.icon}}"></i>
+                        </div>
+                        {{industriesServeContent.title}}
+                        <a routerLink="/{{industriesServeContent.link}}" class="link-btn"></a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="vector-shape11">
+        <img src="images/shape/vector-shape11.png" alt="image">
+    </div>
+</div>

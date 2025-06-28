@@ -1,0 +1,252 @@
+<div *ngIf="sections; else loading">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h6>الأقسام</h6>
+    <button *ngIf="programIsNotActive" class="btn btn-sm btn-success" (click)="openSectionModal()">+ قسم جديد</button>
+  </div>
+  <div ngbAccordion>
+    <!-- Section Accordion -->
+    @for(section of sections; track section.id;) {
+    <div ngbAccordionItem [collapsed]="false">
+      <button ngbAccordionButton class="w-100 text-start">
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <span>
+            {{ section.name }}
+            <span *ngIf="!section.editingIndex" class="text-muted ms-2">(ترتيب: {{ section.index }})</span>
+            <!-- <input *ngIf="section.editingIndex" type="number" [(ngModel)]="section.index"
+              (blur)="saveSectionIndex(section)" style="width: 60px;" class="form-control d-inline ms-2" /> -->
+
+            <i  *ngIf="programIsNotActive" class="bx bx-pencil mx-1 text-primary" style="cursor: pointer;"
+              (click)="openEditSectionModal(section)"></i>
+
+            <!-- <small class="text-muted">(ترتيب: {{ section.index }})</small> -->
+          </span>
+          <p>
+            <i *ngIf="programIsNotActive" class="bx bx-plus-circle text-success" (click)="openContentModal(section.id)" title="اضافه محتوى"
+              style="cursor: pointer; z-index: 1111; font-size: 20px; margin-left: 10px;">
+            </i>
+          </p>
+        </div>
+      </button>
+
+      <div ngbAccordionCollapse>
+        @for(content of section.contents; track content.id;) {
+        <div ngbAccordionBody>
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">
+                  {{ content.name }}
+                  <small class="text-muted">(ترتيب: {{ content.index }})</small>
+                </div>
+                <small class="text-muted">{{ ContentType[content.contentType] }}</small>
+              </div>
+
+              <div class="d-flex align-items-center">
+                <a [routerLink]="['/dashboard/content', content.id]" title="اداره المحتوى">
+                  <i class="bx bx-edit text-primary mx-2" style="cursor: pointer; font-size: 18px;"></i>
+                </a>
+                <a [routerLink]="['/content/subscribers', programId, content.id]" title="اداره المشتركين">
+                  <i class="bx bx-user text-primary mx-2" style="cursor: pointer; font-size: 18px;"></i>
+                </a>
+              </div>
+            </li>
+          </ul>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+  </div>
+
+
+
+  <!-- Empty State -->
+  <ng-template #noSections>
+    <div class="text-center text-muted mt-5">
+      <i class="bi bi-folder-x" style="font-size: 3rem;"></i>
+      <p class="mt-2">لا توجد أقسام مضافة بعد</p>
+    </div>
+  </ng-template>
+  <!-- Loading State -->
+
+
+</div>
+
+<ng-template #loading>
+  <p>جاري التحميل...</p>
+</ng-template>
+
+<!-- Edit Section Modal -->
+<ng-template #editSectionModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">تعديل القسم</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <form [formGroup]="editSectionForm" (ngSubmit)="submitEditSection(modal)">
+    <div class="modal-body">
+      <div class="mb-3">
+        <label class="form-label">اسم القسم</label>
+        <input type="text" class="form-control" formControlName="sectionName" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">الترتيب</label>
+        <input type="number" class="form-control" formControlName="sectionIndex" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">إلغاء</button>
+      <button type="submit" class="btn btn-primary" [disabled]="editSectionForm.invalid">حفظ التعديلات</button>
+    </div>
+  </form>
+</ng-template>
+
+
+<!--section Modal -->
+<ng-template #sectionModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">إضافة قسم جديد</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <form [formGroup]="sectionForm" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+      <div class="mb-3">
+        <label class="form-label">اسم القسم</label>
+        <input type="text" class="form-control" formControlName="sectionName" />
+        <div class="text-danger"
+          *ngIf="sectionForm.get('sectionName')?.touched && sectionForm.get('sectionName')?.invalid">
+          <small>هذا الحقل مطلوب</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">الترتيب</label>
+        <input type="number" class="form-control" formControlName="sectionIndex" />
+        <div class="text-danger"
+          *ngIf="sectionForm.get('sectionIndex')?.touched && sectionForm.get('sectionIndex')?.invalid">
+          <small>الترتيب مطلوب ولا يمكن أن يكون سالبًا</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" type="button" (click)="modal.dismiss()">إلغاء</button>
+      <button class="btn btn-primary" type="submit" [disabled]="sectionForm.invalid">حفظ</button>
+    </div>
+  </form>
+</ng-template>
+
+
+
+
+<!-- Modal Template -->
+<ng-template #contentModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">إضافة محتوى جديد</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <form [formGroup]="contentForm" (ngSubmit)="submitContent(modal)">
+    <div class="modal-body">
+
+      <div class="mb-3">
+        <label class="form-label">العنوان</label>
+        <input class="form-control" formControlName="title" />
+        <div class="text-danger" *ngIf="contentForm.get('title')?.touched && contentForm.get('title')?.invalid">
+          <small>هذا الحقل مطلوب</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">شرط النجاح</label>
+        <select class="form-select" formControlName="contentPassingRequirement"
+          (change)="onPassingRequirementChange($event)">
+          <option *ngFor="let req of sharedService.passingRequirements" [value]="req.value">{{ req.label }}</option>
+        </select>
+        <div class="text-danger"
+          *ngIf="contentForm.get('contentPassingRequirement')?.touched && contentForm.get('contentPassingRequirement')?.invalid">
+          <small>اختر شرط النجاح</small>
+        </div>
+      </div>
+      <div class="mb-3" *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam">
+        <label class="form-label">درجه النجاح </label>
+        <input type="number" class="form-control" formControlName="passingMark" />
+        <div class="text-danger"
+          *ngIf="contentForm.get('passingMark')?.touched && contentForm.get('passingMark')?.invalid ">
+          <small>اختر درجه النجاح</small>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">نوع المحتوى</label>
+        <select (change)="onContentTypeChange($event)" class="form-select" formControlName="contentType">
+          <option *ngFor="let type of sharedService.contentTypes" [value]="type.value">{{ type.label }}</option>
+        </select>
+        <div class="text-danger"
+          *ngIf="contentForm.get('contentType')?.touched && contentForm.get('contentType')?.invalid">
+          <small>اختر نوع المحتوى</small>
+        </div>
+      </div>
+
+
+
+      <div class="mb-3"
+        *ngIf="contentForm.get('contentType')?.value == ContentType.File && contentForm.get('contentType')?.value !=null ">
+        <label class="form-label">الملف</label>
+        <input type="file" class="form-control" (change)="onFileSelected($event)">
+        <div *ngIf="fileError " class="text-danger mt-1">{{ fileError }}</div>
+      </div>
+
+      <div class="mb-3"
+        *ngIf="contentForm.get('contentType')?.value != ContentType.File && contentForm.get('contentType')?.value !=null">
+        <label class="form-label">الرابط</label>
+        <input class="form-control" formControlName="contentUrl" />
+        <div class="text-danger"
+          *ngIf="contentForm.get('contentUrl')?.touched && contentForm.get('contentUrl')?.invalid">
+          <small>الرابط غير صالح</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">الجهد المطلوب</label>
+        <input class="form-control" formControlName="requiredEffort" />
+        <div class="text-danger"
+          *ngIf="contentForm.get('requiredEffort')?.touched && contentForm.get('requiredEffort')?.invalid">
+          <small>الجهد مطلوب</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">عدد الدقائق</label>
+        <input type="number" class="form-control" formControlName="minutes" />
+        <div class="text-danger" *ngIf="contentForm.get('minutes')?.touched && contentForm.get('minutes')?.invalid">
+          <small>عدد الدقائق مطلوب ويجب أن يكون أكبر من 0</small>
+        </div>
+      </div>
+
+
+
+      <div class="mb-3">
+        <label class="form-label">الترتيب</label>
+        <input type="number" class="form-control" formControlName="index" />
+        <div class="text-danger" *ngIf="contentForm.get('index')?.touched && contentForm.get('index')?.invalid">
+          <small>الترتيب مطلوب ويجب أن يكون 0 أو أكثر</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">نص المحتوى</label>
+        <textarea class="form-control" formControlName="textContent"></textarea>
+        <!-- <div class="text-danger"
+          *ngIf="contentForm.get('textContent')?.touched && contentForm.get('textContent')?.invalid">
+          <small>نص المحتوى غير صالح</small>
+        </div> -->
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" type="button" (click)="modal.dismiss()">إلغاء</button>
+      <button class="btn btn-primary" type="submit" [disabled]="contentForm.invalid || fileError != null">حفظ</button>
+    </div>
+  </form>
+</ng-template>

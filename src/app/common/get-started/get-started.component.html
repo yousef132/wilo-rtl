@@ -1,0 +1,41 @@
+<div
+    class="project-start-area ptb-100"
+    [ngClass]="{'bg-color': router.url === '/index-4' || router.url === '/services' || router.url === '/faq'}"
+>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-md-12">
+                @for (image of projectStartImage; track image) {
+                    <div class="project-start-image">
+                        <img [src]="image.img" alt="image">
+                    </div>
+                }
+            </div>
+            <div class="col-lg-6 col-md-12">
+                @for (content of projectStartContent; track content) {
+                    <div class="project-start-content">
+                        <h2>{{content.title}}</h2>
+                        <p>{{content.paragraphText}}</p>
+                        <a routerLink="/{{content.defaultBtnLink}}" class="default-btn">
+                            <i class="{{content.defaultBtnIcon}}"></i>
+                            {{content.defaultBtnText}}
+                            <span></span>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="circle-shape1" [ngClass]="{'d-none': router.url === '/index-2' || router.url === '/index-4' || router.url === '/services' || router.url === '/faq'}">
+        <img src="images/shape/circle-shape1.png" alt="image">
+    </div>
+    <div class="vector-shape3" *ngIf="router.url === '/index-2'">
+        <img src="images/shape/vector-shape3.png" alt="image">
+    </div>
+    <div class="vector-shape9" *ngIf="router.url === '/index-4' || router.url === '/services' || router.url === '/faq'">
+        <img src="images/shape/vector-shape9.png" alt="image">
+    </div>
+    <div class="vector-shape10" *ngIf="router.url === '/index-4' || router.url === '/services' || router.url === '/faq'">
+        <img src="images/shape/vector-shape10.png" alt="image">
+    </div>
+</div>

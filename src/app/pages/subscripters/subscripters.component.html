@@ -1,0 +1,72 @@
+<div class="subscribers-container">
+  <div class="header-section">
+    <h2 class="page-title">
+      <i class="icon-users"></i>
+      مشتركو المحتوى
+    </h2>
+    <div class="subscribers-count" *ngIf="subscribers">
+      <span class="count-badge">{{ subscribers.length }}</span>
+      <span class="count-label">مشترك</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="subscribers === null" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>جاري تحميل بيانات المشتركين...</p>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="subscribers && subscribers.length === 0" class="empty-state">
+    <div class="empty-icon">📭</div>
+    <h3>لا يوجد مشتركون</h3>
+    <p>لم يتم العثور على أي مشتركين لهذا المحتوى حتى الآن.</p>
+  </div>
+
+  <!-- Subscribers List -->
+  <div *ngIf="subscribers && subscribers.length > 0" class="subscribers-list">
+    <div class="table-container">
+      <table class="subscribers-table">
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>تاريخ التسجيل</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let subscriber of subscribers; trackBy: trackByUserId" class="subscriber-row">
+            <td class="subscriber-name">
+              <div class="name-container">
+                <div class="avatar">
+                  {{ getInitials(subscriber.arName) }}
+                </div>
+                <span class="name">{{ subscriber.arName }}</span>
+              </div>
+            </td>
+            <td class="registration-date">
+              <div class="date-container">
+                <span class="date">{{ formatDate(subscriber.registrationDate) }}</span>
+                <span class="time-ago">{{ getTimeAgo(subscriber.registrationDate) }}</span>
+              </div>
+            </td>
+            <td class="actions">
+              <a [routerLink]="['/content-details', contentId, subscriber.userId,programId]" class="action-btn view-btn" title="عرض التفاصيل">
+                <i class="bx bx-show"></i>
+              </a>
+              
+              <!-- <a [routerLink]="['/send-message', subscriber.userId]" class="action-btn message-btn" title="إرسال رسالة">
+                <i class="bx bx-message-dots"></i>
+              </a>
+              <a [routerLink]="['/subscriber-options', subscriber.userId]" class="action-btn more-btn" title="المزيد">
+                <i class="bx bx-dots-horizontal-rounded"></i>
+              </a> -->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

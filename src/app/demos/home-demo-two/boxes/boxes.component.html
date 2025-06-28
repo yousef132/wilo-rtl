@@ -1,0 +1,25 @@
+<div class="boxes-area pb-75">
+    <div class="container">
+        <div class="row justify-content-center">
+            @for (boxItem of singleBoxesItem; track boxItem) {
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-boxes-item">
+                        <div class="icon">
+                            <img [src]="boxItem.icon" alt="image">
+                        </div>
+                        <h3><a routerLink="/{{boxItem.link}}">{{boxItem.title}}</a></h3>
+                        <p>{{boxItem.paragraphText}}</p>
+                        <a routerLink="/{{boxItem.link}}" class="default-btn">
+                            <i class="{{boxItem.btnIcon}}"></i>
+                            {{boxItem.btnText}}
+                            <span></span>
+                        </a>
+                        <div class="shape1">
+                            <img src="images/services/shape2.png" alt="image">
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

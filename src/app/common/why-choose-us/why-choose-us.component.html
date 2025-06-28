@@ -1,0 +1,38 @@
+<div class="why-choose-us-area bg-color">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-12">
+                @for (content of whyChooseUsContent; track content) {
+                    <div class="why-choose-us-content">
+                        <h2>{{content.title}}</h2>
+                        <p>{{content.paragraphText1}}</p>
+                        <p>{{content.paragraphText2}}</p>
+                        <a routerLink="/{{content.link}}" class="default-btn">
+                            <i class="{{content.linkIcon}}"></i>
+                            {{content.linkText}}
+                            <span></span>
+                        </a>
+                        <div class="map-shape2">
+                            <img src="images/shape/map-shape2.png" alt="image">
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-lg-6 col-md-12">
+                @for (list of ourBrandPartnersList; track list) {
+                    <div class="our-brand-partners-list">
+                        <h2>{{list.title}}</h2>
+                        <div class="row align-items-center">
+                            @for (image of brandPartnersImg; track image) {
+                                <div class="col-lg-6 col-sm-6 col-md-4">
+                                    <img [src]="image.img" alt="image">
+                                </div>
+                            }
+                        </div>
+                        <a routerLink="/{{list.link}}" class="view-all">{{list.linkText}}</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

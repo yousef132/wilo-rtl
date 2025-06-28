@@ -1,0 +1,50 @@
+<div class="services-area ptb-100 bg-f1f8fb">
+    <div class="container">
+        @for (sectionTitleContent of sectionTitle; track sectionTitleContent) {
+            <div class="section-title">
+                <span class="sub-title">
+                    <img src="images/star-icon.png" alt="image"> {{sectionTitleContent.subTitle}}
+                </span>
+                <h2>{{sectionTitleContent.title}}</h2>
+                <p>{{sectionTitleContent.paragraphText}}</p>
+            </div>
+        }
+        <div class="row">
+            @for (servicesBoxContent of singleServicesBox; track servicesBoxContent) {
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-service-box">
+                        <div class="icon">
+                            <img [src]="servicesBoxContent.icon" alt="image">
+                        </div>
+                        <h3><a routerLink="/{{servicesBoxContent.link}}">{{servicesBoxContent.title}}</a></h3>
+                        <p>{{servicesBoxContent.paragraphText}}</p>
+                        <a routerLink="/{{servicesBoxContent.link}}" class="read-more-btn">
+                            {{servicesBoxContent.linkText}} <i class="{{servicesBoxContent.linkIcon}}"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+            <div class="col-lg-12 col-md-12">
+                @for (loadMore of loadMoreBtn; track loadMore) {
+                    <div class="load-more-btn text-center">
+                        <a routerLink="/{{loadMore.link}}" class="default-btn">
+                            <i class="{{loadMore.linkIcon}}"></i>
+                            {{loadMore.linkText}}
+                            <span></span>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="circle-shape2">
+        <img src="images/shape/circle-shape2.png" alt="image">
+    </div>
+    <div class="lines">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+    </div>
+</div>

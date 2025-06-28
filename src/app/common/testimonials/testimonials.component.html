@@ -1,0 +1,44 @@
+<div class="testimonials-area bg-f1f8fb">
+    <div class="container">
+        @for (sectionTitleContent of sectionTitle; track sectionTitleContent) {
+            <div class="section-title">
+                <span class="sub-title">
+                    <img src="images/star-icon.png" alt="image"> {{sectionTitleContent.subTitle}}
+                </span>
+                <h2>{{sectionTitleContent.title}}</h2>
+                <p>{{sectionTitleContent.paragraphText}}</p>
+            </div>
+        }
+        <div class="testimonials-slides">
+            <owl-carousel-o [options]="testimonialsSlides">
+                @for (testimonialsItemContent of singleTestimonialsItem; track testimonialsItemContent) {
+                    <ng-template carouselSlide>
+                        <div class="single-testimonial-item">
+                            <p>{{testimonialsItemContent.paragraphText}}</p>
+                            <div class="client-info">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <img [src]="testimonialsItemContent.clientImg" alt="image">
+                                    <div class="title">
+                                        <h3>{{testimonialsItemContent.clientName}}</h3>
+                                        <span>{{testimonialsItemContent.clientDesignation}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                }
+            </owl-carousel-o>
+        </div>
+        @for (btn of testimonialsBtn; track btn) {
+            <div class="testimonials-view-btn text-center">
+                <a routerLink="{{btn.link}}" class="default-btn">
+                    <i class="{{btn.icon}}"></i> {{btn.text}}
+                    <span></span>
+                </a>
+            </div>
+        }
+    </div>
+    <div class="shape-img1">
+        <img src="images/shape/shape1.svg" alt="image">
+    </div>
+</div>

@@ -1,0 +1,184 @@
+
+@if(questions != null) {
+  <app-inner-page-banner [pageTitle]="'الامتحان'" />
+  
+  <!-- Enhanced question-form.component.html -->
+  <div class="exam-container" *ngIf="questions.length > 0" dir="rtl">
+    <div class="exam-header mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h3 class="exam-title mb-0">
+          <i class="fas fa-clipboard-list me-2"></i>
+          امتحان المحتوى
+        </h3>
+        <div class="exam-progress">
+          <span class="badge bg-primary fs-6">
+            {{ questions.length }} سؤال
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <form (ngSubmit)="submitAnswers()" dir="rtl" class="exam-form">
+      <div class="questions-container">
+        <div 
+          *ngFor="let question of questions; let i = index" 
+          class="question-card mb-4 p-4 border-0 rounded-3 shadow-sm bg-white"
+          [class.answered]="selectedChoices[question.id]"
+        >
+          <!-- Question Header -->
+          <div class="question-header mb-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="question-number">
+                <span class="badge bg-light text-dark rounded-pill px-3 py-2">
+                  السؤال {{ i + 1 }}
+                </span>
+              </div>
+              <div class="question-mark">
+                <span class="badge bg-success rounded-pill px-3 py-2">
+                  <i class="fas fa-star me-1"></i>
+                  {{ question.mark }} نقطة
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question Content -->
+          <div class="question-content mb-4">
+            <h5 class="question-text fw-bold mb-3 text-dark">
+              {{ question.question }}
+            </h5>
+            <p class="question-description text-muted mb-0" *ngIf="question.description">
+              {{ question.description }}
+            </p>
+          </div>
+
+          <!-- Answer Choices -->
+          <div class="choices-container">
+            <div 
+              *ngFor="let choice of question.choices; let choiceIndex = index" 
+              class="choice-item mb-3"
+            >
+              <div class="form-check custom-radio">
+                <input 
+                  class="form-check-input" 
+                  type="radio" 
+                  [name]="'question-' + question.id" 
+                  [value]="choice.id"
+                  [(ngModel)]="selectedChoices[question.id]" 
+                  [ngModelOptions]="{ standalone: true }"
+                  [id]="'choice-' + question.id + '-' + choice.id"
+                />
+                <label 
+                  class="form-check-label choice-label" 
+                  [for]="'choice-' + question.id + '-' + choice.id"
+                >
+                  <span class="choice-letter">
+                    {{ getChoiceLetter(choiceIndex) }}
+                  </span>
+                  <span class="choice-text">
+                    {{ choice.optionContent }}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question Status Indicator -->
+          <div class="question-status mt-3">
+            <small class="text-muted" *ngIf="!selectedChoices[question.id]">
+              <i class="fas fa-exclamation-circle me-1"></i>
+              لم يتم الإجابة على هذا السؤال بعد
+            </small>
+            <small class="text-success" *ngIf="selectedChoices[question.id]">
+              <i class="fas fa-check-circle me-1"></i>
+              تم الإجابة على هذا السؤال
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Section -->
+      <div class="submit-section mt-5 p-4 bg-light rounded-3">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <div class="submission-info">
+              <h6 class="mb-2 text-dark">هل أنت مستعد لإرسال إجاباتك؟</h6>
+              <p class="mb-0 text-muted small">
+                تأكد من مراجعة جميع الإجابات قبل الإرسال. لن تتمكن من تعديل الإجابات بعد الإرسال.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4 text-end">
+            <button 
+              type="submit" 
+              class="btn btn-success btn-lg px-4 py-2 rounded-pill"
+              [disabled]="isSubmitting || !allQuestionsAnswered()"
+            >
+              <span *ngIf="!isSubmitting">
+                <i class="fas fa-paper-plane me-2"></i>
+                إرسال الإجابات
+              </span>
+              <span *ngIf="isSubmitting">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                جاري الإرسال...
+              </span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Progress Indicator -->
+        <div class="progress-indicator mt-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">التقدم:</span>
+            <span class="small text-muted">
+              {{ getAnsweredCount() }} من {{ questions.length }} سؤال
+            </span>
+          </div>
+          <div class="progress" style="height: 6px;">
+            <div 
+              class="progress-bar bg-success" 
+              role="progressbar" 
+              [style.width.%]="getProgressPercentage()"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- No Questions Available -->
+  <div *ngIf="questions.length === 0" class="no-questions-container">
+    <div class="text-center py-5">
+      <div class="empty-state">
+        <i class="fas fa-clipboard-question fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted mb-3">لا توجد أسئلة متاحة</h5>
+        <p class="text-muted">
+          لا توجد أسئلة متاحة لهذا المحتوى حالياً. يرجى المحاولة مرة أخرى لاحقاً.
+        </p>
+      </div>
+    </div>
+  </div>
+
+} @else {
+  <!-- Loading State -->
+  <div class="loading-container">
+    <div class="text-center py-5">
+      <div class="loading-spinner mb-3">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      <h6 class="text-muted">جاري تحميل الأسئلة...</h6>
+      <p class="text-muted small">يرجى الانتظار قليلاً...</p>
+    </div>
+  </div>
+}
+
+<ngx-spinner 
+  bdColor="rgba(0, 0, 0, 0.8)" 
+  size="default" 
+  color="#fff" 
+  type="cube-transition" 
+  [fullScreen]="true"
+  [zIndex]="9999">
+</ngx-spinner>

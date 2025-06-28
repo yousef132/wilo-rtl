@@ -1,0 +1,74 @@
+<footer
+  class="bg-color footer-area"
+  [ngClass]="{'bg-white': router.url === '/index-2' || router.url === '/index-4' || router.url === '/courses'}"
+>
+  <div class="container">
+    <div class="row">
+      <!-- الشعار والوصف -->
+      <div class="col-lg-4 col-md-6 col-sm-6">
+        <div class="single-footer-widget">
+          <a routerLink="/" class="logo">
+            <img src="images/logo.png" alt="logo">
+          </a>
+          <p>
+            أول نظام إلكتروني لمتابعة فريق العمل وإعداد القادة في صناعة البيع المباشر.
+          </p>
+          <!-- <ul class="social-link">
+            <li><a href="#" class="d-block" target="_blank"><i class='bx bxl-facebook'></i></a></li>
+            <li><a href="#" class="d-block" target="_blank"><i class='bx bxl-twitter'></i></a></li>
+            <li><a href="#" class="d-block" target="_blank"><i class='bx bxl-instagram'></i></a></li>
+            <li><a href="#" class="d-block" target="_blank"><i class='bx bxl-linkedin'></i></a></li>
+          </ul> -->
+        </div>
+      </div>
+
+      <!-- روابط أساسية -->
+      <div class="col-lg-2 col-md-6 col-sm-6">
+        <div class="single-footer-widget pl-5">
+          <h3>روابط مهمة</h3>
+          <ul class="footer-links-list">
+            <li><a routerLink="/home">الرئيسية</a></li>
+            <li><a routerLink="/programs">البرامج</a></li>
+            <li *ngIf="isLoggedIn && isCoach"><a routerLink="/my-programs">حقائبي التدريبية</a></li>
+            <li *ngIf="isLoggedIn && !isCoach"><a routerLink="/subscriptions">اشتراكـاتي</a></li>
+            <!-- <li><a routerLink="/contact-us">تواصل معنا</a></li> -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- موارد -->
+      <!-- <div class="col-lg-2 col-md-6 col-sm-6">
+        <div class="single-footer-widget">
+          <h3>الموارد</h3>
+          <ul class="footer-links-list">
+            <li><a routerLink="/blog-grid">المدونة</a></li>
+            <li><a routerLink="/about-us">من نحن</a></li>
+            <li><a routerLink="/case-studies">قصص نجاح</a></li>
+            <li><a routerLink="/service-details">خدماتنا</a></li>
+          </ul>
+        </div>
+      </div> -->
+
+      <!-- معلومات التواصل -->
+      <!-- <div class="col-lg-4 col-md-6 col-sm-6">
+        <div class="single-footer-widget">
+          <h3>معلومات التواصل</h3>
+          <ul class="footer-contact-info">
+            <li><i class='bx bx-map'></i> شارع 175، الجادة الخامسة، نيويورك، الولايات المتحدة</li>
+            <li><i class='bx bx-phone-call'></i><a href="tel:+11234567890">+1 (123) 456 7890</a></li>
+            <li><i class='bx bx-envelope'></i><a href="mailto:hello@wilo.com">hellowilo.com</a></li>
+          </ul>
+        </div>
+      </div> -->
+    </div>
+  </div>
+
+  <div class="footer-map">
+    <img src="images/footer-map.png" alt="image">
+  </div>
+</footer>
+
+<!-- زر الرجوع لأعلى -->
+<div class="go-top" *ngIf="isShow" (click)="scrollToTop()">
+  <i class="flaticon-up"></i>
+</div>

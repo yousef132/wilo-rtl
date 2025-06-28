@@ -1,0 +1,52 @@
+@if(sections){
+@if(sections.length>0){
+<div class="courses-curriculum">
+
+    @for (section of sections; track section.id; let i = $index) {
+    <h3>{{section.name}} <small *ngIf="section.contents == null  || section.contents == undefined"> - لا يوجد محتوى
+        </small></h3>
+    <ul>
+        @for(content of section.contents; track content.id; let j = $index) {
+        <li>
+
+            <a *ngIf="content.status" style="cursor: pointer;" (click)="navigateToContent(content.id)"
+                class="d-flex justify-content-between align-items-center">
+                <span class="courses-name">{{content.name}}</span>
+                <div class="courses-meta">
+                    <span class="questions">{{ContentType[content.contentType]}}</span>
+                    <!-- <span class="questions">5 questions</span> -->
+                    <span class="duration">{{content.minutes}} دقيقه</span>
+                    <span class="status">{{Status[content.status]}}</span>
+                </div>
+            </a>
+            <a *ngIf="!content.status " style="cursor:not-allowed;"
+                class="d-flex justify-content-between align-items-center">
+                <span class="courses-name">{{content.name}}</span>
+                <div class="courses-meta">
+                    <span class="questions">{{ContentType[content.contentType]}}</span>
+                    <!-- <span class="questions">5 questions</span> -->
+                    <span class="duration">{{content.minutes}} دقيقه</span>
+                    <span class="status locked"><i class='flaticon-lock'></i></span>
+                </div>
+            </a>
+        </li>
+        }
+    </ul>
+    }
+
+</div>
+
+
+}
+@else {
+<h2>لا يوجد محتوى الان</h2>
+}
+}
+@else {
+<h2>جارى التحميل....</h2>
+}
+
+
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+    [zIndex]="9999">
+</ngx-spinner>

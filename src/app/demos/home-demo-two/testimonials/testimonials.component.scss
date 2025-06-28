@@ -1,0 +1,277 @@
+.testimonials-area {
+    position: relative;
+    z-index: 1;
+}
+.single-testimonial-box {
+    background-color: var(--whiteColor);
+    padding: 70px 50px 40px;
+    margin-bottom: 25px;
+    border-radius: 5px;
+    position: relative;
+    text-align: center;
+    margin-top: 40px;
+    z-index: 1;
+
+    &.bg-fafafb {
+        background-color: #fafafb;
+    }
+    img {
+        width: 80px !important;
+        height: 80px;
+        display: inline-block !important;
+        border-radius: 50%;
+        border: 5px solid #e3fbff;
+        position: absolute;
+        right: 0;
+        left: 0;
+        top: -40px;
+        margin: auto;
+    }
+    p {
+        margin-bottom: 0;
+        font-size: 18px;
+    }
+    &::after {
+        content: "\f106";
+        position: absolute;
+        bottom: 0;
+        color: var(--blackColor);
+        line-height: 1;
+        z-index: -1;
+        left: 20px;
+        opacity: .05;
+        font: {
+            family: Flaticon;
+            size: 140px;
+        };
+    }
+    .client-info {
+        margin-top: 25px;
+
+        h3 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        span {
+            color: var(--optionalColor);
+            font: {
+                size: 15px;
+                weight: 600;
+            };
+        }
+    }
+}
+.testimonials-view-btn {
+    margin-top: 25px;
+
+    .default-btn {
+        background-color: transparent;
+        color: var(--mainColor);
+        border: 1px solid #eae1d6;
+        margin-bottom: -7px;
+
+        span {
+            background-color: var(--mainColor);
+        }
+        &:hover {
+            color: var(--whiteColor);
+            border-color: var(--mainColor);
+        }
+    }
+}
+::ng-deep {
+    .testimonials-slides {
+        .owl-carousel {
+            .owl-nav {
+                margin: 0;
+                
+                .owl-prev, .owl-next {
+                    right: 0;
+                    padding: 0;
+                    top: -20px;
+                    width: 40px;
+                    height: 40px;
+                    font-size: 16px;
+                    line-height: 40px;
+                    position: absolute;
+                    border-radius: 50%;
+                    color: var(--blackColor);
+                    border: 1px solid #eae2d7;
+                    transition: var(--transition);
+                    background-color: var(--whiteColor) !important;
+    
+                    &:hover {
+                        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+                        background-color: var(--mainColor) !important;
+                        border-color: var(--mainColor);
+                        color: var(--whiteColor);
+                    }
+                }
+                .owl-next {
+                    right: auto;
+                    left: 0;
+                }
+            }
+        }
+    }
+}
+
+/* Max width 767px */
+@media only screen and (max-width: 767px) {
+
+    .testimonials-area {
+        &.bg-f1f8fb {
+            padding-top: 60px;
+        }
+    }
+    .testimonials-view-btn {
+        margin-top: 15px;
+
+        .default-btn {
+            margin-bottom: -5px;
+        }
+    }
+    .single-testimonial-box {
+        padding: 65px 20px 30px;
+        margin-top: 30px;
+
+        img {
+            border-width: 3px;
+            top: -30px;
+        }
+        p {
+            font-size: 15.5px;
+        }
+        .client-info {
+            margin-top: 20px;
+
+            h3 {
+                font-size: 17px;
+            }
+            span {
+                font-size: 14px;
+            }
+        }
+    }
+    ::ng-deep {
+        .testimonials-slides {
+            .owl-carousel {
+                margin-bottom: 25px;
+    
+                .owl-nav {
+                    text-align: center;
+    
+                    .owl-prev, .owl-next {
+                        left: 0 !important;
+                        position: relative;
+                        right: 0 !important;
+                        transform: unset;
+                        top: 0;
+                        margin: {
+                            right: 5px;
+                            left: 5px;
+                        };
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+/* Min width 576px to Max width 767px */
+@media only screen and (min-width: 576px) and (max-width: 767px) {}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+
+    .testimonials-area {
+        &.bg-f1f8fb {
+            padding-top: 80px;
+        }
+    }
+    .testimonials-view-btn {
+        margin-top: 15px;
+
+        .default-btn {
+            margin-bottom: -5px;
+        }
+    }
+    .single-testimonial-box {
+        padding: 65px 25px 30px;
+
+        p {
+            font-size: 16px;
+        }
+        .client-info {
+            h3 {
+                font-size: 18px;
+            }
+            span {
+                font-size: 14px;
+            }
+        }
+        &::after {
+            font-size: 75px;
+        }
+    }
+    ::ng-deep {
+        .testimonials-slides {
+            .owl-carousel {
+                margin-bottom: 25px;
+    
+                .owl-nav {
+                    text-align: center;
+    
+                    .owl-prev, .owl-next {
+                        left: 0 !important;
+                        position: relative;
+                        right: 0 !important;
+                        transform: unset;
+                        top: 0;
+                        margin: {
+                            right: 5px;
+                            left: 5px;
+                        };
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+
+    ::ng-deep {
+        .testimonials-slides {
+            .owl-carousel {
+                margin-bottom: 25px;
+    
+                .owl-nav {
+                    text-align: center;
+    
+                    .owl-prev, .owl-next {
+                        top: 0;
+                        transform: unset;
+                        position: relative;
+                        right: 0 !important;
+                        left: 0 !important;
+                        margin: {
+                            right: 5px;
+                            left: 5px;
+                        };
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+/* Min width 1200px to Max width 1399px */
+@media only screen and (min-width: 1200px) and (max-width: 1399px) {}
+
+/* Min width 1600px */
+@media only screen and (min-width: 1600px) {}

@@ -1,0 +1,128 @@
+<div class="navbar-area" [ngClass]="{'is-sticky': isSticky}">
+  <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <a class="navbar-brand" routerLink="/">
+        <img src="images/logo.png" alt="logo">
+      </a>
+      <button class="navbar-toggler rounded-0 shadow-none" (click)="toggleClass()" type="button">
+        <span class="burger-menu">
+          <span class="top-bar"></span>
+          <span class="middle-bar"></span>
+          <span class="bottom-bar"></span>
+        </span>
+      </button>
+      <div class="collapse navbar-collapse mean-menu">
+        <ul class="navbar-nav mx-4">
+          <li class="nav-item">
+            <a routerLink="/home" class="nav-link">
+              الرئيسيه <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/programs" class="nav-link">
+              البرامج <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
+
+
+          <li class="nav-item">
+            <a *ngIf="isCoach" routerLink="/my-programs" class="nav-link">
+              حقائبى التدريبيه <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a *ngIf="isLoggedIn && !isCoach" routerLink="/subscriptions" class="nav-link">
+              اشتراكاتى <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
+
+        </ul>
+        <div class="others-option d-flex align-items-center">
+          <div class="option-item">
+            <form class="search-box" (ngSubmit)="search()">
+              <input type="text" class="input-search" placeholder="ابحث عن تدريب..." [(ngModel)]="searchText"
+                name="search" />
+              <button type="submit">
+                <i class="flaticon-loupe"></i>
+              </button>
+            </form>
+
+          </div>
+          <div *ngIf=" isLoggedIn!=null " class="option-item">
+            <a routerLink="/login" *ngIf="isLoggedIn === false " class="default-btn">
+              <i class="flaticon-left"></i>
+              الدخول
+              <span></span>
+            </a>
+            <a (click)="logout()" *ngIf="isLoggedIn === true" class="default-btn">
+              <i class="flaticon-left"></i>
+              الخروج
+              <span></span>
+            </a>
+          </div>
+
+          <div *ngIf="isLoggedIn" class="option-item">
+            <div class="fw-bold fs-5 text-primary mt-1">
+              <span class="text-muted">أهلاً بك،</span>
+              {{ currentUser?.userName }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Responsive Navbar -->
+<div class="responsive-navbar offcanvas offcanvas-end border-0 transition" [class.show]="classApplied">
+  <div class="offcanvas-header d-flex justify-content-between align-items-center">
+    <a routerLink="/" class="logo d-inline-block">
+      <img src="images/logo.png" alt="logo" />
+    </a>
+    <button type="button" (click)="toggleClass()" class="close-btn bg-transparent position-relative p-0 border-0">
+      <i class="bx bx-x fs-2"></i>
+    </button>
+  </div>
+
+  <div class="offcanvas-body">
+    <ul class="list-unstyled p-0 m-0">
+      <li>
+        <a routerLink="/home" class="d-block py-2 fw-bold">الرئيسيه</a>
+      </li>
+      <li>
+        <a routerLink="/programs" class="d-block py-2 fw-bold">البرامج</a>
+      </li>
+      <li *ngIf="isCoach">
+        <a routerLink="/my-programs" class="d-block py-2 fw-bold">حقائبى التدريبيه</a>
+      </li>
+      <li *ngIf="isAdmin && isLoggedIn">
+        <a routerLink="/my-programs" class="d-block py-2 fw-bold">اداره المستخدمين</a>
+      </li>
+      <li *ngIf="isLoggedIn && !isCoach">
+        <a routerLink="/subscriptions" class="d-block py-2 fw-bold">اشتراكاتى</a>
+      </li>
+    </ul>
+    <div class="my-3">
+      <form class="search-box" (ngSubmit)="search()">
+        <input type="text" class="form-control mb-2" placeholder="ابحث عن تدريب..." [(ngModel)]="searchText"
+          name="search" />
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="flaticon-loupe me-1"></i> ابحث
+        </button>
+      </form>
+    </div>
+    <div class="mt-4">
+
+      <a *ngIf="isLoggedIn == false" routerLink="/login" class="btn btn-outline-primary w-100 mb-2">
+        <i class="flaticon-left me-1"></i> الدخول
+      </a>
+
+      <button *ngIf="isLoggedIn == true" (click)="logout()" class="btn btn-danger w-100">
+        <i class="flaticon-left me-1"></i> تسجيل الخروج
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<div class="offcanvas-backdrop fade" [class.show]="classApplied"></div>

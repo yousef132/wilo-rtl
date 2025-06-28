@@ -1,0 +1,14 @@
+<div class="partner-area pt-100 pb-75 bg-f1f8fb">
+    <div class="container">
+        <div class="row align-items-center">
+            @for (item of partnerItem; track item) {
+                <div class="col-lg-2 col-6 col-sm-4 col-md-4">
+                    <div class="single-partner-item">
+                        <img [src]="item.img" alt="image">
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="divider" [ngClass]="{'white-color': router.url === '/index-2'}"></div>
+</div>

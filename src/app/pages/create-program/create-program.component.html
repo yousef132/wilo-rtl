@@ -1,0 +1,74 @@
+
+
+<app-inner-page-banner [pageTitle]="'إنشاء تدريب جديد'"></app-inner-page-banner>
+<div class="container mt-4">
+    <form [formGroup]="programForm" (ngSubmit)="submitForm()" enctype="multipart/form-data" novalidate>
+      
+      <!-- Title -->
+      <div class="form-group mb-3">
+        <label>عنوان التدريب</label>
+        <input formControlName="title" class="form-control" placeholder="عنوان التدريب">
+        <div class="text-danger" *ngIf="programForm.get('title')?.touched && programForm.get('title')?.invalid">
+          العنوان مطلوب
+        </div>
+      </div>
+  
+      <!-- Details -->
+      <div class="form-group mb-3">
+        <label>تفاصيل</label>
+        <textarea formControlName="details" rows="4" class="form-control" placeholder="أدخل تفاصيل التدريب"></textarea>
+        <div class="text-danger" *ngIf="programForm.get('details')?.touched && programForm.get('details')?.invalid">
+          التفاصيل مطلوبة
+        </div>
+      </div>
+  
+      <!-- Duration -->
+      <div class="form-group mb-3">
+        <label>المدة (بالأيام)</label>
+        <input type="number" formControlName="duration" class="form-control" style="direction: ltr; text-align: left;">
+        <div class="text-danger" *ngIf="programForm.get('duration')?.touched && programForm.get('duration')?.invalid">
+          <span *ngIf="programForm.get('duration')?.errors?.['required']">المدة مطلوبة</span>
+          <span *ngIf="programForm.get('duration')?.errors?.['min']">يجب أن تكون المدة أكبر من 0</span>
+        </div>
+      </div>
+  
+      <!-- Price -->
+      <!-- <div class="form-group mb-3">
+        <label>السعر</label>
+        <input type="number" formControlName="price" class="form-control" dir="ltr">
+        <div class="text-danger" *ngIf="programForm.get('price')?.touched && programForm.get('price')?.invalid">
+          <span *ngIf="programForm.get('price')?.errors?.['required']">السعر مطلوب</span>
+          <span *ngIf="programForm.get('price')?.errors?.['min']">السعر لا يمكن أن يكون سالبًا</span>
+        </div>
+      </div> -->
+  
+      <!-- Cover -->
+      <div class="form-group mb-3">
+        <label>غلاف التدريب (صورة)</label>
+        <input type="file" class="form-control" (change)="onFileChange($event)" accept="image/*">
+        <div class="text-danger" *ngIf="coverFile === null && programForm.get('cover')?.touched">
+          الغلاف مطلوب
+        </div>
+        <div class="text-danger" *ngIf="fileErrorMessage">
+            <span >{{fileErrorMessage}}</span>
+          </div>
+      </div>
+  
+      <!-- Submit Button -->
+      <button class="default-btn" type="submit" [disabled]="isSubmitting || programForm.invalid || !coverFile">
+        {{ isSubmitting ? 'جاري الإرسال...' : 'إنشاء التدريب' }}
+      </button>
+    </form>
+  </div>
+
+  
+<ngx-spinner
+bdColor="rgba(0, 0, 0, 0.8)"
+size="default"
+color="#fff"
+type="cube-transition"
+[fullScreen]="true"
+[zIndex]="9999">
+</ngx-spinner>
+
+  

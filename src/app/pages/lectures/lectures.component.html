@@ -1,0 +1,261 @@
+<app-inner-page-banner [pageTitle]="'الامتحان'" />
+
+
+<div class="course-lecture-container">
+  <!-- Sidebar Navigation -->
+  <div class="course-sidebar" [class.collapsed]="sidebarCollapsed">
+    <div class="sidebar-header">
+      <div class="course-info">
+        <h3 class="course-title">{{ courseTitle }}</h3>
+        <div class="progress-info">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="courseProgress"></div>
+          </div>
+          <span class="progress-text">{{ completedLectures }}/{{ totalLectures }} محاضرة</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle" (click)="toggleSidebar()">
+        <i class="bx" [class.bx-chevron-left]="!sidebarCollapsed" [class.bx-chevron-right]="sidebarCollapsed"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-content">
+      <div class="sections-list">
+        <div *ngFor="let section of courseSections" class="section-item">
+          <div class="section-header" (click)="toggleSection(section.id)">
+            <div class="section-info">
+              <i class="bx bx-folder" [class.bx-folder-open]="section.isExpanded"></i>
+              <span class="section-title">{{ section.title }}</span>
+            </div>
+            <div class="section-meta">
+              <span class="lecture-count">{{ section.lectures.length }} محاضرة</span>
+              <i class="bx bx-chevron-down" [class.rotated]="section.isExpanded"></i>
+            </div>
+          </div>
+          
+          <div class="lectures-list" [class.expanded]="section.isExpanded">
+            <div *ngFor="let lecture of section.lectures" 
+                 class="lecture-item" 
+                 [class.active]="lecture.id === currentContentId"
+                 [class.completed]="lecture.isPassed"
+                 (click)="navigateToLecture(lecture.id)">
+              <div class="lecture-icon">
+                <i class="bx" [ngClass]="getLectureIcon(lecture.contentType)"></i>
+              </div>
+              <div class="lecture-info">
+                <span class="lecture-title">{{ lecture.title }}</span>
+                <span class="lecture-duration">{{ lecture.minutes }} دقيقة</span>
+              </div>
+              <div class="lecture-status">
+                <i *ngIf="lecture.isPassed" class="bx bx-check-circle completed-icon"></i>
+                <i *ngIf="lecture.id === currentContentId && !lecture.isPassed" class="bx bx-play-circle current-icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content" [class.sidebar-collapsed]="sidebarCollapsed">
+    <!-- Content Header -->
+    <div class="content-header">
+      <div class="content-navigation">
+        <button class="nav-btn" (click)="navigateToPrevious()" [disabled]="!hasPreviousLecture">
+          <i class="bx bx-chevron-right"></i>
+          السابق
+        </button>
+        <div class="content-title-section">
+          <h1 class="content-title">{{ content?.title }}</h1>
+          <div class="content-badges">
+            <span class="badge content-type-badge">{{ ContentType[content?.contentType!] }}</span>
+            <span class="badge duration-badge">
+              <i class="bx bx-time"></i>
+              {{ content?.minutes }} دقيقة
+            </span>
+          </div>
+        </div>
+        <button class="nav-btn" (click)="navigateToNext()" [disabled]="!hasNextLecture">
+          التالي
+          <i class="bx bx-chevron-left"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Display Area -->
+    <div class="content-display">
+      <div class="content-main" *ngIf="content">
+        <!-- Content Media/Files -->
+        <div class="content-media">
+          <ng-container [ngSwitch]="content.contentType">
+            <!-- Video Content -->
+            <div *ngIf="content.contentType == ContentType.Loom || 
+                       content.contentType == ContentType.Vimeo || 
+                       content.contentType == ContentType.YouTube" 
+                 class="video-container">
+              <div *ngIf="safeContentHtml" [innerHTML]="safeContentHtml" class="video-wrapper"></div>
+            </div>
+
+            <!-- File Content -->
+            <div *ngSwitchCase="ContentType.File" class="file-container">
+              <div class="file-preview">
+                <i class="bx bx-file file-icon"></i>
+                <h3>ملف المحاضرة</h3>
+                <p>{{ content.title }}</p>
+                <a [href]="content.contentUrl" target="_blank" class="file-link">
+                  <i class="bx bx-download"></i>
+                  تحميل الملف
+                </a>
+              </div>
+            </div>
+
+            <!-- Website Link -->
+            <div *ngSwitchCase="ContentType.Website" class="website-container">
+              <div class="website-preview">
+                <i class="bx bx-globe website-icon"></i>
+                <h3>رابط خارجي</h3>
+                <p>{{ content.title }}</p>
+                <a [href]="content.contentUrl" target="_blank" class="website-link">
+                  <i class="bx bx-link-external"></i>
+                  فتح الرابط
+                </a>
+              </div>
+            </div>
+
+            <!-- Image Content -->
+            <div *ngSwitchCase="ContentType.Image" class="image-container">
+              <img [src]="content.contentUrl" alt="صورة المحتوى" class="content-image" />
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Content Description -->
+        <div class="content-description" *ngIf="content.contentText">
+          <h3>وصف المحاضرة</h3>
+          <p>{{ content.contentText }}</p>
+        </div>
+
+        <!-- Content Meta Information -->
+        <div class="content-meta">
+          <div class="meta-item">
+            <i class="bx bx-calendar"></i>
+            <span>تاريخ الإضافة: {{ content.recordDate | date:'shortDate' }}</span>
+          </div>
+          <div class="meta-item">
+            <i class="bx bx-trending-up"></i>
+            <span>الجهد المطلوب: {{ content.requiredEffort }}</span>
+          </div>
+        </div>
+
+        <!-- Requirements Alert -->
+        <div *ngIf="!content.isPassed && !content.isOwner" class="requirements-alert">
+          <div class="alert-content">
+            <i class="bx bx-info-circle"></i>
+            <div class="alert-text">
+              <span>{{ alertMessage }}</span>
+              <a [routerLink]="['/exam', content.id]"
+                *ngIf="content.contentPassingRequirement === ContentPassingRequirement.Exam" 
+                class="exam-link">
+                الذهاب للامتحان
+              </a>
+            </div>
+          </div>
+          <div *ngIf="content.passMark && content.contentPassingRequirement === ContentPassingRequirement.Exam"
+            class="pass-mark">
+            <i class="bx bx-target-lock"></i>
+            <span>العلامة المطلوبة للنجاح: {{ content.passMark }} درجة</span>
+          </div>
+        </div>
+
+        <!-- Instructor Actions -->
+        <div *ngIf="content.isOwner && content.contentPassingRequirement == ContentPassingRequirement.Manually && !content.isPassed" 
+             class="instructor-actions">
+          <button class="btn btn-success" (click)="passStudent()">
+            <i class="bx bx-check-circle"></i>
+            اجتياز الطالب
+          </button>
+        </div>
+
+        <!-- Success Badge -->
+        <div *ngIf="content.isPassed" class="success-badge">
+          <i class="bx bx-badge-check"></i>
+          <span>تم الاجتياز</span>
+        </div>
+      </div>
+
+      <!-- Chat Section -->
+      <div class="chat-section" [class.expanded]="chatExpanded">
+        <div class="chat-header" (click)="toggleChat()">
+          <div class="chat-title">
+            <i class="bx bx-message-dots"></i>
+            <h3>المحادثة</h3>
+          </div>
+          <div class="chat-actions">
+            <span class="message-count" *ngIf="messages?.length">{{ messages?.length }} رسالة</span>
+            <i class="bx bx-chevron-up" [class.rotated]="!chatExpanded"></i>
+          </div>
+        </div>
+
+        <div class="chat-body" [class.expanded]="chatExpanded">
+          <div class="messages-container" *ngIf="messages?.length; else noMessages">
+            <div *ngFor="let msg of messages" class="message-wrapper">
+              <div class="message" [ngClass]="{
+                     'message-sent': msg.userId === userId,
+                     'message-received': msg.userId !== userId
+                   }">
+                <div class="message-content">
+                  <div class="message-header" *ngIf="msg.userId !== userId">
+                    <div class="user-avatar">
+                      {{ getUserInitials(msg.userName) }}
+                    </div>
+                    <span class="user-name">{{ msg.userName }}</span>
+                  </div>
+
+                  <div class="message-text">
+                    {{ msg.textMessage }}
+                  </div>
+
+                  <div class="message-time">
+                    {{ msg.messageDate | date:'shortTime' }}
+                    <span class="message-date">{{ msg.messageDate | date:'shortDate' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noMessages>
+            <div class="no-messages">
+              <i class="bx bx-message-x"></i>
+              <h4>لا توجد رسائل حتى الآن</h4>
+              <p>ابدأ المحادثة بإرسال أول رسالة</p>
+            </div>
+          </ng-template>
+
+          <div class="chat-footer">
+            <div class="message-input-container">
+              <div class="input-group">
+                <input [(ngModel)]="newMessage" 
+                       type="text" 
+                       class="message-input" 
+                       placeholder="اكتب رسالتك هنا..."
+                       (keyup.enter)="sendMessage()" 
+                       maxlength="500" />
+                <button class="send-button" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+                  <i class="bx bx-send"></i>
+                </button>
+              </div>
+              <div class="input-footer" *ngIf="newMessage">
+                <span class="char-count">{{ newMessage.length }}/500</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true" [zIndex]="9999">
+</ngx-spinner>

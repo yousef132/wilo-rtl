@@ -1,0 +1,299 @@
+.subscribers-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 100px auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  direction: rtl;
+  text-align: right;
+
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+
+    .page-title {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .icon-users::before {
+        
+        font-size: 1.5rem;
+      }
+    }
+
+    .subscribers-count {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .count-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        min-width: 40px;
+        text-align: center;
+      }
+
+      .count-label {
+        color: #6c757d;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+
+    .loading-spinner {
+      text-align: center;
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      p {
+        color: #6c757d;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+  }
+
+  .subscribers-list {
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+      overflow: hidden;
+      border: 1px solid #e9ecef;
+    }
+
+    .subscribers-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      thead {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+
+        th {
+          padding: 1rem;
+          font-weight: 600;
+          color: #495057;
+          text-align: right;
+          border-bottom: 2px solid #dee2e6;
+          font-size: 0.95rem;
+        }
+      }
+
+      tbody {
+        .subscriber-row {
+          transition: all 0.3s ease;
+          border-bottom: 1px solid #f1f3f4;
+
+          &:hover {
+            background-color: #f8f9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          td {
+            padding: 1rem;
+            vertical-align: middle;
+          }
+
+          .subscriber-name {
+            .name-container {
+              display: flex;
+              align-items: center;
+              gap: 0.75rem;
+
+              .avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 0.9rem;
+                flex-shrink: 0;
+              }
+
+              .name {
+                font-weight: 600;
+                color: #2c3e50;
+                font-size: 1rem;
+              }
+            }
+          }
+
+          .user-id {
+            .id-badge {
+              background-color: #e3f2fd;
+              color: #1976d2;
+              padding: 0.3rem 0.7rem;
+              border-radius: 15px;
+              font-size: 0.85rem;
+              font-weight: 500;
+              font-family: 'Courier New', monospace;
+            }
+          }
+
+          .registration-date {
+            .date-container {
+              .date {
+                display: block;
+                font-weight: 600;
+                color: #495057;
+                margin-bottom: 0.2rem;
+              }
+
+              .time-ago {
+                font-size: 0.8rem;
+                color: #6c757d;
+                font-style: italic;
+              }
+            }
+          }
+
+          .actions {
+            .action-btn {
+              background: none;
+              border: none;
+              padding: 0.4rem;
+              margin: 0 0.2rem;
+              border-radius: 6px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              font-size: 0.9rem;
+
+              &:hover {
+                transform: translateY(-1px);
+              }
+
+              &.view-btn {
+                color: #28a745;
+                &:hover { background-color: #d4edda; }
+                .icon-eye::before { content: "👁️"; }
+              }
+
+              &.message-btn {
+                color: #007bff;
+                &:hover { background-color: #d4e3f7; }
+                .icon-message::before { content: "💬"; }
+              }
+
+              &.more-btn {
+                color: #6c757d;
+                &:hover { background-color: #e9ecef; }
+                .icon-dots::before { content: "⋯"; }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .subscribers-container {
+    padding: 1rem;
+
+    .header-section {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+
+      .subscribers-count {
+        align-self: flex-end;
+      }
+    }
+
+    .subscribers-table {
+      font-size: 0.9rem;
+
+      thead th,
+      tbody td {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .subscriber-name .name-container {
+        .avatar {
+          width: 35px;
+          height: 35px;
+          font-size: 0.8rem;
+        }
+      }
+
+      .actions .action-btn {
+        padding: 0.3rem;
+        margin: 0 0.1rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .subscribers-container {
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .subscribers-table {
+      min-width: 600px;
+    }
+  }
+}

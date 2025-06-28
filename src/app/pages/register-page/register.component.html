@@ -1,0 +1,139 @@
+<app-navbar />
+
+<app-inner-page-banner [pageTitle]="'التسجيل'" />
+
+
+
+<div class="contact-area pb-100 mt-4">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-6 col-md-12">
+        <div class="contact-image">
+          <img src="images/about/login.jpg" alt="image">
+        </div>
+
+      </div>
+      <div class="col-lg-6 col-md-12">
+        <div class="contact-form">
+          <div class="section-title">
+            <h2 class="sub-title">
+              <img src="images/star-icon.png" alt="image"> التسجيل
+            </h2>
+          </div>
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="row">
+              <!-- الاسم بالعربية -->
+              <div class="col-lg-12 col-md-6">
+                <div class="form-group mb-3">
+                  <input type="text" formControlName="arName" class="form-control" placeholder="الاسم باللغة العربية">
+                  <div *ngIf="registerForm.get('arName')?.touched && registerForm.get('arName')?.invalid"
+                    class="text-danger mt-1">
+                    <small *ngIf="registerForm.get('arName')?.errors?.['required']">الاسم مطلوب</small>
+                  </div>
+                </div>
+              </div>
+              <!-- title -->
+              <div class="col-lg-12 col-md-6">
+                <div class="form-group mb-3">
+                  <input type="text" formControlName="title" class="form-control" placeholder="المسمى الوظيفي">
+                  <div *ngIf="registerForm.get('title')?.touched && registerForm.get('title')?.invalid"
+                    class="text-danger mt-1">
+                    <small *ngIf="registerForm.get('title')?.errors?.['required']">المسمى الوظيفى مطلوب</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Role-->
+              <!-- <div class="col-lg-12 col-md-6">
+                <div class="form-group mb-3">
+                  <select class="form-control" formControlName="role">
+                    <option value="" disabled selected>اختر الدور</option>
+                    <option value="1">عضو</option>
+                    <option value="2">مدرب</option>
+                  </select>
+                  <div *ngIf="registerForm.get('role')?.touched && registerForm.get('role')?.invalid"
+                    class="text-danger mt-1">
+                    <small>اختيار الدور مطلوب</small>
+                  </div>
+                </div>
+              </div> -->
+
+
+              <!-- البريد الإلكتروني -->
+              <div class="col-lg-12 col-md-6">
+                <div class="form-group mb-3">
+                  <input type="email" formControlName="email" class="form-control" placeholder="البريد الإلكتروني">
+                  <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
+                    class="text-danger mt-1">
+                    <small *ngIf="registerForm.get('email')?.errors?.['required']">البريد الإلكتروني مطلوب</small>
+                    <small *ngIf="registerForm.get('email')?.errors?.['email']">البريد الإلكتروني غير صالح</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- كلمة المرور -->
+              <div class="col-lg-12 col-md-6">
+                <div class="form-group mb-3">
+                  <input type="password" formControlName="password" class="form-control" placeholder="كلمة المرور">
+                  <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"
+                    class="text-danger mt-1">
+                    <small *ngIf="registerForm.get('password')?.errors?.['required']">كلمة المرور مطلوبة</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- تأكيد كلمة المرور -->
+              <div class="col-lg-12 col-md-6">
+                <div class="form-group mb-3">
+                  <input type="password" formControlName="confirmPassword" class="form-control"
+                    placeholder="تأكيد كلمة المرور">
+                  <div
+                    *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid"
+                    class="text-danger mt-1">
+                    <small *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">تأكيد كلمة المرور
+                      مطلوب</small>
+                  </div>
+                  <div *ngIf="registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched"
+                    class="text-danger mt-1">
+                    <small>كلمة المرور وتأكيدها غير متطابقتين</small>
+                  </div>
+                </div>
+              </div>
+              <ul class="text-muted mt-2" style="font-size: 0.875rem;" dir="rtl">
+
+              </ul>
+              <div class="alert alert-danger" *ngIf="errorMessage.length > 0" role="alert">
+                {{errorMessage}}
+              </div>
+              <div class="alert alert-success " *ngIf="inforMessage.length > 0" role="alert">
+                {{inforMessage}}
+              </div>
+              <!-- زر التسجيل -->
+              <div class="col-lg-12 col-md-12">
+                <button type="submit" class="default-btn" [disabled]="registerForm.invalid">
+                  <i class="flaticon-tick"></i>
+                  تسجيل
+                  <span></span>
+                </button>
+              </div>
+            </div>
+          </form>
+          <div class="text-center mt-4">
+            <span>هل لديك حساب؟ </span>
+            <a routerLink="/login" class="text-primary fw-bold">سجّل الدخول</a>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer />
+
+
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+  [zIndex]="9999">
+</ngx-spinner>

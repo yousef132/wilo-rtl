@@ -1,0 +1,53 @@
+<div
+    class="scientist-area bg-color pt-100 pb-75"
+    [ngClass]="{'pt-0': router.url === '/about-us'}"
+>
+    <div class="container">
+        @for (sectionTitleContent of sectionTitle; track sectionTitleContent) {
+            <div class="section-title">
+                <span class="sub-title">
+                    <img src="images/star-icon.png" alt="image"> {{sectionTitleContent.subTitle}}
+                </span>
+                <h2>{{sectionTitleContent.title}}</h2>
+                <p>{{sectionTitleContent.paragraphText}}</p>
+            </div>
+        }
+        <div class="row justify-content-center">
+            @for (scientistBoxContent of singleScientistBox; track scientistBoxContent) {
+                <div class="col-lg-3 col-sm-6 col-md-6">
+                    <div class="single-scientist-box">
+                        <div class="image">
+                            <img [src]="scientistBoxContent.img" alt="image">
+                        </div>
+                        <div class="content">
+                            <h3>{{scientistBoxContent.title}}</h3>
+                            <span>{{scientistBoxContent.designation}}</span>
+                            <ul class="social">
+                                <li>
+                                    <a href="{{scientistBoxContent.facebookLink}}" class="d-block" target="_blank">
+                                        <i class='{{scientistBoxContent.facebookIcon}}'></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{scientistBoxContent.twitterLink}}" class="d-block" target="_blank">
+                                        <i class='{{scientistBoxContent.twitterIcon}}'></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{scientistBoxContent.instagramLink}}" class="d-block" target="_blank">
+                                        <i class='{{scientistBoxContent.instagramIcon}}'></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{scientistBoxContent.linkedinLink}}" class="d-block" target="_blank">
+                                        <i class='{{scientistBoxContent.linkedinIcon}}'></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

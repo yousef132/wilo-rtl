@@ -1,0 +1,89 @@
+@if(questions!=null){
+<app-inner-page-banner [pageTitle]="'اضافه سؤال'"></app-inner-page-banner>
+
+<div class="container mt-3" *ngIf="questions != null">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h4 class="mb-3">الأسئلة</h4>
+
+    <div *ngIf="questions.length === 0" class="text-center border rounded p-5 mb-4 bg-light">
+      <p class="fs-5 mb-3">لم يتم إضافة أي سؤال بعد.</p>
+      <button class="btn btn-success" type="button" (click)="addQuestion()">+ إضافة أول سؤال</button>
+    </div>
+
+    <div formArrayName="questions">
+      <div *ngFor="let q of questions.controls; let i = index" [formGroupName]="i" class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">السؤال {{ i + 1 }}</h5>
+
+          <!-- Question Description -->
+          <div class="mb-2">
+            <label>نص السؤال:</label>
+            <input formControlName="description" type="text" class="form-control"
+              [class.is-invalid]="q.get('description')?.invalid && q.get('description')?.touched">
+            <div *ngIf="q.get('description')?.invalid && q.get('description')?.touched" class="invalid-feedback">
+              نص السؤال مطلوب.
+            </div>
+          </div>
+
+          <!-- Mark -->
+          <div class="mb-2">
+            <label>الدرجة:</label>
+            <input formControlName="mark" type="number" class="form-control"
+              [class.is-invalid]="q.get('mark')?.invalid && q.get('mark')?.touched">
+            <div *ngIf="q.get('mark')?.errors?.['required'] && q.get('mark')?.touched" class="invalid-feedback">
+              الدرجة مطلوبة.
+            </div>
+            <div *ngIf="q.get('mark')?.errors?.['min'] && q.get('mark')?.touched" class="invalid-feedback">
+              الحد الأدنى للدرجة هو 1.
+            </div>
+          </div>
+
+          <!-- Choices -->
+          <!-- Choices -->
+          <div formArrayName="choices">
+            <div *ngFor="let c of getChoices(i).controls; let j = index" [formGroupName]="j" class="mb-2">
+              <label>الاختيار {{ j + 1 }}:</label>
+              <div class="input-group">
+                <input formControlName="optionContent" type="text" class="form-control" placeholder="نص الاختيار"
+                  [class.is-invalid]="c.get('optionContent')?.invalid && c.get('optionContent')?.touched">
+                <div class="input-group-text">
+                  <!-- Use radio button instead of checkbox -->
+                  <input type="radio" name="correctAnswer-{{ i }}" [checked]="c.get('isCorrectAnswer')?.value"
+                    (change)="setCorrectAnswer(i, j)">
+                  <span class="ms-2">صحيح؟</span>
+                </div>
+                <button class="btn btn-outline-danger" type="button" (click)="removeChoice(i, j)">حذف</button>
+              </div>
+              <div *ngIf="c.get('optionContent')?.invalid && c.get('optionContent')?.touched"
+                class="invalid-feedback d-block">
+                نص الاختيار مطلوب.
+              </div>
+            </div>
+
+            <!-- Array-level Errors -->
+            <div *ngIf="q.get('choices')?.errors?.['minChoices'] && q.get('choices')?.touched" class="text-danger">
+              يجب إدخال اختيارين على الأقل.
+            </div>
+            <div *ngIf="q.get('choices')?.errors?.['singleCorrect'] && q.get('choices')?.touched" class="text-danger">
+              يجب تحديد إجابة صحيحة واحدة فقط.
+            </div>
+          </div>
+
+          <button class="btn btn-outline-primary mt-2" type="button" (click)="addChoice(i)">+ إضافة اختيار</button>
+          <button class="btn btn-outline-danger mt-2 ms-2" type="button" (click)="removeQuestion(i)">🗑 حذف
+            السؤال</button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="questions.length > 0">
+      <button class="btn btn-success mx-3 mb-3" type="button" (click)="addQuestion()">+ إضافة سؤال آخر</button>
+      <button type="submit" class="btn btn-primary mb-3">📤 حفظ جميع الأسئلة</button>
+    </div>
+  </form>
+</div>
+}
+
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+  [zIndex]="9999">
+</ngx-spinner>

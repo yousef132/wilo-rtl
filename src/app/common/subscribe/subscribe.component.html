@@ -1,0 +1,32 @@
+<div class="subscribe-area ptb-100">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-md-12">
+                @for (image of subscribeImage; track image) {
+                    <div class="subscribe-image">
+                        <img [src]="image.img" data-speed="0.06" data-revert="true" alt="image">
+                    </div>
+                }
+            </div>
+            <div class="col-lg-6 col-md-12">
+                @for (content of subscribeContent; track content) {
+                    <div class="subscribe-content">
+                        <h2>{{content.title}}</h2>
+                        <p>{{content.paragraphText}}</p>
+                        <form class="newsletter-form">
+                            <input type="text" class="input-newsletter" placeholder="{{content.inputText}}" name="EMAIL">
+                            <button type="submit" class="default-btn">
+                                <i class="{{content.buttonIcon}}"></i>
+                                {{content.buttonText}}
+                                <span></span>
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="vector-shape6">
+        <img src="images/shape/vector-shape6.png" alt="image">
+    </div>
+</div>

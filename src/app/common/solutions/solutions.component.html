@@ -1,0 +1,27 @@
+<div class="solutions-area pb-75">
+    <div class="container">
+        @for (sectionTitleContent of sectionTitle; track sectionTitleContent) {
+            <div class="section-title">
+                <span class="sub-title">
+                    <img src="images/star-icon.png" alt="image"> {{sectionTitleContent.subTitle}}
+                </span>
+                <h2>{{sectionTitleContent.title}}</h2>
+                <p>{{sectionTitleContent.paragraphText}}</p>
+            </div>
+        }
+        <div class="row justify-content-center">
+            @for (solutionsBoxContent of singleSolutionsBox; track solutionsBoxContent) {
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-solution-box">
+                        <div class="icon">
+                            <i class="{{solutionsBoxContent.icon}}"></i>
+                        </div>
+                        <h3><a routerLink="/{{solutionsBoxContent.link}}">{{solutionsBoxContent.title}}</a></h3>
+                        <p>{{solutionsBoxContent.paragraphText}}</p>
+                        <a routerLink="/{{solutionsBoxContent.link}}" class="view-details-btn">{{solutionsBoxContent.linkText}}</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

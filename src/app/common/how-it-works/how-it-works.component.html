@@ -1,0 +1,30 @@
+<div class="process-area pt-100 pb-75">
+    <div class="container">
+        @for (sectionTitleContent of sectionTitle; track sectionTitleContent) {
+            <div class="section-title">
+                <span class="sub-title">
+                    <img src="images/star-icon.png" alt="image"> {{sectionTitleContent.subTitle}}
+                </span>
+                <h2>{{sectionTitleContent.title}}</h2>
+                <p>{{sectionTitleContent.paragraphText}}</p>
+            </div>
+        }
+        <div class="row">
+            @for (processBoxContent of singleProcessBox; track processBoxContent) {
+                <div class="col-lg-4 col-md-6">
+                    <div class="single-process-box">
+                        <div class="number">{{processBoxContent.number}}</div>
+                        <div class="image">
+                            <img [src]="processBoxContent.img" alt="image">
+                        </div>
+                        <h3>{{processBoxContent.title}}</h3>
+                        <p>{{processBoxContent.paragraphText}}</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="circle-shape1">
+        <img src="images/shape/circle-shape1.png" alt="image">
+    </div>
+</div>

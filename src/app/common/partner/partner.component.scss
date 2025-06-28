@@ -1,0 +1,12 @@
+.partner-area {
+    position: relative;
+    z-index: 1;
+
+    &.ptb-75 {
+        padding-bottom: 45px;
+    }
+}
+.single-partner-item {
+    text-align: center;
+    margin-bottom: 25px;
+}

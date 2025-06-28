@@ -1,0 +1,153 @@
+<app-inner-page-banner [pageTitle]="'إدارة المستخدمين'"></app-inner-page-banner>
+
+<div class="admin-users-container">
+  <!-- العنوان -->
+  <div class="header-section">
+    <div class="header-actions">
+      <button 
+        class="btn btn-refresh" 
+        (click)="refreshUsers()" 
+        [disabled]="isLoadingUsers"
+        title="تحديث المستخدمين">
+        <i class="fas fa-sync-alt" [class.fa-spin]="isLoadingUsers"></i>
+        تحديث
+      </button>
+      <button 
+        class="btn btn-primary" 
+        (click)="openCreateCoachModal()"
+        [disabled]="isLoadingUsers">
+        <i class="fas fa-plus"></i>
+        إنشاء مدرب
+      </button>
+    </div>
+  </div>
+
+  <!-- الرسائل -->
+  <div class="messages" *ngIf="errorMessage || successMessage">
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+    <div class="alert alert-success" *ngIf="successMessage">
+      <i class="fas fa-check-circle"></i>
+      {{ successMessage }}
+    </div>
+  </div>
+
+  <!-- جدول المستخدمين -->
+  <div class="users-section">
+    <div class="table-container">
+      <div class="loading-overlay" *ngIf="isLoadingUsers">
+        <div class="spinner"></div>
+        <span>جاري تحميل المستخدمين...</span>
+      </div>
+
+      <table class="users-table"  *ngIf="!isLoadingUsers">
+        <thead>
+          <tr>
+            <th>الاسم العربي</th>
+            <th>اسم المستخدم</th>
+            <th>البريد الإلكتروني</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of paginatedUsers" class="user-row">
+            <td>{{ user.arName || 'غير متوفر' }}</td>
+            <td>{{ user.userName }}</td>
+            <td>{{ user.email }}</td>
+          </tr>
+          <tr *ngIf="users.length === 0 && !isLoadingUsers" class="no-data-row">
+            <td colspan="4" class="no-data">
+              <i class="fas fa-users"></i>
+              <span>لا يوجد مستخدمين</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ترقيم الصفحات -->
+    <div class="pagination" *ngIf="totalPages > 1 && !isLoadingUsers">
+      <button 
+        class="btn btn-pagination" 
+        [disabled]="currentPage === 1"
+        (click)="changePage(currentPage - 1)">
+        <i class="fas fa-chevron-left"></i>
+        السابق
+      </button>
+      
+      <span class="pagination-info">
+        الصفحة {{ currentPage }} من {{ totalPages }} ({{ totalUsers }} مستخدم)
+      </span>
+      
+      <button 
+        class="btn btn-pagination" 
+        [disabled]="currentPage === totalPages"
+        (click)="changePage(currentPage + 1)">
+        التالي
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+<ng-template #createCoachModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">إنشاء مدرب جديد</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <form [formGroup]="createCoachForm" (ngSubmit)="createCoach()">
+    <div class="modal-body">
+      <div class="mb-3">
+        <label class="form-label">البريد الإلكتروني *</label>
+        <input type="email" class="form-control" formControlName="email" />
+        <div *ngIf="isFieldInvalid('email')" class="text-danger">
+          {{ getFieldError('email') }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">كلمة المرور *</label>
+        <input type="password" class="form-control" formControlName="password" />
+        <div *ngIf="isFieldInvalid('password')" class="text-danger">
+          {{ getFieldError('password') }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">الاسم العربي *</label>
+        <input type="text" class="form-control" formControlName="arName" />
+        <div *ngIf="isFieldInvalid('arName')" class="text-danger">
+          {{ getFieldError('arName') }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">المسمى الوظيفي *</label>
+        <input type="text" class="form-control" formControlName="title" />
+        <div *ngIf="isFieldInvalid('title')" class="text-danger">
+          {{ getFieldError('title') }}
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()" [disabled]="isCreatingCoach">
+        إلغاء
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="createCoachForm.invalid || isCreatingCoach">
+        <span *ngIf="isCreatingCoach" class="spinner-border spinner-border-sm"></span>
+        {{ isCreatingCoach ? 'جاري الإنشاء...' : 'إنشاء مدرب' }}
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+</div>

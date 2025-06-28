@@ -1,0 +1,40 @@
+<div class="testimonials-area pt-100 bg-f1f8fb">
+    <div class="container">
+        @for (sectionTitleContent of sectionTitle; track sectionTitleContent) {
+            <div class="section-title">
+                <span class="sub-title">
+                    <img src="images/star-icon.png" alt="image"> {{sectionTitleContent.subTitle}}
+                </span>
+                <h2>{{sectionTitleContent.title}}</h2>
+                <p>{{sectionTitleContent.paragraphText}}</p>
+            </div>
+        }
+        <div class="testimonials-slides">
+            <owl-carousel-o [options]="testimonialsSlides">
+                @for (testimonialsBoxContent of singleTestimonialsBox; track testimonialsBoxContent) {
+                    <ng-template carouselSlide>
+                        <div class="single-testimonial-box">
+                            <img [src]="testimonialsBoxContent.clientImg" class="shadow-sm" alt="image">
+                            <p>{{testimonialsBoxContent.paragraphText}}</p>
+                            <div class="client-info">
+                                <h3>{{testimonialsBoxContent.clientName}}</h3>
+                                <span>{{testimonialsBoxContent.clientDesignation}}</span>
+                            </div>
+                        </div>
+                    </ng-template>
+                }
+            </owl-carousel-o>
+        </div>
+        @for (btn of testimonialsBtn; track btn) {
+            <div class="testimonials-view-btn text-center">
+                <a routerLink="{{btn.link}}" class="default-btn">
+                    <i class="{{btn.icon}}"></i> {{btn.text}}
+                    <span></span>
+                </a>
+            </div>
+        }
+    </div>
+    <div class="shape-img1">
+        <img src="images/shape/shape1.svg" alt="image">
+    </div>
+</div>

@@ -1,0 +1,89 @@
+@if (programs != null) {
+
+
+
+<app-inner-page-banner [pageTitle]="'الدورات التدريبية'"></app-inner-page-banner>
+
+
+<div class="courses-area ptb-100 bg-fafafb">
+    <div class="container">
+        <button [routerLink]="'/create-program'" class="default-btn mb-4">
+            <i class="flaticon-left"></i>
+            اضف تدريب جديد
+            <span></span>
+        </button>
+        @if (programs.length > 0) {
+        <!-- Courses Section -->
+
+        <div class="row">
+            @for (program of programs; track program) {
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="single-course-box shadow-sm border rounded-3 overflow-hidden h-100">
+                    <div class="courses-image position-relative">
+                        <a [routerLink]="['/program-details', program.id]" class="d-block">
+                            <img [src]="program.image" alt="image" class="img-fluid w-100" />
+                        </a>
+                        <!-- <div
+                            class="price shadow bg-success text-white px-3 py-1 position-absolute top-0 end-0 m-2 rounded">
+                            {{ program.price }} ر.س
+                        </div> -->
+                    </div>
+                    <div class="courses-content p-3">
+                        <div class="course-author d-flex align-items-center mb-2">
+                            <img [src]="program.coachImage ?? 'images/default-profile.png'" class="rounded-circle me-2" width="40" height="40" alt="image" />
+                            <span>{{program.coachName}}</span>
+                        </div>
+                        <h3 class="h5">
+                            <a [routerLink]="['/program-details', program.id]" class="text-dark text-decoration-none">
+                                {{ program.title }}
+                            </a>
+                        </h3>
+                        <p class="text-muted mb-3">{{ program.details }}</p>
+                        <ul
+                            class="courses-box-footer list-unstyled d-flex justify-content-between text-muted small mb-0">
+                            <li>
+                                <i class="flaticon-agendas me-1"></i> {{ program.duration }} يوم
+                            </li>
+                            <li>
+                                <a style="font-weight: bold;" [routerLink]="['/program/dashboard',program.id]" href="">
+                                اداره التدريب
+
+                                    <i class="flaticon-agendas me-1">
+                                        
+                                    </i>
+                                </a>
+                                
+                            </li>
+                            <li>
+                                <i class="flaticon-team me-1"></i> متاح
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            }
+
+        </div>
+        } @else {
+
+        <div class="text-center">
+            <img src="/images/Empty.png" alt="">
+            <h4 class="text-secondary">لا توجد تدريبات متاحة حالياً.</h4>
+            <p>يمكنك إضافة تدريب جديد بالنقر على الزر أعلاه.</p>
+        </div>
+
+
+        }
+    </div>
+</div>
+
+}
+  
+<ngx-spinner
+bdColor="rgba(0, 0, 0, 0.8)"
+size="default"
+color="#fff"
+type="cube-transition"
+[fullScreen]="true"
+[zIndex]="9999">
+</ngx-spinner>

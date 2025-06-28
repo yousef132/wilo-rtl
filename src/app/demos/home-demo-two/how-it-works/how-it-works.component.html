@@ -1,0 +1,41 @@
+<div class="process-area ptb-100 bg-fafafb">
+    <div class="container">
+        @for (sectionTitleContent of sectionTitle; track sectionTitleContent) {
+            <div class="section-title">
+                <span class="sub-title">
+                    <img src="images/star-icon.png" alt="image"> {{sectionTitleContent.subTitle}}
+                </span>
+                <h2>{{sectionTitleContent.title}}</h2>
+                <p>{{sectionTitleContent.paragraphText}}</p>
+            </div>
+        }
+        <div class="row align-items-center m-0">
+            <div class="col-lg-6 col-md-12 p-0">
+                @for (image of processImage; track image) {
+                    <div class="process-image">
+                        <img [src]="image.img" alt="image">
+                    </div>
+                }
+            </div>
+            <div class="col-lg-6 col-md-12 p-0">
+                <div class="process-content">
+                    <div class="row">
+                        @for (content of processContent; track content) {
+                            <div class="col-lg-12 col-md-6">
+                                <div class="single-box-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="image">
+                                            <img [src]="content.img" alt="image">
+                                        </div>
+                                        <h3>{{content.title}}</h3>
+                                        <div class="number">{{content.number}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

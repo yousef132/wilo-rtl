@@ -1,0 +1,30 @@
+
+<div class="what-we-do-area bg-fafafb pt-100 pb-75">
+    <div class="container">
+        @for (sectionTitleContent of sectionTitle; track sectionTitleContent) {
+            <div class="section-title">
+                <h2>{{sectionTitleContent.title}}</h2>
+                <p>{{sectionTitleContent.paragraphText}}</p>
+            </div>
+        }
+        <div class="row justify-content-center">
+            @for (whatWeDoContent of singleWhatWeDoBox; track whatWeDoContent) {
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-what-we-do-box">
+                        <div class="icon">
+                            <i class="{{whatWeDoContent.icon}}"></i>
+                        </div>
+                        <h3><a routerLink="/{{whatWeDoContent.link3}}">{{whatWeDoContent.title}}</a></h3>
+                        <p>{{whatWeDoContent.paragraphText}}</p>
+                        <a routerLink="/{{whatWeDoContent.link1}}" class="link">{{whatWeDoContent.linkText1}} <i class="flaticon-left"></i></a>
+                        <a routerLink="/{{whatWeDoContent.link2}}" class="link">{{whatWeDoContent.linkText2}} <i class="flaticon-left"></i></a>
+                        <a routerLink="/{{whatWeDoContent.link3}}" class="read-more-btn">
+                            <i class="flaticon-left"></i>
+                            {{whatWeDoContent.linkText3}}
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+<app-navbar />
+
+<!-- Error -->
+<div class="error-area ptb-100">
+    <div class="container">
+        @for (content of errorContent; track content) {
+            <div class="error-content">
+                <img [src]="content.img" alt="image">
+                <h3>{{content.title}}</h3>
+                <p>{{content.paragraphText}}</p>
+                <div class="btn-box">
+                    <a href="##" class="default-btn" onClick="history.go(-1); return false;">
+                        <i class="{{content.goBackBtnIcon}}"></i>
+                        {{content.goBackBtnText}}
+                        <span></span>
+                    </a>
+                    <a routerLink="/" class="default-btn">
+                        <i class="{{content.BackToHomeBtnIcon}}"></i>
+                        {{content.BackToHomeBtnText}}
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- End Error -->
+
+<app-footer />

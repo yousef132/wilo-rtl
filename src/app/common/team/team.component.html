@@ -1,0 +1,59 @@
+<div class="team-area pt-100 pb-75">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 col-md-12">
+                <div class="team-box-list">
+                    <div class="row">
+                        @for (teamItem1 of singleTeamItem1; track teamItem1) {
+                            <div class="col-lg-6 col-sm-6 col-md-6 offset-lg-1">
+                                <div class="single-team-item">
+                                    <img [src]="teamItem1.img" alt="image">
+                                </div>
+                            </div>
+                        }
+                        @for (teamItem2 of singleTeamItem2; track teamItem2) {
+                            <div class="col-lg-6 col-sm-6 col-md-6">
+                                <div class="single-team-item">
+                                    <img [src]="teamItem2.img" alt="image">
+                                </div>
+                            </div>
+                        }
+                        @for (teamItem3 of singleTeamItem3; track teamItem3) {
+                            <div class="col-lg-6 col-sm-12 col-md-6 offset-lg-0 offset-md-3">
+                                <div class="single-team-item">
+                                    <img [src]="teamItem3.img" alt="image">
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="map-shape1">
+                        <img src="images/shape/map-shape1.png" alt="image">
+                    </div>
+                    <div class="vector-shape5">
+                        <img src="images/shape/vector-shape5.png" alt="image">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 col-md-12">
+                @for (sectionTitle of teamSectionTitle; track sectionTitle) {
+                    <div class="team-section-title">
+                        <span class="sub-title">
+                            <img src="images/star-icon.png" alt="image"> {{sectionTitle.subTitle}}
+                        </span>
+                        <h2>{{sectionTitle.title}}</h2>
+                        <p>{{sectionTitle.paragraphText1}}</p>
+                        <p>{{sectionTitle.paragraphText2}}</p>
+                        <a routerLink="/{{sectionTitle.link}}" class="default-btn">
+                            <i class="{{sectionTitle.linkIcon}}"></i>
+                            {{sectionTitle.linkText}}
+                            <span></span>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="vector-shape4">
+        <img src="images/shape/vector-shape4.png" alt="image">
+    </div>
+</div>

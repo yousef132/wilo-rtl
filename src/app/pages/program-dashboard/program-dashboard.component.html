@@ -1,0 +1,24 @@
+<app-inner-page-banner [pageTitle]="'الدورات التدريبية'"></app-inner-page-banner>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Left Column: Program Update Form -->
+        <div class="col-sm-6">
+            <div class="card shadow-sm p-4">
+                <h5 class="mb-4">تحديث معلومات الدورة</h5>
+
+                <app-edit-program (statusEmitter)="receiveData($event)" [programId]="programId"></app-edit-program>
+            </div>
+        </div>
+
+        <!-- Right Column: Sections List -->
+        <div class="col-sm-6">
+            <!-- sections -->
+            <app-program-sections [programStatus] = "programStatus" [programId]="programId"></app-program-sections>
+        </div>
+    </div>
+</div>
+
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+    [zIndex]="9999">
+</ngx-spinner>

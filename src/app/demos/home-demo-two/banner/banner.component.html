@@ -1,0 +1,78 @@
+<div class="banner-section" style="background-image: url(images/main-banner/bg2.png);">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-5 col-md-12">
+                @for (content of bannerContent; track content) {
+                <div class="banner-content">
+                    <h1 class="animate__animated animate__fadeInLeft">
+                        {{content.title}}
+                    </h1>
+                    <p class="animate__animated animate__fadeInLeft">
+                        {{content.paragraphText}}
+                    </p>
+                    <div class="btn-box">
+                        <a routerLink="/{{content.defaultBtnLink}}"
+                            class="default-btn animate__animated animate__fadeInRight">
+                            <i class="{{content.defaultBtnIcon}}"></i>
+                            {{content.defaultBtnText}}
+                            <span></span>
+                        </a>
+                        <button type="button" (click)="openPopup()"
+                            class="video-btn p-0 border-0 bg-transparent animate__animated animate__fadeInLeft popup-youtube">
+                            <i class="{{content.videoBtnIcon}}"></i> {{content.videoBtnText}}
+                        </button>
+                    </div>
+                </div>
+                }
+            </div>
+            <div class="col-lg-7 col-md-12">
+                <div class="banner-image">
+                    <img src="images/main-banner/banner-two/img1.png" class="animate__animated animate__fadeInDown"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img2.png" class="animate__animated animate__fadeInUp"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img3.png" class="animate__animated animate__fadeInRight"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img4.png" class="animate__animated animate__fadeInUp"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img5.png" class="animate__animated animate__fadeInUp"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img6.png" class="animate__animated animate__fadeInLeft"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img7.png" class="animate__animated animate__fadeInLeft"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img8.png" class="animate__animated animate__fadeInDown"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img9.png" class="animate__animated animate__fadeInDown"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img10.png" class="animate__animated animate__fadeInRight"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img11.png" class="animate__animated animate__fadeInLeft"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/img12.png" class="animate__animated animate__fadeInUp"
+                        alt="image">
+                    <img src="images/main-banner/banner-two/main-pic.png" alt="image">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Video Popup -->
+<div class="mfp-wrap mfp-close-btn-in mfp-auto-cursor mfp-fade mfp-ready" *ngIf="isOpen" tabindex="-1">
+    <div class="mfp-container mfp-iframe-holder">
+        <div class="mfp-content">
+            <div class="mfp-iframe-scaler">
+                <button (click)="closePopup()" title="Close (Esc)" type="button" class="mfp-close">
+                    ×
+                </button>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/YgBRlhXQDVU?si=OnlFS1iqdeLu4J32"
+                    title="YouTube video player" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="mfp-bg mfp-fade mfp-ready" *ngIf="isOpen"></div>

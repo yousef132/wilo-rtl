@@ -1,0 +1,193 @@
+<app-inner-page-banner [pageTitle]="'إدارة المحتوى'" />
+<!-- Button to open edit modal -->
+<!-- Loading State -->
+<div class="container mt-4">
+    <div *ngIf="isLoading" class="text-center p-4">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">جاري التحميل...</span>
+        </div>
+        <p class="mt-2">جاري تحميل بيانات المحتوى...</p>
+    </div>
+
+    <!-- Edit Form -->
+    <div *ngIf="!isLoading && contentData" class="edit-content-form">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">تعديل المحتوى</h5>
+                <a *ngIf="contentData.contentPassingRequirement == ContentPassingRequirement.Exam"
+                    [routerLink]="['/questions/add', contentData.id]" class="btn btn-outline-primary btn-sm"
+                    title="إضافة سؤال">
+                    <i class="bx bx-question-mark"></i> إضافة سؤال
+                </a>
+
+            </div>
+
+            <div class="card-body">
+                <form [formGroup]="contentForm" (ngSubmit)="onSubmit()">
+
+                    <!-- Title Field -->
+                    <div class="mb-3">
+                        <label class="form-label">العنوان</label>
+                        <input class="form-control" formControlName="title" />
+                        <div class="text-danger"
+                            *ngIf="contentForm.get('title')?.touched && contentForm.get('title')?.invalid">
+                            <small>هذا الحقل مطلوب</small>
+                        </div>
+                    </div>
+
+                    <!-- Passing Requirement Field -->
+                    <div class="mb-3">
+                        <label class="form-label">شرط النجاح</label>
+                        <select class="form-select" formControlName="contentPassingRequirement"
+                            (change)="onPassingRequirementChange($event)">
+                            <option [value]="ContentPassingRequirement.Exam">Exam</option>
+                            <option [value]="ContentPassingRequirement.Comment">Comment</option>
+                            <option [value]="ContentPassingRequirement.Manually">Manually</option>
+                        </select>
+                        <div class="text-danger"
+                            *ngIf="contentForm.get('contentPassingRequirement')?.touched && contentForm.get('contentPassingRequirement')?.invalid">
+                            <small>اختر شرط النجاح</small>
+                        </div>
+                    </div>
+                    <!-- Passing Mark Field (Conditional) -->
+                    <div class="mb-3"
+                        *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam">
+                        <label class="form-label">درجه النجاح</label>
+                        <input type="number" class="form-control" formControlName="passingMark" />
+                        <div class="text-danger"
+                            *ngIf="contentForm.get('passingMark')?.touched && contentForm.get('passingMark')?.invalid">
+                            <small>اختر درجه النجاح</small>
+                        </div>
+                    </div>
+
+
+                    <!-- Content Type Field -->
+                    <!-- <div class="mb-3">
+                        <label class="form-label">نوع المحتوى</label>
+                        <select (change)="onContentTypeChange($event)" class="form-select"
+                            formControlName="contentType">
+                            <option *ngFor="let type of sharedService.contentTypes" [value]="type.value">{{ type.label
+                                }}</option>
+                        </select>
+                        <div class="text-danger"
+                            *ngIf="contentForm.get('contentType')?.touched && contentForm.get('contentType')?.invalid">
+                            <small>اختر نوع المحتوى</small>
+                        </div>
+                    </div> -->
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">نوع المحتوى</label>
+                        <select (change)="onContentTypeChange($event)" class="form-select"
+                            formControlName="contentType">
+                            <option [value]="ContentType.File">File</option>
+                            <option [value]="ContentType.Loom">Loom</option>
+                            <option [value]="ContentType.Vimeo">Vimeo</option>
+                            <option [value]="ContentType.Image">Image</option>
+                            <option [value]="ContentType.Website">Website</option>
+                            <option [value]="ContentType.YouTube">YouTube</option>
+                        </select>
+                        <div *ngIf="contentForm.get('contentType')?.invalid && contentForm.get('contentType')?.touched"
+                            class="text-danger">
+                            <small>يجب تحديد حالة</small>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Field (Conditional) -->
+                    <div class="mb-3"
+                        *ngIf="contentForm.get('contentType')?.value == ContentType.File && contentForm.get('contentType')?.value != null">
+                        <label class="form-label">الملف</label>
+                        <input type="file" class="form-control" (change)="onFileSelected($event)">
+                        <div *ngIf="fileError" class="text-danger mt-1">{{ fileError }}</div>
+
+                        <!-- Show current file info if exists -->
+                        <div *ngIf="contentData?.contentUrl && !selectedFile" class="mt-2">
+                            <small class="text-muted" *ngIf="contentData.contentType == ContentType.File">
+                                <a [href]="contentData.contentUrl">
+                                    <strong style="color: rgb(255, 157, 0);">
+                                        الملف الحالي
+                                    </strong>
+                                </a>
+                            </small>
+                        </div>
+
+                        <!-- Show selected new file -->
+                        <div *ngIf="selectedFile" class="mt-2">
+                            <small class="text-success">
+                                <i class="fas fa-file-upload"></i> ملف جديد محدد: {{ selectedFile.name }}
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- URL Field (Conditional) -->
+                    <div class="mb-3"
+                        *ngIf="contentForm.get('contentType')?.value != ContentType.File && contentForm.get('contentType')?.value != null">
+                        <label class="form-label">الرابط</label>
+                        <input class="form-control" formControlName="contentUrl" />
+                        <div class="text-danger"
+                            *ngIf="contentForm.get('contentUrl')?.touched && contentForm.get('contentUrl')?.invalid">
+                            <small>الرابط غير صالح</small>
+                        </div>
+                    </div>
+
+                    <!-- Required Effort Field -->
+                    <div class="mb-3">
+                        <label class="form-label">الجهد المطلوب</label>
+                        <input class="form-control" formControlName="requiredEffort" />
+                        <div class="text-danger"
+                            *ngIf="contentForm.get('requiredEffort')?.touched && contentForm.get('requiredEffort')?.invalid">
+                            <small>الجهد مطلوب</small>
+                        </div>
+                    </div>
+
+                    <!-- Minutes Field -->
+                    <div class="mb-3">
+                        <label class="form-label">عدد الدقائق</label>
+                        <input type="number" class="form-control" formControlName="minutes" />
+                        <div class="text-danger"
+                            *ngIf="contentForm.get('minutes')?.touched && contentForm.get('minutes')?.invalid">
+                            <small>عدد الدقائق مطلوب ويجب أن يكون أكبر من 0</small>
+                        </div>
+                    </div>
+
+                    <!-- Index Field -->
+                    <div class="mb-3">
+                        <label class="form-label">الترتيب</label>
+                        <input type="number" class="form-control" formControlName="index" />
+                        <div class="text-danger"
+                            *ngIf="contentForm.get('index')?.touched && contentForm.get('index')?.invalid">
+                            <small>الترتيب مطلوب ويجب أن يكون 0 أو أكثر</small>
+                        </div>
+                    </div>
+
+                    <!-- Text Content Field -->
+                    <div class="mb-3">
+                        <label class="form-label">نص المحتوى</label>
+                        <textarea class="form-control" formControlName="textContent" rows="4"></textarea>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" type="submit"
+                            [disabled]="contentForm.invalid || fileError != null || isSubmitting">
+                            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+                            {{ isSubmitting ? 'جاري الحفظ...' : 'حفظ التعديلات' }}
+                        </button>
+
+                        <button class="btn btn-secondary" type="button" (click)="resetForm()" [disabled]="isSubmitting">
+                            إعادة تعيين
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && !contentData" class="text-center p-4">
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            حدث خطأ في تحميل بيانات المحتوى
+        </div>
+        <button class="btn btn-primary" (click)="getContentData()">إعادة المحاولة</button>
+    </div>
+</div>

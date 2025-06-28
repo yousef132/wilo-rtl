@@ -1,0 +1,104 @@
+.industries-serve-area {
+    position: relative;
+    z-index: 1;
+}
+.single-industry-box {
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+    color: var(--blackColor);
+    border-radius: 5px;
+    background-color: #f4f4fb;
+    padding: 20px 60px 20px 15px;
+    transition: var(--transition);
+    z-index: 1;
+    font: {
+        size: 24px;
+        weight: 800;
+    };
+    .icon {
+        position: absolute;
+        right: -10px;
+        top: 50%;
+        line-height: 1;
+        transform: translateY(-50%);
+        color: #c3c3c9;
+        transition: var(--transition);
+        font: {
+            size: 55px;
+            weight: normal;
+        };
+    }
+    &::before {
+        border-radius: 5px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 0;
+        height: 100%;
+        content: '';
+        z-index: -1;
+        transition: var(--transition);
+        background-color: var(--mainColor);
+    }
+    .link-btn {
+        display: block;
+        position: absolute;
+        right: 0;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        border-radius: 5px;
+        z-index: 2;
+    }
+    &:hover {
+        color: var(--whiteColor);
+
+        .icon {
+            color: var(--whiteColor);
+        }
+        &::before {
+            width: 100%;
+        }
+    }
+}
+
+/* Max width 767px */
+@media only screen and (max-width: 767px) {
+
+    .single-industry-box {
+        font-size: 20px;
+    }
+
+}
+
+/* Min width 576px to Max width 767px */
+@media only screen and (min-width: 576px) and (max-width: 767px) {}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+
+    .single-industry-box {
+        font-size: 22px;
+    }
+
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+
+    .single-industry-box {
+        padding: 20px 50px 20px 10px;
+        font-size: 20px;
+
+        .icon {
+            font-size: 50px;
+        }
+    }
+}
+
+/* Min width 1200px to Max width 1399px */
+@media only screen and (min-width: 1200px) and (max-width: 1399px) {}
+
+/* Min width 1600px */
+@media only screen and (min-width: 1600px) {}

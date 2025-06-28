@@ -1,0 +1,73 @@
+@if(programDetails){
+<form [formGroup]="programForm" (ngSubmit)="onSubmit()">
+  <div class="mb-3">
+    <label class="form-label">عنوان الدورة</label>
+    <input type="text" class="form-control" formControlName="title">
+    <div *ngIf="programForm.get('title')?.invalid && programForm.get('title')?.touched" class="text-danger">
+      <small *ngIf="programForm.get('title')?.errors?.['required']">هذا الحقل مطلوب</small>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">تفاصيل الدورة</label>
+    <textarea rows="5" class="form-control" formControlName="details"></textarea>
+    <div *ngIf="programForm.get('details')?.invalid && programForm.get('details')?.touched" class="text-danger">
+      <small *ngIf="programForm.get('details')?.errors?.['required']">هذا الحقل مطلوب</small>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label class="form-label">المدة (أيام)</label>
+      <input type="number" class="form-control" formControlName="duration">
+      <div *ngIf="programForm.get('duration')?.invalid && programForm.get('duration')?.touched" class="text-danger">
+        <small *ngIf="programForm.get('duration')?.errors?.['required']">هذا الحقل مطلوب</small>
+        <small *ngIf="programForm.get('duration')?.errors?.['min']">يجب أن يكون على الأقل يومًا واحدًا</small>
+      </div>
+    </div>
+    <!-- <div class="col">
+            <label class="form-label">السعر</label>
+            <input type="number" class="form-control" formControlName="price">
+            <div *ngIf="programForm.get('price')?.invalid && programForm.get('price')?.touched" class="text-danger">
+              <small *ngIf="programForm.get('price')?.errors?.['required']">هذا الحقل مطلوب</small>
+              <small *ngIf="programForm.get('price')?.errors?.['min']">السعر لا يمكن أن يكون سالبًا</small>
+            </div>
+          </div> -->
+  </div>
+
+  <div class="mb-3 mt-3">
+      <label class="form-label">الحالة</label>
+<select
+  class="form-select"
+  formControlName="status"
+  (change)="onEditingProgramStatus($event)"
+  [disabled]="programForm.get('status')?.value === CoachingProgramStatus.Active">
+  <option [value]="CoachingProgramStatus.Active">نشط</option>
+  <option [value]="CoachingProgramStatus.InActive">غير نشط</option>
+  <option [value]="CoachingProgramStatus.Deleted">محذوف</option>
+</select>
+
+
+    <div *ngIf="programForm.get('status')?.invalid && programForm.get('status')?.touched" class="text-danger">
+      <small>يجب تحديد حالة</small>
+    </div>
+  </div>
+
+  <div class="my-3">
+    <img [src]="previewImageUrl || programDetails?.coverUrl || 'images/default-cover.png'" alt="">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">تحميل صورة</label>
+    <input type="file" class="form-control" (change)="onFileChange($event)">
+    <div class="text-danger">
+      <small *ngIf="fileErrorMessage">{{ fileErrorMessage }}</small>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" [disabled]="!hasChanges() || programForm.invalid || fileErrorMessage">تحديث</button>
+</form>
+}
+
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+  [zIndex]="9999">
+</ngx-spinner>
