@@ -114,7 +114,7 @@ export class EditProgramComponent implements OnInit {
         const status = +newValue; // convert to number if you're using an enum
 
         if (status === CoachingProgramStatus.Active) {
-            debugger;
+            ;
 
             const confirmed = confirm(
                 'احذر! لن تتمكن من إضافة المزيد من الأقسام أو المحتوى أو تعديل الترتيب بعد تفعيل البرنامج، ولا يمكنك التراجع عن هذا الإجراء. هل أنت متأكد؟'

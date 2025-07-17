@@ -45,13 +45,10 @@
             <span>تم الاجتياز</span>
           </span>
           <span class="badge d-flex align-items-center gap-1"
-            [title]="'Score: ' + content.examResult + ' out of ' + content.examTotal" [ngClass]="{
-    'bg-success': getPercentage(content.examResult, content.examTotal) >= 80,
-    'bg-warning': getPercentage(content.examResult, content.examTotal) >= 50 && getPercentage(content.examResult, content.examTotal) < 80,
-    'bg-danger': getPercentage(content.examResult, content.examTotal) < 50
-  }" *ngIf="content.examResult!=null && content.examTotal!=null">
+            [title]="'Score: ' + content.examResult + ' out of ' + content.examTotal" [ngClass]="'bg-success'" *ngIf="content.examResult!=null">
+            
             <i class="bx bx-badge-check"></i>
-            <span>{{ content.examResult }}/{{ content.examTotal }}</span>
+            <span>{{ content.examResult }}%</span>
           </span>
 
 
@@ -210,6 +207,6 @@
   </div>
 </div>
 
-<!-- <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
   [zIndex]="9999">
-</ngx-spinner> -->
+</ngx-spinner>

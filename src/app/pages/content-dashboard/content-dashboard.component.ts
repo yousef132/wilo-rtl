@@ -207,7 +207,7 @@ export class ContentDashboardComponent implements OnInit {
 
     onSubmit(): void {
         if (!this.contentForm.valid || !this.contentData) return;
-        debugger
+        
         this.isSubmitting = true;
         const formData = new FormData();
         const form = this.contentForm.value;
@@ -224,7 +224,7 @@ export class ContentDashboardComponent implements OnInit {
             'ContentPassingRequirement',
             form.contentPassingRequirement.toString()
         );
-        debugger
+        
         if (form.passingMark && form.contentPassingRequirement == ContentPassingRequirement.Exam)
             formData.append('PassMark', form.passingMark.toString());
         if (form.textContent) formData.append('ContentText', form.textContent);

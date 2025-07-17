@@ -57,7 +57,6 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
     currentUserId: string = '';
     @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
-
     constructor(
         private route: ActivatedRoute,
         private contentService: ContentService,
@@ -72,7 +71,6 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
         });
     }
 
-
     ngOnInit(): void {
         this.route.params.subscribe((params) => {
             this.contentId = +params['contentId'];
@@ -82,7 +80,7 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
             this.loadContent();
         });
     }
-        ngAfterViewInit(): void {
+    ngAfterViewInit(): void {
         this.scrollToBottom();
     }
 
@@ -96,7 +94,7 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
             }
         }, 100); // small delay to wait for rendering
     }
-        setAlertMessage() {
+    setAlertMessage() {
         // use swtich statement instead of if
         switch (this.content?.contentPassingRequirement) {
             case ContentPassingRequirement.Comment:
@@ -129,15 +127,18 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
     }
 
     loadContent() {
-        debugger;
+        
         forkJoin({
             content: this.getContent(),
             nextPrev: this.contentService.getNextPrevContent(
                 this.contentId,
                 this.programId
             ),
+            chat: this.getChat(), // ✅ called in parallel, no dependency on content
         }).subscribe({
-            next: ({ content, nextPrev }) => {
+            next: ({ content, nextPrev, chat }) => {
+        
+
                 this.content = content || null;
 
                 if (this.content?.contentUrl) {
@@ -146,26 +147,12 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
                             this.content.contentUrl
                         );
                 }
-                this.passedStudent = this.content?.isPassed!;
 
+                this.passedStudent = this.content?.isPassed!;
                 this.setAlertMessage();
 
-                // Handle chat load
-                if (this.content?.userContentRegistrationId) {
-                    this.getChat().subscribe({
-                        next: (chat) => {
-                            this.messages = chat || null;
-                        },
-                        error: (err) => {
-                            console.error('Error loading chat:', err);
-                        },
-                    });
-                }
-
-                // Set next/previous content
-                if (nextPrev) {
-                    this.nextPreviewContent = nextPrev;
-                }
+                this.nextPreviewContent = nextPrev;
+                this.messages = chat || null;
             },
             error: (err) => {
                 console.error('Error loading data:', err);
@@ -189,7 +176,9 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
 
     getChat(): Observable<Message[] | undefined> {
         return this.contentService.getContentChat(
-            this.content?.userContentRegistrationId!
+            this.contentId,
+            this.userId,
+            this.programId
         ); // registrationID
     }
     sendMessage() {
@@ -206,7 +195,7 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
                 // null => already registered in next content
                 // -1 => last content, user passed the pargram
                 // value => next content opened
-                debugger;
+                ;
                 if (nextContentId) {
                     if (nextContentId == -1) {
                         this.router.navigate(['/program-completed']);
@@ -221,15 +210,23 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
                     ]);
                     return;
                 }
-                this.newMessage = '';
-                this.getChat().subscribe({
-                    next: (messages) => {
-                        this.messages = messages || null;
-                    },
-                    error: (err) => {
-                        console.error('Failed to refresh messages:', err);
-                    },
+                // insert the message
+                this.messages?.push({
+                    textMessage: this.newMessage,
+                    userId: this.currentUserId,
+                    userName: '',
+                    messageDate: new Date(),
                 });
+
+                this.newMessage = '';
+                // this.getChat().subscribe({
+                //     next: (messages) => {
+                //         this.messages = messages || null;
+                //     },
+                //     error: (err) => {
+                //         console.error('Failed to refresh messages:', err);
+                //     },
+                // });
             },
             error: (error) => {
                 console.error('Send message failed:', error);

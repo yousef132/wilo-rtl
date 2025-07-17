@@ -1,7 +1,4 @@
-
-<app-inner-page-banner
-    [pageTitle]="'تفاصيل البرنامج'"
-/>
+<app-inner-page-banner [pageTitle]="'تفاصيل البرنامج'" />
 <!-- Course Details -->
 <div class="course-details-area pb-100">
     <div class="course-details-image">
@@ -13,12 +10,14 @@
                 <div class="course-details-desc">
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" type="button" role="tab" (click)="switchTab($event, 'tab1')" [ngClass]="{'active': currentTab === 'tab1'}">
+                            <button class="nav-link" type="button" role="tab" (click)="switchTab($event, 'tab1')"
+                                [ngClass]="{'active': currentTab === 'tab1'}">
                                 نظره عامه
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" type="button" role="tab" (click)="switchTab($event, 'tab2')" [ngClass]="{'active': currentTab === 'tab2'}">
+                            <button class="nav-link" type="button" role="tab" (click)="switchTab($event, 'tab2')"
+                                [ngClass]="{'active': currentTab === 'tab2'}">
                                 المقرر
                             </button>
                         </li>
@@ -35,20 +34,18 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" role="tabpanel" id="tab1" *ngIf="currentTab === 'tab1'">
-                        <h2>{{programDetails?.title}}</h2>
-                        <hr>
+                            <h2>{{programDetails?.title}}</h2>
+                            <hr>
                             <div class="courses-overview">
                                 <h3>تفاصيل البرنامج</h3>
-                               <p>{{programDetails?.details}}</p>
+                                <p>{{programDetails?.details}}</p>
                             </div>
                         </div>
                         <div class="tab-pane fade show active" role="tabpanel" id="tab2" *ngIf="sectionsOpened">
-                            <app-sections-with-programs
-                            [programId]="programId"
-                            [hidden]="currentTab != 'tab2' ">
-                          </app-sections-with-programs>
-                          
-                           
+                            <app-sections-with-programs [programId]="programId" [hidden]="currentTab != 'tab2' ">
+                            </app-sections-with-programs>
+
+
 
                         </div>
                         <!-- <div class="tab-pane fade show active" role="tabpanel" id="tab3" *ngIf="currentTab === 'tab3'">
@@ -71,7 +68,7 @@
                                 </div>
                             </div>
                         </div> -->
-                       
+
                     </div>
                 </div>
             </div>
@@ -79,9 +76,10 @@
                 <div class="course-details-info">
                     <div class="image">
                         <img [src]="programDetails?.cover" alt="image">
-                        <button type="button" class="link-btn popup-youtube border-0 p-0 bg-transparent" (click)="openPopup()"></button>
+                        <button type="button" class="link-btn popup-youtube border-0 p-0 bg-transparent"
+                            (click)="openPopup()"></button>
                         <div class="content">
-                            <i class='bx bx-show'></i> 
+                            <i class='bx bx-show'></i>
                             <span>تفاصيل</span>
                         </div>
                     </div>
@@ -109,15 +107,14 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <span><i class="flaticon-web"></i> عدد التسجيلات</span>
                                 {{programDetails?.noParticipants || 0}}
-                                
+
                             </div>
                         </li>
                     </ul>
 
                     <div class="btn-box">
-
                         <a *ngIf="!programDetails?.isRegistered && isLoggedIn 
-                         && !isCoach" class="default-btn" (click)="registerProgram()">
+                         && !isCoach && !isMentor " class="default-btn" (click)="registerProgram()">
                             <i class="flaticon-price-tag"></i>
                             التسجيل الان
                             <span></span>
@@ -148,23 +145,16 @@
 
 
 <!-- Video Popup -->
-<div
-    class="mfp-wrap mfp-close-btn-in mfp-auto-cursor mfp-fade mfp-ready"
-    *ngIf="isOpen"
-    tabindex="-1"
->
+<div class="mfp-wrap mfp-close-btn-in mfp-auto-cursor mfp-fade mfp-ready" *ngIf="isOpen" tabindex="-1">
     <div class="mfp-container mfp-iframe-holder">
         <div class="mfp-content">
             <div class="mfp-iframe-scaler">
-                <button
-                    (click)="closePopup()"
-                    title="Close (Esc)"
-                    type="button"
-                    class="mfp-close"
-                >
+                <button (click)="closePopup()" title="Close (Esc)" type="button" class="mfp-close">
                     ×
                 </button>
-                <iframe *ngIf="safeCoverUrl" [src]="safeCoverUrl" title="Placeholder video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <iframe *ngIf="safeCoverUrl" [src]="safeCoverUrl" title="Placeholder video" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 <!-- <iframe e *ngIf="safeCoverUrl" [src]="safeCoverUrl" title="Placeholder video"allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe> -->
             </div>
         </div>
@@ -172,12 +162,7 @@
 </div>
 <div class="mfp-bg mfp-fade mfp-ready" *ngIf="isOpen"></div>
 
-  
-<ngx-spinner
-bdColor="rgba(0, 0, 0, 0.8)"
-size="default"
-color="#fff"
-type="cube-transition"
-[fullScreen]="true"
-[zIndex]="9999">
+
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+    [zIndex]="9999">
 </ngx-spinner>

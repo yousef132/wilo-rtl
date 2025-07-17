@@ -1,0 +1,68 @@
+  <app-inner-page-banner
+    [pageTitle]="'جميع الاشعارات'"
+/>
+
+  <div class="notifications-container mt-4 mb-4">
+      <div class="notifications-header">
+        <h2>جميع الاشعارات</h2>
+        <div class="notifications-count">
+          {{ notifications.length }} إشعار
+        </div>
+      </div>
+
+      <div class="notifications-list" *ngIf="notifications.length > 0; else noNotifications">
+        <div 
+          class="notification-item" 
+          *ngFor="let notification of notifications; trackBy: trackByNotificationId"
+          [ngClass]="getNotificationClass(notification.type)"
+          (click)="onNotificationClick(notification)"
+        >
+          <div class="notification-icon">
+            <i [class]="getNotificationIcon(notification.type)"></i>
+          </div>
+          
+          <div class="notification-content">
+            <div class="notification-text">
+              {{ notification.content }}
+            </div>
+            <div class="notification-date">
+              {{ formatDate(notification.creationDate) }}
+            </div>
+          </div>
+
+          <div class="notification-actions">
+            <button 
+              class="mark-read-btn"
+              (click)="markAsRead(notification.id, $event)"
+              title="تم قراءته"
+            >
+              <i class="bx bx-check"></i>
+            </button>
+            <button 
+              class="delete-btn"
+              (click)="deleteNotification(notification.id, $event)"
+              title="حذف"
+            >
+              <i class="bx bx-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noNotifications>
+        <div class="no-notifications">
+          <i class="bx bx-bell-off"></i>
+          <h3>لا توجد اشعارات</h3>
+          <p>أنت محدث بالكامل!</p>
+        </div>
+      </ng-template>
+
+      <div class="notifications-footer" *ngIf="notifications.length > 0">
+        <button class="clear-all-btn" (click)="clearAllNotifications()">
+          مسح الكل
+        </button>
+        <button class="mark-all-read-btn" (click)="markAllAsRead()">
+          تحديد الكل كمقروء
+        </button>
+      </div>
+    </div>

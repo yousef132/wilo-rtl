@@ -47,7 +47,7 @@ export class UsersComponent {
         private authService: AuthService,
         private modalService: NgbModal
     ) {
-        debugger;
+        ;
         this.initializeForm();
     }
 
@@ -66,7 +66,7 @@ export class UsersComponent {
 
     // Load users from API
     loadUsers(): void {
-        debugger;
+        ;
         this.isLoadingUsers = true;
         this.errorMessage = '';
         this.authService.getUsers().subscribe({
@@ -103,7 +103,7 @@ export class UsersComponent {
             this.markFormGroupTouched();
             return;
         }
-        debugger;
+        ;
         this.isCreatingCoach = true;
         this.clearMessages();
 

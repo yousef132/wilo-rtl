@@ -38,7 +38,7 @@ export class ErrorInterceptor implements HttpInterceptor {
                 return event;
             }),
             catchError((error: HttpErrorResponse) => {
-                debugger;
+                ;
                 let errorMessage = '';
                 let message = error?.error?.message ?? '';
                 switch (error.status) {
@@ -59,7 +59,6 @@ export class ErrorInterceptor implements HttpInterceptor {
                         errorMessage = message || 'المورد غير موجود';
                         break;
                     case 500:
-                        debugger
                         errorMessage =
                             message ||
                             'خطأ داخلي في الخادم. يرجى المحاولة لاحقًا';

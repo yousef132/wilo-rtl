@@ -40,12 +40,13 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
-    getContentChat(registrationId: number) {
+    getContentChat(contentId:number,userId:string, programId: number) {
+        ;
         return this.http
             .get<Result<Message[]>>(
                 this.baseUrl +
                     API_CONSTANTS.CONTENT.GET_CONTENT_CHAT +
-                    registrationId
+                    `?contentId=${contentId}&userId=${userId}&programId=${programId}`
             )
             .pipe(map((response) => response.data));
     }
@@ -61,7 +62,7 @@ export class ContentService {
     }
 
     sendMessage(message: SendMessage) {
-        debugger;
+        ;
         return this.http
             .post<Result<number | null>>(
                 this.baseUrl + API_CONSTANTS.CONTENT.SEND_MESSAGE,
@@ -90,6 +91,28 @@ export class ContentService {
         return this.http.get<CourseStructureResponse>(
             `${this.baseUrl}/content/${contentId}/course-structure`
         );
+    }
+
+    getCourseMentors(programId: number) {
+        return this.http
+            .get<Result<string[]>>(
+                `${this.baseUrl}${API_CONSTANTS.PROGRAM.GET_PROGRAM_MENTORS}${programId}`
+            )
+            .pipe(map((response) => response.data));
+    }
+
+    addMentor(programId: number, mentorEmail: string) {
+        // params
+        const params = new HttpParams()
+            .set('ProgramId', programId.toString())
+            .set('MentorEmail', mentorEmail);
+
+        return this.http
+            .post<Result<any>>(
+                `${this.baseUrl}${API_CONSTANTS.PROGRAM.ADD_PROGRAM_MENTOR}`,
+                params
+            )
+            .pipe(map((response) => response.data));
     }
 
     /**
@@ -138,15 +161,15 @@ export class ContentService {
         );
     }
 
-    getNextPrevContent(contentId: number,programId: number) {
+    getNextPrevContent(contentId: number, programId: number) {
         const params = new HttpParams()
             .set('id', contentId.toString())
             .set('ProgramId', programId);
 
-            // /prev-next/?id=32&sectionId=18
         return this.http
             .get<Result<NextContentResponse[]>>(
-                this.baseUrl + API_CONSTANTS.CONTENT.GET_NEXT_PREV , { params }
+                this.baseUrl + API_CONSTANTS.CONTENT.GET_NEXT_PREV,
+                { params }
             )
             .pipe(map((response) => response.data));
     }

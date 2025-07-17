@@ -39,10 +39,9 @@ export const canActivateAdminGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ) => {
-  debugger;
   const authService = inject(AuthService);
   let user = authService.getCurrentUser();
-  if (user && user.role == 'Admin') {
+  if (user && user.roles.includes('Admin')) {
     return true;
   } else {
     authService.logout();

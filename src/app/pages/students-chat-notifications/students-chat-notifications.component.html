@@ -1,0 +1,85 @@
+<app-inner-page-banner [pageTitle]="'المحادثات'" />
+
+
+<div class="student-notifications-container">
+    <div class="header-section">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="page-title">
+                <i class="bx bx-message-dots"></i>
+                رسائل الطلاب
+            </h2>
+            <button class="btn btn-outline-primary btn-sm" (click)="refreshNotifications()" [disabled]="loading">
+                <i class="bx bx-refresh" [class.bx-spin]="loading"></i>
+                تحديث
+            </button>
+        </div>
+        <p class="page-subtitle">إدارة المحادثات مع الطلاب في المحتويات المختلفة</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+        <div class="text-center">
+            <i class="bx bx-loader-alt bx-spin loading-icon"></i>
+            <p class="loading-text">جاري تحميل الإشعارات...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="alert alert-danger">
+        <i class="bx bx-error-circle"></i>
+        {{ error }}
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error &&students &&  students.length === 0" class="empty-state">
+        <div class="empty-content">
+            <i class="bx bx-chat empty-icon"></i>
+            <h4>لا توجد رسائل جديدة</h4>
+            <p>لم يرسل أي من الطلاب رسائل جديدة في هذا البرنامج</p>
+        </div>
+    </div>
+
+    <!-- Students List -->
+    <div *ngIf="!loading && !error &&students &&  students.length > 0" class="students-list">
+        <div *ngFor="let student of students" class="student-card">
+
+            <!-- Student Header -->
+            <div class="student-header">
+                <div class="student-info">
+                    <div class="student-avatar">
+                        <i class="bx bx-user"></i>
+                    </div>
+                    <div class="student-details">
+                        <h5 class="student-name">{{ student.arName }}</h5>
+                        <span class="student-email">{{ student.email }}</span>
+                    </div>
+                </div>
+                <div class="student-stats">
+                    <span class="content-count">
+                        <i class="bx bx-message-square-dots"></i>
+                        {{ getTotalContentCount(student) }} محتوى
+                    </span>
+                </div>
+            </div>
+
+            <!-- Student Contents -->
+            <div class="contents-section">
+                <h6 class="contents-title">المحتويات التي تحتوي على رسائل جديدة:</h6>
+                <div class="contents-grid">
+                    <div *ngFor="let content of student.contents" class="content-item"
+                        (click)="openChat(student.userId, content.id)">
+                        <div class="content-info">
+                            <i class="bx bx-book-content content-icon"></i>
+                            <div class="content-details">
+                                <span class="content-title">{{ content.title }}</span>
+                            </div>
+                        </div>
+                        <div class="content-action">
+                            <i class="bx bx-chevron-left"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,8 +1,4 @@
-<app-inner-page-banner [pageTitle]="'الامتحان'" />
-
-
-<div class="course-lecture-container">
-  <!-- Sidebar Navigation -->
+<!-- 
   <div class="course-sidebar" [class.collapsed]="sidebarCollapsed">
     <div class="sidebar-header">
       <div class="course-info">
@@ -57,9 +53,7 @@
     </div>
   </div>
 
-  <!-- Main Content Area -->
   <div class="main-content" [class.sidebar-collapsed]="sidebarCollapsed">
-    <!-- Content Header -->
     <div class="content-header">
       <div class="content-navigation">
         <button class="nav-btn" (click)="navigateToPrevious()" [disabled]="!hasPreviousLecture">
@@ -83,13 +77,10 @@
       </div>
     </div>
 
-    <!-- Content Display Area -->
     <div class="content-display">
       <div class="content-main" *ngIf="content">
-        <!-- Content Media/Files -->
         <div class="content-media">
           <ng-container [ngSwitch]="content.contentType">
-            <!-- Video Content -->
             <div *ngIf="content.contentType == ContentType.Loom || 
                        content.contentType == ContentType.Vimeo || 
                        content.contentType == ContentType.YouTube" 
@@ -97,7 +88,6 @@
               <div *ngIf="safeContentHtml" [innerHTML]="safeContentHtml" class="video-wrapper"></div>
             </div>
 
-            <!-- File Content -->
             <div *ngSwitchCase="ContentType.File" class="file-container">
               <div class="file-preview">
                 <i class="bx bx-file file-icon"></i>
@@ -110,7 +100,6 @@
               </div>
             </div>
 
-            <!-- Website Link -->
             <div *ngSwitchCase="ContentType.Website" class="website-container">
               <div class="website-preview">
                 <i class="bx bx-globe website-icon"></i>
@@ -123,20 +112,17 @@
               </div>
             </div>
 
-            <!-- Image Content -->
             <div *ngSwitchCase="ContentType.Image" class="image-container">
               <img [src]="content.contentUrl" alt="صورة المحتوى" class="content-image" />
             </div>
           </ng-container>
         </div>
 
-        <!-- Content Description -->
         <div class="content-description" *ngIf="content.contentText">
           <h3>وصف المحاضرة</h3>
           <p>{{ content.contentText }}</p>
         </div>
 
-        <!-- Content Meta Information -->
         <div class="content-meta">
           <div class="meta-item">
             <i class="bx bx-calendar"></i>
@@ -148,7 +134,6 @@
           </div>
         </div>
 
-        <!-- Requirements Alert -->
         <div *ngIf="!content.isPassed && !content.isOwner" class="requirements-alert">
           <div class="alert-content">
             <i class="bx bx-info-circle"></i>
@@ -168,7 +153,6 @@
           </div>
         </div>
 
-        <!-- Instructor Actions -->
         <div *ngIf="content.isOwner && content.contentPassingRequirement == ContentPassingRequirement.Manually && !content.isPassed" 
              class="instructor-actions">
           <button class="btn btn-success" (click)="passStudent()">
@@ -177,14 +161,12 @@
           </button>
         </div>
 
-        <!-- Success Badge -->
         <div *ngIf="content.isPassed" class="success-badge">
           <i class="bx bx-badge-check"></i>
           <span>تم الاجتياز</span>
         </div>
       </div>
 
-      <!-- Chat Section -->
       <div class="chat-section" [class.expanded]="chatExpanded">
         <div class="chat-header" (click)="toggleChat()">
           <div class="chat-title">
@@ -258,4 +240,4 @@
 </div>
 
 <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true" [zIndex]="9999">
-</ngx-spinner>
+</ngx-spinner> --> -->

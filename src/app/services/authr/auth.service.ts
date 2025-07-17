@@ -73,52 +73,96 @@ export class AuthService {
             command
         );
     }
+    // decodeTokenToUser(): currentUser | null {
+    //     let token: string | null = '';
+    //     if (isPlatformBrowser(this.platformId)) {
+    //         token = localStorage.getItem('token');
+    //     }
+    //     if (!token) {
+    //         return null;
+    //     }
+    //     try {
+    //         const base64Url = token.split('.')[1];
+    //         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    //         const jsonPayload = decodeURIComponent(
+    //             atob(base64)
+    //                 .split('')
+    //                 .map(
+    //                     (c) =>
+    //                         '%' +
+    //                         ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    //                 )
+    //                 .join('')
+    //         );
+
+    //         const payload = JSON.parse(jsonPayload);
+
+    //         const exp = payload.exp;
+    //         const currentTime = Math.floor(Date.now() / 1000);
+    //         if (!exp || exp <= currentTime) {
+    //             return null; // Token is expired
+    //         }
+
+    //         return {
+    //             email:
+    //                 payload[
+    //                     'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
+    //                 ] || '',
+    //             userName: payload.ArName || '',
+    //             tokenExpired: false,
+    //             roles:
+    //                 payload[
+    //                     'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+    //                 ] || [],
+    //             id: payload.sub || '',
+    //         };
+    //     } catch (error) {
+    //         console.error('Error decoding token:', error);
+    //         return null;
+    //     }
+    // }
+
     decodeTokenToUser(): currentUser | null {
-        let token: string | null = '';
-        if (isPlatformBrowser(this.platformId)) {
-            token = localStorage.getItem('token');
-        }
-        if (!token) {
-            return null;
-        }
-        try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(
-                atob(base64)
-                    .split('')
-                    .map(
-                        (c) =>
-                            '%' +
-                            ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-                    )
-                    .join('')
-            );
+  if (!isPlatformBrowser(this.platformId)) return null;
 
-            const payload = JSON.parse(jsonPayload);
+  const token = localStorage.getItem('token');
+  if (!token) return null;
 
-            const exp = payload.exp;
-            const currentTime = Math.floor(Date.now() / 1000);
-            if (!exp || exp <= currentTime) {
-                return null; // Token is expired
-            }
+  try {
+    // --- Decode ---
+    const base64Url = token.split('.')[1];
+    const json = JSON.parse(
+      decodeURIComponent(
+        atob(base64Url.replace(/-/g, '+').replace(/_/g, '/'))
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      )
+    );
 
-            return {
-                email:
-                    payload[
-                        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
-                    ] || '',
-                userName: payload.ArName || '',
-                tokenExpired: false,
-                role:
-                    payload[
-                        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
-                    ] || [],
-                id: payload.sub || '',
-            };
-        } catch (error) {
-            console.error('Error decoding token:', error);
-            return null;
-        }
-    }
+    // --- Expiry check ---
+    if (!json.exp || json.exp <= Math.floor(Date.now() / 1000)) return null;
+
+    // --- Claims mapping ---
+    const rawRoles =
+      json['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+
+    return {
+      email:
+        json['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ?? '',
+      userName: json.ArName ?? '',
+      tokenExpired: false,
+      roles: Array.isArray(rawRoles)
+        ? rawRoles
+        : rawRoles
+        ? [rawRoles]
+        : [],
+      id: json.sub ?? '',
+    };
+  } catch (err) {
+    console.error('Error decoding token:', err);
+    return null;
+  }
+}
+
 }

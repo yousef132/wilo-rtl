@@ -1,3 +1,87 @@
+<!-- <div class="navbar-area" [ngClass]="{'is-sticky': isSticky}">
+  <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <a class="navbar-brand" routerLink="/">
+        <img src="images/logo.png" alt="logo">
+      </a>
+      <button class="navbar-toggler rounded-0 shadow-none" (click)="toggleClass()" type="button">
+        <span class="burger-menu">
+          <span class="top-bar"></span>
+          <span class="middle-bar"></span>
+          <span class="bottom-bar"></span>
+        </span>
+      </button>
+      <div class="collapse navbar-collapse mean-menu">
+        <ul class="navbar-nav mx-4">
+          <li class="nav-item">
+            <a routerLink="/home" class="nav-link">
+              الرئيسيه <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/programs" class="nav-link">
+              البرامج <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="isAdmin">
+            <a routerLink="/users" class="nav-link">
+              المستخدمين <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
+
+
+  
+          <li class="nav-item">
+            <a *ngIf="isCoach" routerLink="/my-programs" class="nav-link">
+              حقائبى التدريبيه <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a *ngIf="isLoggedIn && !isCoach && !isAdmin" routerLink="/subscriptions" class="nav-link">
+              اشتراكاتى <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
+
+        </ul>
+        <div class="others-option d-flex align-items-center">
+          <div class="option-item">
+            <form class="search-box" (ngSubmit)="search()">
+              <input type="text" class="input-search" placeholder="ابحث عن تدريب..." [(ngModel)]="searchText"
+                name="search" />
+              <button type="submit">
+                <i class="flaticon-loupe"></i>
+              </button>
+            </form>
+
+          </div>
+          <div *ngIf="isLoggedIn" class="option-item">
+            <div class="fw-bold fs-5 text-primary mt-1">
+              <span class="text-muted">أهلاً بك،</span>
+              {{ currentUser?.userName }}
+            </div>
+          </div>
+
+          <div style="cursor: pointer;" *ngIf=" isLoggedIn!=null " class="option-item">
+            <a routerLink="/login" *ngIf="isLoggedIn === false "  class="default-btn">
+              <i class="flaticon-left"></i>
+              الدخول
+              <span></span>
+            </a>
+            <a (click)="logout()" *ngIf="isLoggedIn === true" class="default-btn">
+              <i class="flaticon-left"></i>
+              الخروج
+              <span></span>
+            </a>
+          </div>
+
+
+        </div>
+      </div>
+    </nav>
+  </div>
+</div> -->
+
+
 <div class="navbar-area" [ngClass]="{'is-sticky': isSticky}">
   <div class="container-fluid">
     <nav class="navbar navbar-expand-lg navbar-light">
@@ -23,19 +107,21 @@
               البرامج <i class='bx bx-chevron-down'></i>
             </a>
           </li>
-
-
+          <li class="nav-item" *ngIf="isAdmin">
+            <a routerLink="/users" class="nav-link">
+              المستخدمين <i class='bx bx-chevron-down'></i>
+            </a>
+          </li>
           <li class="nav-item">
             <a *ngIf="isCoach" routerLink="/my-programs" class="nav-link">
               حقائبى التدريبيه <i class='bx bx-chevron-down'></i>
             </a>
           </li>
           <li class="nav-item">
-            <a *ngIf="isLoggedIn && !isCoach" routerLink="/subscriptions" class="nav-link">
+            <a *ngIf="isLoggedIn && !isCoach && !isAdmin" routerLink="/subscriptions" class="nav-link">
               اشتراكاتى <i class='bx bx-chevron-down'></i>
             </a>
           </li>
-
         </ul>
         <div class="others-option d-flex align-items-center">
           <div class="option-item">
@@ -46,10 +132,79 @@
                 <i class="flaticon-loupe"></i>
               </button>
             </form>
-
           </div>
-          <div *ngIf=" isLoggedIn!=null " class="option-item">
-            <a routerLink="/login" *ngIf="isLoggedIn === false " class="default-btn">
+
+          <!-- Notifications Dropdown -->
+          <div *ngIf="isLoggedIn" class="option-item position-relative">
+            <div class="notification-wrapper">
+              <button 
+                class="notification-btn" 
+                (click)="toggleNotifications()"
+                type="button"
+                [class.active]="showNotifications">
+                <i class="bx bx-bell"></i>
+                <span *ngIf="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+              </button>
+              
+              <!-- Notifications Dropdown -->
+              <div 
+                class="notifications-dropdown" 
+                [class.show]="showNotifications"
+                *ngIf="showNotifications">
+                <div class="notifications-header">
+                  <h6>الإشعارات</h6>
+                  <button 
+                    class="mark-all-read" 
+                    (click)="markAllAsRead()"
+                    *ngIf="notifications.length > 0">
+                    تعيين الكل كمقروء
+                  </button>
+                </div>
+                
+                <div class="notifications-body">
+                  <div *ngIf="loadingNotifications" class="loading-state">
+                    <i class="bx bx-loader-alt bx-spin"></i>
+                    جاري التحميل...
+                  </div>
+                  
+                  <div *ngIf="!loadingNotifications && notifications.length === 0" class="empty-state">
+                    <i class="bx bx-bell-off"></i>
+                    لا توجد إشعارات جديدة
+                  </div>
+                  
+                  <a 
+                    *ngFor="let notification of notifications" 
+                    [routerLink]="notification.url"
+                    class="notification-item unread"
+                    (click)="closeNotifications()">
+                    <div class="notification-content">
+                      <div class="notification-title">{{ notification.content }}</div>
+                      <div class="notification-time">{{ notification.creationDate | date:'short' }}</div>
+                    </div>
+                    <div class="notification-status">
+                      <span class="unread-dot"></span>
+                    </div>
+                  </a>
+                </div>
+                
+                <div class="notifications-footer" *ngIf="notifications.length > 0">
+                  <a routerLink="/notifications" (click)="closeNotifications()">
+                    عرض جميع الإشعارات
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="isLoggedIn" class="option-item">
+            <div class="fw-bold fs-5 text-primary mt-1">
+              <span class="text-muted">أهلاً بك،</span>
+              {{ currentUser?.userName }}
+            </div>
+          </div>
+
+          <div style="cursor: pointer;" *ngIf=" isLoggedIn!=null " class="option-item">
+            <a routerLink="/login" *ngIf="isLoggedIn === false "  class="default-btn">
               <i class="flaticon-left"></i>
               الدخول
               <span></span>
@@ -60,19 +215,11 @@
               <span></span>
             </a>
           </div>
-
-          <div *ngIf="isLoggedIn" class="option-item">
-            <div class="fw-bold fs-5 text-primary mt-1">
-              <span class="text-muted">أهلاً بك،</span>
-              {{ currentUser?.userName }}
-            </div>
-          </div>
         </div>
       </div>
     </nav>
   </div>
 </div>
-
 <!-- Responsive Navbar -->
 <div class="responsive-navbar offcanvas offcanvas-end border-0 transition" [class.show]="classApplied">
   <div class="offcanvas-header d-flex justify-content-between align-items-center">
@@ -126,3 +273,7 @@
 
 
 <div class="offcanvas-backdrop fade" [class.show]="classApplied"></div>
+<!-- 
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+  [zIndex]="9999">
+</ngx-spinner> -->

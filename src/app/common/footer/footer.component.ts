@@ -21,7 +21,7 @@ export class FooterComponent {
         });
     }
     get isCoach(): boolean {
-        return this.currentUser?.role.includes('Coach') ?? false;
+        return this.currentUser?.roles.includes('Coach') ?? false;
     }
     // Back To Top
     isShow: boolean = false;

@@ -198,28 +198,19 @@ export class ExamComponent {
     private handleSubmissionSuccess(nextContentId: number | undefined): void {
         this.spinner.hide();
         this.isSubmitting = false;
-
-        // if (nextContentId) {
-        //                 this.router.navigate([
-        //         '/content-details',
-        //         nextContentId,
-        //         this.userId,
-        //         this.programId
-        //     ]);
-        // } else {
-        //     // Handle case where there's no next content
-        //     this.showAlert('تم إرسال الإجابات بنجاح!', 'success');
-        //     this.router.navigate(['/program', this.programId]);
-        // }
-        
       //=================================
         // null => already registered in next content
         // -1 => last content, user passed the pargram
         // value => next content opened
-        debugger;
+        // -2 => did not pass the exam
+        ;
         if (nextContentId) {
             if (nextContentId == -1) {
                 this.router.navigate(['/program-completed']);
+                return;
+            }
+            if(nextContentId == -2){
+                this.router.navigate(['/content-details',this.contentId,this.userId,this.programId]);
                 return;
             }
             //nextContentId = [1,2,3,...]

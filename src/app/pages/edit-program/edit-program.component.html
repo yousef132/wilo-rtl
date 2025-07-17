@@ -16,6 +16,14 @@
     </div>
   </div>
 
+    <div class="mb-3">
+    <label class="form-label">الرقم السرى</label>
+    <input type="text" class="form-control" formControlName="secretKey">
+    <div *ngIf="programForm.get('secretKey')?.invalid && programForm.get('secretKey')?.touched" class="text-danger">
+      <small *ngIf="programForm.get('secretKey')?.errors?.['required']">هذا الحقل مطلوب</small>
+    </div>
+  </div>
+
   <div class="row">
     <div class="col">
       <label class="form-label">المدة (أيام)</label>
@@ -36,16 +44,13 @@
   </div>
 
   <div class="mb-3 mt-3">
-      <label class="form-label">الحالة</label>
-<select
-  class="form-select"
-  formControlName="status"
-  (change)="onEditingProgramStatus($event)"
-  [disabled]="programForm.get('status')?.value === CoachingProgramStatus.Active">
-  <option [value]="CoachingProgramStatus.Active">نشط</option>
-  <option [value]="CoachingProgramStatus.InActive">غير نشط</option>
-  <option [value]="CoachingProgramStatus.Deleted">محذوف</option>
-</select>
+    <label class="form-label">الحالة</label>
+    <select class="form-select" formControlName="status" (change)="onEditingProgramStatus($event)"
+      [disabled]="programForm.get('status')?.value === CoachingProgramStatus.Active">
+      <option [value]="CoachingProgramStatus.Active">نشط</option>
+      <option [value]="CoachingProgramStatus.InActive">غير نشط</option>
+      <option [value]="CoachingProgramStatus.Deleted">محذوف</option>
+    </select>
 
 
     <div *ngIf="programForm.get('status')?.invalid && programForm.get('status')?.touched" class="text-danger">

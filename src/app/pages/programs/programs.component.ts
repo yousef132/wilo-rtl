@@ -24,7 +24,7 @@ export class ProgramsComponent implements OnInit {
     ngOnInit(): void {
         this.route.queryParams.subscribe((params) => {
             const search = params['search'];
-            debugger;
+            ;
             if (search) {
                 this.programQuery.title = search.trim() || '';
             }

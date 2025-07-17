@@ -92,3 +92,15 @@ export interface NextContentResponse{
     title:string;
     isOpened :boolean
 }
+export interface GetStudentsWithLevelResponse {
+  userId: string;
+  arName: string;
+  email: string;
+  lastContent: LastContent;
+}
+
+export interface LastContent {
+  id: number;
+  title: string;
+  passingRequirements: ContentPassingRequirement;
+}

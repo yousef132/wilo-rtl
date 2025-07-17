@@ -1,0 +1,71 @@
+<app-inner-page-banner [pageTitle]="'طلاب الدوره التدريبيه'"></app-inner-page-banner>
+
+
+
+<div class="course-students-container">
+  <div class="header">
+    <h2>طلاب الدورة</h2>
+    <button class="btn btn-primary" (click)="loadStudents()" [disabled]="loading">
+      <i class="fas fa-sync" [class.fa-spin]="loading"></i>
+      تحديث
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading && students.length === 0" class="loading-container">
+    <div class="spinner"></div>
+    <p>جاري تحميل الطلاب...</p>
+  </div>
+
+  <div *ngIf="!loading && students.length === 0 && !error" class="no-data">
+    <p>لا يوجد طلبات للموافقه عليها.</p>
+  </div>
+
+  <div *ngIf="students.length > 0" class="table-container">
+    <table class="students-table">
+      <thead>
+        <tr>
+          <th>اسم الطالب</th>
+          <th>البريد الإلكتروني</th>
+          <th>آخر محتوى</th>
+          <th>متطلبات النجاح</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of students; trackBy: trackByStudentId">
+          <td>{{ student.arName }}</td>
+          <td>{{ student.email }}</td>
+          <td>{{ student.lastContent?.title || 'غير متوفر' }}</td>
+          <td>
+            <span class="badge" [ngClass]="getPassingRequirementClass(student.lastContent?.passingRequirements!)">
+              {{ getPassingRequirementText(student.lastContent?.passingRequirements!) }}
+            </span>
+          </td>
+          <td class="actions">
+            <button 
+              *ngIf="student.lastContent?.passingRequirements === ContentPassingRequirement.Manually"
+              class="btn btn-success btn-sm"
+              (click)="passStudent(student.userId, student.lastContent.id)"
+              [disabled]="loading"
+              title="نجاح الطالب">
+              <i class="fas fa-check"></i>
+              نجاح
+            </button>
+  
+            <button 
+              class="btn btn-info btn-sm chat-btn"
+              (click)="openChat(student.userId,student.lastContent.id)"
+              title="الدردشة مع الطالب">
+              <i class="fas fa-comment"></i>
+              دردشة
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

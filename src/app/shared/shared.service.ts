@@ -36,7 +36,7 @@ export class SharedService {
   constructor() { }
 
    changeSectionId(value: number) {
-    debugger;
+    ;
     this.programId.next(value); 
   }
   validateFile(file: File, allowedTypes: string[], sizeInKB: number) {

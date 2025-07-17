@@ -39,6 +39,7 @@ export class CourseDetailsPageComponent {
     isLoggedIn: boolean = false;
     currentUser!: currentUser;
     isCoach: boolean = false;
+    isMentor: boolean = false;
     constructor(
         private activatedRoute: ActivatedRoute,
         private programService: ProgramsService,
@@ -57,13 +58,14 @@ export class CourseDetailsPageComponent {
             this.isLoggedIn = isLoggedIn;
         });
 
-        debugger;
+        ;
         this.authService.currentUser.subscribe((user) => {
             this.currentUser = user!;
-                debugger;
+                ;
 
             if (this.currentUser) {
-                this.isCoach = this.currentUser.role === "Coach";
+                this.isCoach = this.currentUser.roles.includes('Coach');
+                this.isMentor = this.currentUser.roles.includes('Mentor');
             }
         });
     }

@@ -3,10 +3,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProgramsService } from '../../services/programs.service';
 import { ContentSubscribers } from '../../models/content/content';
 import { NgFor, NgIf } from '@angular/common';
+import { InnerPageBannerComponent } from "../../common/inner-page-banner/inner-page-banner.component";
 
 @Component({
   selector: 'app-subscripters',
-  imports: [NgIf,NgFor,RouterLink],
+  imports: [NgIf, NgFor, RouterLink, InnerPageBannerComponent],
   templateUrl: './subscripters.component.html',
   styleUrl: './subscripters.component.scss'
 })

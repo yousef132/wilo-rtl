@@ -14,10 +14,16 @@ import { CreateQuestionComponent } from './pages/create-question/create-question
 import { ContentDashboardComponent } from './pages/content-dashboard/content-dashboard.component';
 import { ExamComponent } from './pages/exam/exam.component';
 import { SubscriptersComponent } from './pages/subscripters/subscripters.component';
-import { LecturesComponent } from './pages/lectures/lectures.component';
+// import { LecturesComponent } from './pages/lectures/lectures.component';
 import { UsersComponent } from './pages/users/users.component';
 import { canActivateAdminGuard } from './Gaurds/admin.guard';
 import { ProgramCompletedComponent } from './pages/program-completed/program-completed.component';
+import { EmailConfirmedComponent } from './pages/email-confirmed/email-confirmed.component';
+import { EmailConfirmationFailedComponent } from './pages/email-confirmation-failed/email-confirmation-failed.component';
+import { ProgramStudentsComponent } from './pages/program-students/program-students.component';
+import { StudentsChatNotificationsComponent } from './pages/students-chat-notifications/students-chat-notifications.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 
 export const routes: Routes = [
     { path: 'home', component: HomeDemoTwoComponent },
@@ -31,9 +37,16 @@ export const routes: Routes = [
     { path: 'create-program', component: CreateProgramComponent },
     { path: 'subscriptions', component: UserProgramsComponent },
     { path: 'content/subscribers/:programId/:contentId', component: SubscriptersComponent },
-    { path: 'program/lectures/:contentId/:userId', component: LecturesComponent },
+    // { path: 'program/lectures/:contentId/:userId', component: LecturesComponent },
     { path: 'users', component: UsersComponent,canActivate:[canActivateAdminGuard] },
     { path: 'program-completed', component: ProgramCompletedComponent },
+    { path: 'email-confirmed', component: EmailConfirmedComponent },
+    { path: 'email-confirmation-failed', component: EmailConfirmationFailedComponent },
+    { path: 'students/chats/:id', component: StudentsChatNotificationsComponent },
+    { path: 'program/students/:id', component: ProgramStudentsComponent },
+    { path: 'notifications', component: NotificationsComponent },
+    { path: 'dashboard', component: AdminDashboardComponent },
+
 // contentId, subscriber.userId,programId
     { path: 'program-details/:id', component: CourseDetailsPageComponent },
     {

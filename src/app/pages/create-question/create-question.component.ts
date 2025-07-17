@@ -55,7 +55,7 @@ export class CreateQuestionComponent {
     }
   
     loadQuestions(): void {
-      debugger;
+      ;
       // remove all the existing questions from form and loaded questions
       this.loadedquestions = null;
       this.questions.clear();

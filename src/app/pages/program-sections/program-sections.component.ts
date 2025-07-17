@@ -65,6 +65,7 @@ export class ProgramSectionsComponent implements OnInit {
 
     sections: DashboardSectionUI[] | null = null;
     sectionForm: FormGroup;
+    mentorsEmails: string[]  = [];
 
     contentForm!: FormGroup;
     selectedSectionId!: number;
@@ -73,9 +74,11 @@ export class ProgramSectionsComponent implements OnInit {
     fileError: string | null = null;
     @ViewChild('editSectionModal') editSectionModalRef!: TemplateRef<any>;
     editSectionForm!: FormGroup;
+    addMentorForm!: FormGroup;
     editingSectionId: number | null = null;
+    @ViewChild('addMentorModal') addMentorModalRef!: TemplateRef<any>;
 
-    get programIsNotActive():boolean {
+    get programIsNotActive(): boolean {
         return this.programStatus !== CoachingProgramStatus.Active;
     }
     constructor(
@@ -107,14 +110,60 @@ export class ProgramSectionsComponent implements OnInit {
             textContent: [''],
             contentPassingRequirement: ['', Validators.required],
         });
+        this.addMentorForm = this.fb.group({
+            email: ['', [Validators.required, Validators.email]],
+        });
 
         config.closeOthers = true;
     }
 
     ngOnInit(): void {
         this.getSections();
+        this.getMentors();
+    }
+    getMentors() {
+        this.contentService.getCourseMentors(this.programId).subscribe({
+            next: (response: string[] | undefined) => {
+                if (response) {
+                    
+                    this.mentorsEmails = response;
+                }
+            },
+            error: (error) => {
+                console.error(error);
+            },
+        });
     }
 
+    openMentorModal() {
+        ;
+        this.addMentorForm.reset(); // clear old values
+        this.modalService.open(this.addMentorModalRef, { centered: true });
+          setTimeout(() => {
+    const input = document.querySelector('#mentorEmailInput') as HTMLElement;
+    input?.focus();
+  }, 100);
+    }
+
+    submitAddMentor(modal: any): void {
+        if (this.addMentorForm.valid) {
+            const email = this.addMentorForm.value.email;
+
+            if (confirm(`هل أنت متأكد من إضافة المدرب بالبريد: ${email}؟`)) {
+                this.contentService.addMentor(this.programId, email).subscribe({
+                    next: (response) => {
+                        this.toastr.success('تمت إضافة المدرب بنجاح');
+                        modal.close();
+                        this.getMentors(); // reload mentor list
+                    },
+                    error: (err) => {
+                        this.toastr.error('فشل في إضافة المدرب');
+                        console.error(err);
+                    },
+                });
+            }
+        }
+    }
     getSections() {
         this.sectionService.getSectionsForDashboard(this.programId).subscribe({
             next: (response: DahsboardSection[] | undefined) => {
@@ -142,7 +191,7 @@ export class ProgramSectionsComponent implements OnInit {
     }
 
     isSectionIndexValid(index: number, sectionId?: number): boolean {
-        debugger;
+        ;
         return !this.sections?.find(
             (section) => section.index == index && section.id !== sectionId
         );
@@ -158,7 +207,7 @@ export class ProgramSectionsComponent implements OnInit {
     }
     submitEditSection(modal: any) {
         if (this.editSectionForm.valid && this.editingSectionId !== null) {
-            debugger;
+            ;
             const formValue = this.editSectionForm.value;
 
             // validate no duplicate index
@@ -172,7 +221,11 @@ export class ProgramSectionsComponent implements OnInit {
                 return;
             }
             this.sectionService
-                .updateSection(this.editingSectionId, formValue.sectionName, formValue.sectionIndex)
+                .updateSection(
+                    this.editingSectionId,
+                    formValue.sectionName,
+                    formValue.sectionIndex
+                )
                 .subscribe({
                     next: () => {
                         modal.close();
@@ -195,7 +248,7 @@ export class ProgramSectionsComponent implements OnInit {
     onSubmit() {
         if (this.sectionForm.valid) {
             // check if duplicate section index
-            debugger;
+            ;
             if (
                 !this.isSectionIndexValid(this.sectionForm.value.sectionIndex)
             ) {
@@ -271,7 +324,7 @@ export class ProgramSectionsComponent implements OnInit {
     submitContent(modal: any) {
         let sectionId = this.selectedSectionId;
         // check for content index duplication
-        debugger;
+        ;
         if (
             !this.isContentIndexValid(this.contentForm.value.index, sectionId)
         ) {

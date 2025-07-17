@@ -46,7 +46,6 @@ export class SectionsWithProgramsComponent implements OnInit {
         });
     }
     navigateToContent(contentId: number) {
-        debugger;
         // this.sharedService.changeSectionId(this.programId);
         // [routerLink]="['/content-details',content.id,currentUserId]"
         this.router.navigate([

@@ -41,7 +41,17 @@ export interface Base {
     name: string;
     index: number;
 }
+export interface ContentResponse {
+  title: string;
+  id: number;
+}
 
+export interface StudentNotificationResponse {
+  userId: string;
+  email: string;
+  arName: string;
+  contents: ContentResponse[];
+}
 export interface SectionContent extends Base {
     status?: Status;
     contentType: ContentType;

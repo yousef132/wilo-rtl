@@ -1,3 +1,13 @@
+
+
+<a class="btn btn-primary" [routerLink] = "['/program/students',programId]">
+    معالجه الطلبات
+</a>
+
+<a class="btn btn-primary" [routerLink] = "['/students/chats',programId]">
+    معالجه الرسائل
+</a>
+
 <div *ngIf="sections; else loading">
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h6>الأقسام</h6>
@@ -15,14 +25,14 @@
             <!-- <input *ngIf="section.editingIndex" type="number" [(ngModel)]="section.index"
               (blur)="saveSectionIndex(section)" style="width: 60px;" class="form-control d-inline ms-2" /> -->
 
-            <i  *ngIf="programIsNotActive" class="bx bx-pencil mx-1 text-primary" style="cursor: pointer;"
+            <i *ngIf="programIsNotActive" class="bx bx-pencil mx-1 text-primary" style="cursor: pointer;"
               (click)="openEditSectionModal(section)"></i>
 
             <!-- <small class="text-muted">(ترتيب: {{ section.index }})</small> -->
           </span>
           <p>
-            <i *ngIf="programIsNotActive" class="bx bx-plus-circle text-success" (click)="openContentModal(section.id)" title="اضافه محتوى"
-              style="cursor: pointer; z-index: 1111; font-size: 20px; margin-left: 10px;">
+            <i *ngIf="programIsNotActive" class="bx bx-plus-circle text-success" (click)="openContentModal(section.id)"
+              title="اضافه محتوى" style="cursor: pointer; z-index: 1111; font-size: 20px; margin-left: 10px;">
             </i>
           </p>
         </div>
@@ -59,8 +69,42 @@
 
   </div>
 
+  <div class="mt-4">
 
+  <div class="d-flex justify-content-between align-items-center mb-2">
+      <h6>المـُدرّبون</h6>
+      <button class="btn btn-sm btn-success" (click)="openMentorModal()">
+        + مُدرّب جديد
+      </button>
+    </div>
 
+  @if (mentorsEmails.length > 0) {
+  <table class="table table-sm table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>البريد الإلكتروني</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (mentor of mentorsEmails; let i = $index; track mentor) {
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ mentor }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+
+  </div>
+
+  <ng-template #loadingMentors>
+    <div class="text-center my-3">
+      <div class="spinner-border"></div>
+      <p class="mt-2">جاري تحميل المُدرّبين…</p>
+    </div>
+  </ng-template>
   <!-- Empty State -->
   <ng-template #noSections>
     <div class="text-center text-muted mt-5">
@@ -70,6 +114,27 @@
   </ng-template>
   <!-- Loading State -->
 
+  <ng-template #addMentorModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">إضافة مدرب</h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+    </div>
+    <form [formGroup]="addMentorForm" (ngSubmit)="submitAddMentor(modal)">
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">البريد الإلكتروني للمدرب</label>
+          <input id="mentorEmailInput" type="email" class="form-control" formControlName="email" />
+          <small class="text-danger" *ngIf="addMentorForm.get('email')?.invalid && addMentorForm.get('email')?.touched">
+            البريد الإلكتروني مطلوب ويجب أن يكون صحيحاً
+          </small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">إلغاء</button>
+        <button type="submit" class="btn btn-primary" [disabled]="addMentorForm.invalid">إضافة</button>
+      </div>
+    </form>
+  </ng-template>
 
 </div>
 
@@ -169,11 +234,11 @@
         </div>
       </div>
       <div class="mb-3" *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam">
-        <label class="form-label">درجه النجاح </label>
+        <label class="form-label">نسبه النجاح </label>
         <input type="number" class="form-control" formControlName="passingMark" />
         <div class="text-danger"
           *ngIf="contentForm.get('passingMark')?.touched && contentForm.get('passingMark')?.invalid ">
-          <small>اختر درجه النجاح</small>
+          <small>اختر نسبه النجاح</small>
         </div>
       </div>
       <div class="mb-3">
@@ -249,4 +314,4 @@
       <button class="btn btn-primary" type="submit" [disabled]="contentForm.invalid || fileError != null">حفظ</button>
     </div>
   </form>
-</ng-template>
+</ng-template> 
