@@ -97,6 +97,7 @@ export interface GetStudentsWithLevelResponse {
   arName: string;
   email: string;
   lastContent: LastContent;
+  progressPercentage:number;
 }
 
 export interface LastContent {

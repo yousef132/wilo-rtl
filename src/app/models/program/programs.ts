@@ -42,15 +42,33 @@ export interface Base {
     index: number;
 }
 export interface ContentResponse {
-  title: string;
-  id: number;
+    title: string;
+    id: number;
+}
+export interface CourseStats {
+    id: number;
+    title: string;
+    instructor: string;
+    studentsCount: number;
+    price: number;
+    status: CoachingProgramStatus;
+
+    createdAt: Date;
+}
+
+// Interface for platform statistics
+export interface PlatformStats {
+    totalCourses: number;
+    totalStudents: number;
+    totalInstructors: number;
+    totalMentors: number;
 }
 
 export interface StudentNotificationResponse {
-  userId: string;
-  email: string;
-  arName: string;
-  contents: ContentResponse[];
+    userId: string;
+    email: string;
+    arName: string;
+    contents: ContentResponse[];
 }
 export interface SectionContent extends Base {
     status?: Status;

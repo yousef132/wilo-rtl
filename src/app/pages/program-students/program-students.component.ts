@@ -18,7 +18,7 @@ export class ProgramStudentsComponent {
     students: GetStudentsWithLevelResponse[] = [];
     loading = false;
     error: string | null = null;
-    courseId!: number; // يتم تعيينه بناءً على المسار أو المُدخل
+    courseId!: number;
 
     // إتاحة التعداد في القالب
     ContentPassingRequirement = ContentPassingRequirement;
@@ -76,10 +76,8 @@ export class ProgramStudentsComponent {
         }
     }
 
-    openChat(studentId: string,contentId:number): void {
-    //content-details/:contentId/:userId/:programId
-    ;
-        this.router.navigate(['/content-details', contentId,studentId,this.courseId]);
+    openChat(studentId: string, contentId: number): void {
+        this.router.navigate(['/content-details', contentId, studentId, this.courseId]);
     }
 
     getPassingRequirementText(requirement: ContentPassingRequirement): string {
@@ -100,16 +98,30 @@ export class ProgramStudentsComponent {
     getPassingRequirementClass(requirement: ContentPassingRequirement): string {
         switch (requirement) {
             case ContentPassingRequirement.None:
-                return 'badge-secondary';
+                return 'requirement-none';
             case ContentPassingRequirement.Exam:
-                return 'badge-info';
+                return 'requirement-exam';
             case ContentPassingRequirement.Comment:
-                return 'badge-warning';
+                return 'requirement-comment';
             case ContentPassingRequirement.Manually:
-                return 'badge-primary';
+                return 'requirement-manual';
             default:
-                return 'badge-secondary';
+                return 'requirement-unknown';
         }
+    }
+
+    getProgressClass(percentage: number): string {
+        if (percentage >= 80) return 'progress-excellent';
+        if (percentage >= 60) return 'progress-good';
+        if (percentage >= 40) return 'progress-average';
+        return 'progress-low';
+    }
+
+    getProgressText(percentage: number): string {
+        if (percentage >= 80) return 'ممتاز';
+        if (percentage >= 60) return 'جيد';
+        if (percentage >= 40) return 'متوسط';
+        return 'ضعيف';
     }
 
     trackByStudentId(index: number, student: GetStudentsWithLevelResponse): string {

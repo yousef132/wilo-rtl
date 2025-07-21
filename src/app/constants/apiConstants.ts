@@ -54,6 +54,9 @@ export const API_CONSTANTS = {
         GET_PROGRAM_STUDENTS_CHAT_NOTIFICATIONS: 'CoachingProgram/students/chats/',
         GET_PROGRESS: 'progress',
         IMPORT_PROGRAM: 'CoachingProgram/import',
+        ALL_PROGRAMS: 'CoachingProgram/programs-admin',
+        GET_STATICTS: 'CoachingProgram/staticts',
+        UPDATE_PROGRAM_STATUS: 'CoachingProgram/status',
     },
     NOTIFICATION:{
         GET_NOTIFICATIONS: 'Notification',

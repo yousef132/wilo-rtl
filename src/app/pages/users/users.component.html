@@ -1,153 +1,285 @@
-<app-inner-page-banner [pageTitle]="'إدارة المستخدمين'"></app-inner-page-banner>
+<app-inner-page-banner [pageTitle]="'إدارة المستخدمين والإحصائيات'"></app-inner-page-banner>
 
-<div class="admin-users-container">
-  <!-- العنوان -->
-  <div class="header-section">
-    <div class="header-actions">
-      <button 
-        class="btn btn-refresh" 
-        (click)="refreshUsers()" 
-        [disabled]="isLoadingUsers"
-        title="تحديث المستخدمين">
-        <i class="fas fa-sync-alt" [class.fa-spin]="isLoadingUsers"></i>
-        تحديث
+<div class="admin-container">
+  <!-- التبويبات -->
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tab-button" [class.active]="activeTab === 'users'" (click)="setActiveTab('users')">
+        <i class="bx bx-user"></i>
+        المستخدمين
       </button>
-      <button 
-        class="btn btn-primary" 
-        (click)="openCreateCoachModal()"
-        [disabled]="isLoadingUsers">
-        <i class="fas fa-plus"></i>
-        إنشاء مدرب
+      <button class="tab-button" [class.active]="activeTab === 'statistics'" (click)="setActiveTab('statistics')">
+        <i class="bx bx-bar-chart-alt-2"></i>
+        إحصائيات المنصة
       </button>
     </div>
   </div>
 
-  <!-- الرسائل -->
-  <div class="messages" *ngIf="errorMessage || successMessage">
-    <div class="alert alert-error" *ngIf="errorMessage">
-      <i class="fas fa-exclamation-circle"></i>
-      {{ errorMessage }}
-    </div>
-    <div class="alert alert-success" *ngIf="successMessage">
-      <i class="fas fa-check-circle"></i>
-      {{ successMessage }}
-    </div>
-  </div>
-
-  <!-- جدول المستخدمين -->
-  <div class="users-section">
-    <div class="table-container">
-      <div class="loading-overlay" *ngIf="isLoadingUsers">
-        <div class="spinner"></div>
-        <span>جاري تحميل المستخدمين...</span>
+  <!-- محتوى تبويب المستخدمين -->
+  <div class="tab-content" *ngIf="activeTab === 'users'">
+    <div class="header-section">
+      <h2 class="section-title">إدارة المستخدمين</h2>
+      <div class="header-actions">
+        <button class="btn btn-refresh" (click)="refreshUsers()" [disabled]="isLoadingUsers" title="تحديث المستخدمين">
+          <i class="bx bx-refresh" [class.bx-spin]="isLoadingUsers"></i>
+          تحديث
+        </button>
+        <button class="btn btn-primary" (click)="openCreateCoachModal()" [disabled]="isLoadingUsers">
+          <i class="bx bx-plus"></i>
+          إنشاء مدرب
+        </button>
       </div>
-
-      <table class="users-table"  *ngIf="!isLoadingUsers">
-        <thead>
-          <tr>
-            <th>الاسم العربي</th>
-            <th>اسم المستخدم</th>
-            <th>البريد الإلكتروني</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of paginatedUsers" class="user-row">
-            <td>{{ user.arName || 'غير متوفر' }}</td>
-            <td>{{ user.userName }}</td>
-            <td>{{ user.email }}</td>
-          </tr>
-          <tr *ngIf="users.length === 0 && !isLoadingUsers" class="no-data-row">
-            <td colspan="4" class="no-data">
-              <i class="fas fa-users"></i>
-              <span>لا يوجد مستخدمين</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
 
-    <!-- ترقيم الصفحات -->
-    <div class="pagination" *ngIf="totalPages > 1 && !isLoadingUsers">
-      <button 
-        class="btn btn-pagination" 
-        [disabled]="currentPage === 1"
-        (click)="changePage(currentPage - 1)">
-        <i class="fas fa-chevron-left"></i>
-        السابق
-      </button>
-      
-      <span class="pagination-info">
-        الصفحة {{ currentPage }} من {{ totalPages }} ({{ totalUsers }} مستخدم)
-      </span>
-      
-      <button 
-        class="btn btn-pagination" 
-        [disabled]="currentPage === totalPages"
-        (click)="changePage(currentPage + 1)">
-        التالي
-        <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
-  </div>
-
-<ng-template #createCoachModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">إنشاء مدرب جديد</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
-  </div>
-
-  <form [formGroup]="createCoachForm" (ngSubmit)="createCoach()">
-    <div class="modal-body">
-      <div class="mb-3">
-        <label class="form-label">البريد الإلكتروني *</label>
-        <input type="email" class="form-control" formControlName="email" />
-        <div *ngIf="isFieldInvalid('email')" class="text-danger">
-          {{ getFieldError('email') }}
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">كلمة المرور *</label>
-        <input type="password" class="form-control" formControlName="password" />
-        <div *ngIf="isFieldInvalid('password')" class="text-danger">
-          {{ getFieldError('password') }}
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">الاسم العربي *</label>
-        <input type="text" class="form-control" formControlName="arName" />
-        <div *ngIf="isFieldInvalid('arName')" class="text-danger">
-          {{ getFieldError('arName') }}
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">المسمى الوظيفي *</label>
-        <input type="text" class="form-control" formControlName="title" />
-        <div *ngIf="isFieldInvalid('title')" class="text-danger">
-          {{ getFieldError('title') }}
-        </div>
-      </div>
-
-      <div *ngIf="errorMessage" class="alert alert-danger">
+    <div class="messages" *ngIf="errorMessage || successMessage">
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <i class="bx bx-error-circle"></i>
         {{ errorMessage }}
       </div>
-      <div *ngIf="successMessage" class="alert alert-success">
+      <div class="alert alert-success" *ngIf="successMessage">
+        <i class="bx bx-check-circle"></i>
         {{ successMessage }}
       </div>
     </div>
 
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()" [disabled]="isCreatingCoach">
-        إلغاء
-      </button>
-      <button type="submit" class="btn btn-primary" [disabled]="createCoachForm.invalid || isCreatingCoach">
-        <span *ngIf="isCreatingCoach" class="spinner-border spinner-border-sm"></span>
-        {{ isCreatingCoach ? 'جاري الإنشاء...' : 'إنشاء مدرب' }}
-      </button>
-    </div>
-  </form>
-</ng-template>
+    <div class="users-section">
+      <div class="table-container">
+        <div class="loading-overlay" *ngIf="isLoadingUsers">
+          <div class="spinner"></div>
+          <span>جاري تحميل المستخدمين...</span>
+        </div>
 
+        <table class="users-table" *ngIf="!isLoadingUsers">
+          <thead>
+            <tr>
+              <th>الاسم العربي</th>
+              <th>اسم المستخدم</th>
+              <th>البريد الإلكتروني</th>
+              <th>المسمى الوظيفي</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of paginatedUsers" class="user-row">
+              <td>
+                <div class="user-info">
+                  <div class="user-avatar">
+                    <i class="bx bx-user"></i>
+                  </div>
+                  <span>{{ user.arName || 'غير متوفر' }}</span>
+                </div>
+              </td>
+              <td>{{ user.userName }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{user.title}}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn-edit" (click)="editUser(user)" title="تعديل المستخدم">
+                    <i class="bx bx-edit"></i>
+                  </button>
+                  <button class="btn btn-danger" (click)="deleteUser(user)" title="حذف المستخدم">
+                    <i class="bx bx-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="users.length === 0 && !isLoadingUsers" class="no-data-row">
+              <td colspan="5" class="no-data">
+                <i class="bx bx-user"></i>
+                <span>لا يوجد مستخدمين</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" *ngIf="totalPages > 1 && !isLoadingUsers">
+        <button class="btn btn-pagination" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+          <i class="bx bx-chevron-right"></i>
+          السابق
+        </button>
+
+        <span class="pagination-info">
+          الصفحة {{ currentPage }} من {{ totalPages }} ({{ totalUsers }} مستخدم)
+        </span>
+
+        <button class="btn btn-pagination" [disabled]="currentPage === totalPages"
+          (click)="changePage(currentPage + 1)">
+          التالي
+          <i class="bx bx-chevron-left"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- محتوى تبويب الإحصائيات -->
+  <div class="tab-content" *ngIf="activeTab === 'statistics'">
+    <div class="statistics-section">
+      <h2 class="section-title">إحصائيات المنصة</h2>
+
+      <div class="stats-overview">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bx bx-book"></i>
+          </div>
+          <div class="stat-info">
+            <h3>{{ platformStats?.totalCourses }}</h3>
+            <p>إجمالي الدورات</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bx bx-group"></i>
+          </div>
+          <div class="stat-info">
+            <h3>{{ platformStats?.totalStudents }}</h3>
+            <p>إجمالي الطلاب</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bx bx-user-circle"></i>
+          </div>
+          <div class="stat-info">
+            <h3>{{ platformStats?.totalInstructors }}</h3>
+            <p>إجمالي المدربين</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bx bx-user-circle"></i>
+          </div>
+          <div class="stat-info">
+            <h3>{{ platformStats?.totalMentors }}</h3>
+            <p>إجمالي المساعدين</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="courses-section">
+        <h3 class="subsection-title">الدورات والطلاب المسجلين</h3>
+        <div class="table-container">
+          <table class="courses-table">
+            <thead>
+              <tr>
+                <th>اسم الدورة</th>
+                <th>المدرب</th>
+                <th>عدد الطلاب</th>
+                <th>الحالة</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let course of coursesStats" class="course-row">
+                <td>
+                  <div class="course-info">
+                    <div class="course-icon">
+                      <i class="bx bx-chalkboard"></i>
+                    </div>
+                    <a [routerLink]="['/program-details', course.id]">
+                      <span>{{ course.title }}</span>
+                    </a>
+                  </div>
+                </td>
+                <td>{{ course.instructor }}</td>
+                <td>
+                  <span class="student-count">{{ course.studentsCount }}</span>
+                </td>
+                <!-- <td>
+                  <span class="price">{{ course.price | currency:'USD':'symbol':'1.0-0' }}</span>
+                </td> -->
+                <td>
+                  <span class="status" [class]="getStatusClass(course.status)">
+                    {{ getStatusLabel(course.status) }}
+                  </span>
+                </td>
+                <td>{{ course.createdAt | date:'dd/MM/yyyy' }}</td>
+                <div class="actions">
+                  <button class="btn btn-edit  " (click)="editProgramStatus(course.status, course.id)"
+                    [title]="course.status === CoachingProgramStatus.Active ? 'إلغاء تفعيل البرنامج' : 'تفعيل البرنامج'">
+                    <i class="bx"
+                      [ngClass]="course.status === CoachingProgramStatus.Active ? 'bx-toggle-left' : 'bx-toggle-right'"></i>
+                  </button>
+
+                  <button class="btn btn-danger " (click)="deleteProgram(course.id)" title="حذف البرنامج">
+                    <i class="bx bx-trash"></i>
+                  </button>
+                </div>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال إنشاء مدرب -->
+  <ng-template #createCoachModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">إنشاء مدرب جديد</h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+    </div>
+
+    <form [formGroup]="createCoachForm" (ngSubmit)="createCoach()">
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">البريد الإلكتروني *</label>
+          <input type="email" class="form-control" formControlName="email" />
+          <div *ngIf="isFieldInvalid('email')" class="text-danger">
+            {{ getFieldError('email') }}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">كلمة المرور *</label>
+          <input type="password" class="form-control" formControlName="password" />
+          <div *ngIf="isFieldInvalid('password')" class="text-danger">
+            {{ getFieldError('password') }}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">الاسم العربي *</label>
+          <input type="text" class="form-control" formControlName="arName" />
+          <div *ngIf="isFieldInvalid('arName')" class="text-danger">
+            {{ getFieldError('arName') }}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">المسمى الوظيفي *</label>
+          <input type="text" class="form-control" formControlName="title" />
+          <div *ngIf="isFieldInvalid('title')" class="text-danger">
+            {{ getFieldError('title') }}
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+        <div *ngIf="successMessage" class="alert alert-success">
+          {{ successMessage }}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modal.dismiss()" [disabled]="isCreatingCoach">
+          إلغاء
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="createCoachForm.invalid || isCreatingCoach">
+          <span *ngIf="isCreatingCoach" class="spinner-border spinner-border-sm"></span>
+          {{ isCreatingCoach ? 'جاري الإنشاء...' : 'إنشاء مدرب' }}
+        </button>
+      </div>
+    </form>
+  </ng-template>
 </div>
+
+
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+  [zIndex]="9999">
+</ngx-spinner>

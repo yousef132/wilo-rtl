@@ -143,7 +143,7 @@
                 type="button"
                 [class.active]="showNotifications">
                 <i class="bx bx-bell"></i>
-                <span *ngIf="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+                <span *ngIf="unreadCount() > 0" class="notification-badge">{{ unreadCount() }}</span>
               </button>
               
               <!-- Notifications Dropdown -->

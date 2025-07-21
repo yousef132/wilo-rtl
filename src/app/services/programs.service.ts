@@ -8,6 +8,9 @@ import {
     ProgramQuery,
     Section,
     StudentNotificationResponse,
+    CourseStats,
+    PlatformStats,
+    CoachingProgramStatus,
 } from '../models/program/programs';
 import { API_CONSTANTS, Result } from '../constants/apiConstants';
 import { map } from 'rxjs';
@@ -48,11 +51,38 @@ export class ProgramsService {
             )
             .pipe(map((response) => response.data));
     }
+    updateStatus(programId:number,status:CoachingProgramStatus){
+        return this.http
+            .put<Result<any>>(
+                this.baseUrl +
+                    API_CONSTANTS.PROGRAM.UPDATE_PROGRAM_STATUS,
+                    {
+                        programId:programId,
+                        status:status
+                    }
+            )
+            .pipe(map((response) => response.data));
+    }
 
     getStudentPrograms() {
         return this.http
             .get<Result<ProgramCard[]>>(
                 this.baseUrl + API_CONSTANTS.PROGRAM.GET_STUDENT_PROGRAMS
+            )
+            .pipe(map((response) => response.data));
+    }
+    getProgramsForAdmin() {
+        return this.http
+            .get<Result<CourseStats[]>>(
+                this.baseUrl + API_CONSTANTS.PROGRAM.ALL_PROGRAMS
+            )
+            .pipe(map((response) => response.data));
+    }
+
+      getStatistics() {
+        return this.http
+            .get<Result<PlatformStats>>(
+                this.baseUrl + API_CONSTANTS.PROGRAM.GET_STATICTS
             )
             .pipe(map((response) => response.data));
     }
@@ -70,7 +100,7 @@ export class ProgramsService {
         return this.http
             .post<Result<any>>(
                 this.baseUrl + API_CONSTANTS.PROGRAM.IMPORT_PROGRAM,
-                {secretKey: secretKey}
+                { secretKey: secretKey.trim() }
             )
             .pipe(map((response) => response.data));
     }

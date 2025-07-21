@@ -1,71 +1,151 @@
 <app-inner-page-banner [pageTitle]="'طلاب الدوره التدريبيه'"></app-inner-page-banner>
 
-
-
 <div class="course-students-container">
-  <div class="header">
-    <h2>طلاب الدورة</h2>
-    <button class="btn btn-primary" (click)="loadStudents()" [disabled]="loading">
-      <i class="fas fa-sync" [class.fa-spin]="loading"></i>
-      تحديث
-    </button>
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <h2 class="page-title">
+        <i class="bx bx-group"></i>
+        طلاب الدورة
+        <span class="students-count" *ngIf="students.length > 0">({{ students.length }})</span>
+      </h2>
+      <p class="page-subtitle">إدارة ومتابعة تقدم الطلاب في الدورة التدريبية</p>
+    </div>
+    
+    <div class="header-actions">
+      <button 
+        class="refresh-btn"
+        (click)="loadStudents()" 
+        [disabled]="loading"
+        [class.loading]="loading">
+        <i class="bx" [class.bx-refresh]="!loading" [class.bx-loader-alt]="loading"></i>
+        تحديث البيانات
+      </button>
+    </div>
   </div>
 
-  <div *ngIf="error" class="alert alert-danger">
-    {{ error }}
+  <!-- Error Alert -->
+  <div *ngIf="error" class="alert-error" role="alert">
+    <i class="bx bx-error-circle"></i>
+    <span>{{ error }}</span>
   </div>
 
-  <div *ngIf="loading && students.length === 0" class="loading-container">
-    <div class="spinner"></div>
-    <p>جاري تحميل الطلاب...</p>
+  <!-- Loading State -->
+  <div *ngIf="loading && students.length === 0" class="loading-state">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+    </div>
+    <h3>جاري تحميل بيانات الطلاب...</h3>
+    <p>يرجى الانتظار قليلاً</p>
   </div>
 
-  <div *ngIf="!loading && students.length === 0 && !error" class="no-data">
-    <p>لا يوجد طلبات للموافقه عليها.</p>
+  <!-- Empty State -->
+  <div *ngIf="!loading && students.length === 0 && !error" class="empty-state">
+    <div class="empty-icon">
+      <i class="bx bx-user-x"></i>
+    </div>
+    <h3>لا يوجد طلاب مسجلين</h3>
+    <p>لم يتم العثور على أي طلاب في هذه الدورة</p>
   </div>
 
-  <div *ngIf="students.length > 0" class="table-container">
-    <table class="students-table">
-      <thead>
-        <tr>
-          <th>اسم الطالب</th>
-          <th>البريد الإلكتروني</th>
-          <th>آخر محتوى</th>
-          <th>متطلبات النجاح</th>
-          <th>الإجراءات</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let student of students; trackBy: trackByStudentId">
-          <td>{{ student.arName }}</td>
-          <td>{{ student.email }}</td>
-          <td>{{ student.lastContent?.title || 'غير متوفر' }}</td>
-          <td>
-            <span class="badge" [ngClass]="getPassingRequirementClass(student.lastContent?.passingRequirements!)">
-              {{ getPassingRequirementText(student.lastContent?.passingRequirements!) }}
+  <!-- Students Grid -->
+  <div *ngIf="students.length > 0" class="students-grid">
+    <div 
+      *ngFor="let student of students; trackBy: trackByStudentId" 
+      class="student-card"
+      [class.loading-overlay]="loading">
+      
+      <!-- Student Avatar & Basic Info -->
+      <div class="student-header">
+        <div class="student-avatar">
+          <i class="bx bx-user"></i>
+        </div>
+        
+        <div class="student-info">
+          <h3 class="student-name">{{ student.arName }}</h3>
+          <p class="student-email">
+            <i class="bx bx-envelope"></i>
+            {{ student.email }}
+          </p>
+        </div>
+
+        <div class="student-id">
+          #{{ student.userId.slice(-6) }}
+        </div>
+      </div>
+
+      <!-- Progress Section -->
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-label">نسبة التقدم في الدورة</span>
+          <span class="progress-percentage">{{ student.progressPercentage }}%</span>
+        </div>
+        
+        <div class="progress-bar-container">
+          <div 
+            class="progress-bar" 
+            [class]="getProgressClass(student.progressPercentage)"
+            [style.width.%]="student.progressPercentage">
+            <div class="progress-shine"></div>
+          </div>
+        </div>
+        
+        <div class="progress-status">
+          <span [class]="getProgressClass(student.progressPercentage)">
+            {{ getProgressText(student.progressPercentage) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Last Content Section -->
+      <div class="content-section">
+        <div class="content-header">
+          <i class="bx bx-book-open"></i>
+          <span class="content-label">آخر محتوى تم دراسته</span>
+        </div>
+        
+        <div class="content-details">
+          <h4 class="content-title">{{ student.lastContent?.title || 'لم يتم البدء بعد' }}</h4>
+          
+          <div class="requirement-badge" *ngIf="student.lastContent?.passingRequirements">
+            <span [class]="getPassingRequirementClass(student.lastContent.passingRequirements)">
+              <i class="bx" 
+                 [class.bx-check-circle]="student.lastContent.passingRequirements === ContentPassingRequirement.None"
+                 [class.bx-edit-alt]="student.lastContent.passingRequirements === ContentPassingRequirement.Exam"
+                 [class.bx-message-square-dots]="student.lastContent.passingRequirements === ContentPassingRequirement.Comment"
+                 [class.bx-hand]="student.lastContent.passingRequirements === ContentPassingRequirement.Manually">
+              </i>
+              {{ getPassingRequirementText(student.lastContent.passingRequirements) }}
             </span>
-          </td>
-          <td class="actions">
-            <button 
-              *ngIf="student.lastContent?.passingRequirements === ContentPassingRequirement.Manually"
-              class="btn btn-success btn-sm"
-              (click)="passStudent(student.userId, student.lastContent.id)"
-              [disabled]="loading"
-              title="نجاح الطالب">
-              <i class="fas fa-check"></i>
-              نجاح
-            </button>
-  
-            <button 
-              class="btn btn-info btn-sm chat-btn"
-              (click)="openChat(student.userId,student.lastContent.id)"
-              title="الدردشة مع الطالب">
-              <i class="fas fa-comment"></i>
-              دردشة
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions Section -->
+      <div class="actions-section">
+        <button 
+          *ngIf="student.lastContent?.passingRequirements === ContentPassingRequirement.Manually"
+          class="action-btn pass-btn"
+          (click)="passStudent(student.userId, student.lastContent.id)"
+          [disabled]="loading"
+          title="نجاح الطالب">
+          <i class="bx bx-check"></i>
+          <span>نجاح الطالب</span>
+        </button>
+
+        <button 
+          class="action-btn chat-btn"
+          (click)="openChat(student.userId, student.lastContent?.id || 0)"
+          title="الدردشة مع الطالب">
+          <i class="bx bx-message-dots"></i>
+          <span>دردشة</span>
+        </button>
+      </div>
+
+      <!-- Loading Overlay -->
+      <div *ngIf="loading" class="card-loading-overlay">
+        <div class="card-spinner"></div>
+      </div>
+    </div>
   </div>
 </div>

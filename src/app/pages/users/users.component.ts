@@ -12,11 +12,26 @@ import { CommonModule } from '@angular/common';
 import { BannerComponent } from '../../demos/home-demo-two/banner/banner.component';
 import { InnerPageBannerComponent } from '../../common/inner-page-banner/inner-page-banner.component';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Router, RouterLink, RouterModule } from '@angular/router';
+import { ProgramsService } from '../../services/programs.service';
+import {
+    CoachingProgramStatus,
+    CourseStats,
+    PlatformStats,
+} from '../../models/program/programs';
+import { forkJoin } from 'rxjs';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
     standalone: true,
     selector: 'app-users',
-    imports: [CommonModule, ReactiveFormsModule, InnerPageBannerComponent],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        InnerPageBannerComponent,
+        NgxSpinnerModule,
+        RouterLink
+    ],
     templateUrl: './users.component.html',
     styleUrl: './users.component.scss',
 })
@@ -25,6 +40,9 @@ export class UsersComponent {
     createCoachForm!: FormGroup;
     @ViewChild('createCoachModal') createCoachModalRef!: TemplateRef<any>;
     modalInstance!: NgbModalRef;
+
+    // Tab management
+    activeTab: 'users' | 'statistics' = 'users';
 
     // Loading states
     isLoadingUsers = false;
@@ -42,17 +60,33 @@ export class UsersComponent {
     pageSize = 10;
     totalUsers = 0;
 
+    // Statistics data
+    platformStats: PlatformStats | null = null;
+
+    coursesStats: CourseStats[] | null = null;
+    CoachingProgramStatus = CoachingProgramStatus; // this makes the enum available in HTML
+
     constructor(
         private fb: FormBuilder,
         private authService: AuthService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private router: Router,
+        private programService: ProgramsService,
+        private spinner: NgxSpinnerService
     ) {
-        ;
         this.initializeForm();
     }
 
     ngOnInit(): void {
         this.loadUsers();
+    }
+
+    loadPrograms() {
+        return this.programService.getProgramsForAdmin();
+    }
+
+    loadStatistics() {
+        return this.programService.getStatistics();
     }
 
     private initializeForm(): void {
@@ -64,9 +98,32 @@ export class UsersComponent {
         });
     }
 
+    // Tab management methods
+    setActiveTab(tab: 'users' | 'statistics'): void {
+        this.activeTab = tab;
+        this.clearMessages();
+        this.handleLoadingProgramWithStates(tab);
+    }
+
+    handleLoadingProgramWithStates(tab: string) {
+        if (tab === 'statistics' && this.platformStats == null) {
+            forkJoin({
+                stats: this.loadStatistics(),
+                programs: this.loadPrograms(),
+            }).subscribe({
+                next: ({ stats, programs }) => {
+                    this.platformStats = stats || null;
+                    this.coursesStats = programs || [];
+                },
+                error: (err) => {
+                    console.error('Error loading stats or programs', err);
+                },
+            });
+        }
+    }
+
     // Load users from API
     loadUsers(): void {
-        ;
         this.isLoadingUsers = true;
         this.errorMessage = '';
         this.authService.getUsers().subscribe({
@@ -77,9 +134,39 @@ export class UsersComponent {
                 }
                 this.isLoadingUsers = false;
             },
+            error: (error) => {
+                this.errorMessage = 'فشل في تحميل المستخدمين';
+                this.isLoadingUsers = false;
+            },
         });
     }
 
+    editProgramStatus(
+        currentStatus: CoachingProgramStatus,
+        courseId: number
+    ): void {
+        const newStatus =
+            currentStatus === CoachingProgramStatus.Active
+                ? CoachingProgramStatus.InActive
+                : CoachingProgramStatus.Active;
+
+        // Example call (you can adapt to your service)
+        this.programService.updateStatus(courseId, newStatus).subscribe({
+            next: () => {
+                const program = this.coursesStats?.find(
+                    (p) => p.id === courseId
+                );
+                if (program) {
+                    program.status = newStatus;
+                }
+            },
+            error: (err) => {
+                console.error('Failed to update status', err);
+            },
+        });
+    }
+
+    deleteProgram(courseId: number) {}
     // Open create coach modal
     openCreateCoachModal(): void {
         this.clearMessages();
@@ -103,7 +190,7 @@ export class UsersComponent {
             this.markFormGroupTouched();
             return;
         }
-        ;
+
         this.isCreatingCoach = true;
         this.clearMessages();
 
@@ -111,6 +198,7 @@ export class UsersComponent {
         this.authService.createCoach(command).subscribe({
             next: (response) => {
                 if (response.isSuccess) {
+                    this.successMessage = 'تم إنشاء المدرب بنجاح';
                     this.createCoachForm.reset();
                     this.loadUsers(); // Refresh users list
                     this.isModalOpen = false;
@@ -118,12 +206,50 @@ export class UsersComponent {
                     if (this.modalInstance) {
                         this.modalInstance.close();
                     }
+                } else {
+                    this.errorMessage =
+                        response.message || 'فشل في إنشاء المدرب';
+                    this.isCreatingCoach = false;
                 }
             },
             error: (error) => {
+                this.errorMessage = 'حدث خطأ أثناء إنشاء المدرب';
                 this.isCreatingCoach = false;
             },
         });
+    }
+
+    // Edit user - navigate to edit page
+    editUser(user: UserResponse): void {
+        // Navigate to edit user component with user ID
+        this.router.navigate(['/admin/users/edit', user.id]);
+    }
+
+    // Delete user
+    deleteUser(user: UserResponse): void {
+        if (
+            confirm(
+                `هل أنت متأكد من حذف المستخدم ${user.arName || user.userName}؟`
+            )
+        ) {
+            // Implement delete functionality
+            // You can add the actual delete API call here
+        }
+    }
+
+    // Get status label for courses
+
+    getStatusLabel(status: CoachingProgramStatus): string {
+        const labels: { [key in CoachingProgramStatus]: string } = {
+            [CoachingProgramStatus.Active]: 'نشط',
+            [CoachingProgramStatus.InActive]: 'غير نشط',
+            [CoachingProgramStatus.Deleted]: 'محذوف',
+        };
+
+        return labels[status] || 'غير معروف';
+    }
+    getStatusClass(status: CoachingProgramStatus): string {
+        return 'status-' + CoachingProgramStatus[status].toLocaleLowerCase();
     }
 
     // Form validation helpers
@@ -181,11 +307,12 @@ export class UsersComponent {
         this.successMessage = '';
     }
 
-    // Pagination helpers (optional)
+    // Pagination helpers
     get paginatedUsers(): UserResponse[] {
         const startIndex = (this.currentPage - 1) * this.pageSize;
         return this.users.slice(startIndex, startIndex + this.pageSize);
     }
+
     get totalPages(): number {
         return Math.ceil(this.totalUsers / this.pageSize);
     }
@@ -195,10 +322,9 @@ export class UsersComponent {
             this.currentPage = page;
         }
     }
+
     // Refresh users
     refreshUsers(): void {
         this.loadUsers();
     }
-
-
 }

@@ -21,7 +21,9 @@ export interface CreateCoachCommand {
   title: string;
 }
 export interface UserResponse {
+  id:string;
   userName: string;
   arName: string;
   email: string;
+  title:string;
 }

@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, input, Input, OnDestroy, OnInit } from '@angular/core';
 import {
     Router,
     RouterLink,
@@ -34,7 +34,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     notifications: Notification[] = [];
     showNotifications = false;
-    unreadCount = 0;
+     readonly unreadCount = input<number>(0);
     loadingNotifications = false;
     private destroy$ = new Subject<void>();
     constructor(
@@ -52,9 +52,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         });
     }
     ngOnInit(): void {
-        if (this.isLoggedIn) {
-            this.loadUnreadCount();
-        }
+
     }
     ngOnDestroy(): void {
         this.destroy$.next();
@@ -86,14 +84,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     // Load unread notifications count
-    loadUnreadCount(): void {
-        this.notificationService.loadNotificationsCount().subscribe({
-            next: (count: number | undefined) => {
-                this.unreadCount = count || 0;
-            },
-            error: (error) => {},
-        });
-    }
+    // loadUnreadCount(): void {
+    //     this.notificationService.loadNotificationsCount().subscribe({
+    //         next: (count: number | undefined) => {
+    //             this.unreadCount = count || 0;
+    //         },
+    //         error: (error) => {},
+    //     });
+    // }
 
     // Mark single notification as read
     // markAsRead(notificationId: number): void {
