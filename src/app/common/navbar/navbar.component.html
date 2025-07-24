@@ -161,7 +161,10 @@
                   </button>
                 </div>
                 
-                <div class="notifications-body">
+                <!-- <div class="notifications-body">
+
+
+
                   <div *ngIf="loadingNotifications" class="loading-state">
                     <i class="bx bx-loader-alt bx-spin"></i>
                     جاري التحميل...
@@ -186,8 +189,59 @@
                     </div>
                   </a>
                 </div>
-                
-                <div class="notifications-footer" *ngIf="notifications.length > 0">
+                 -->
+              
+              <div class="notifications-body">
+  <div *ngIf="loadingNotifications" class="loading-state">
+    <i class="bx bx-loader-alt bx-spin"></i>
+    جاري التحميل...
+  </div>
+
+  <div *ngIf="!loadingNotifications && notifications.length === 0" class="empty-state">
+    <i class="bx bx-bell-off"></i>
+    لا توجد إشعارات جديدة
+  </div>
+
+  <ng-container *ngFor="let notification of notifications">
+    <!-- External Link -->
+    <a
+      *ngIf="notification.type === 'CompletedTheProgram'; else internalLink"
+      [href]="notification.url"
+      target="_blank"
+      rel="noopener"
+      [ngClass]="{ 'notification-item': true, 'unread': !notification.isRead }"
+      (click)="handleNotificationClick(notification)"
+    >
+      <div class="notification-content">
+        <div class="notification-title">{{ notification.content }}</div>
+        <div class="notification-time">{{ notification.creationDate | date: 'short' }}</div>
+      </div>
+      <div class="notification-status" *ngIf="!notification.isRead">
+        <span class="unread-dot"></span>
+      </div>
+    </a>
+
+    <!-- Internal Link -->
+    <ng-template #internalLink>
+      <a
+        [routerLink]="notification.url"
+        [ngClass]="{ 'notification-item': true, 'unread': !notification.isRead }"
+        (click)="handleNotificationClick(notification)"
+      >
+        <div class="notification-content">
+          <div class="notification-title">{{ notification.content }}</div>
+          <div class="notification-time">{{ notification.creationDate | date: 'short' }}</div>
+        </div>
+        <div class="notification-status" *ngIf="!notification.isRead">
+          <span class="unread-dot"></span>
+        </div>
+      </a>
+    </ng-template>
+  </ng-container>
+</div>
+
+              
+                 <div class="notifications-footer" *ngIf="notifications.length > 0">
                   <a routerLink="/notifications" (click)="closeNotifications()">
                     عرض جميع الإشعارات
                   </a>
@@ -202,7 +256,6 @@
               {{ currentUser?.userName }}
             </div>
           </div>
-
           <div style="cursor: pointer;" *ngIf=" isLoggedIn!=null " class="option-item">
             <a routerLink="/login" *ngIf="isLoggedIn === false "  class="default-btn">
               <i class="flaticon-left"></i>

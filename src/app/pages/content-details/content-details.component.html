@@ -149,58 +149,170 @@
     <div class="chat-header">
       <div class="chat-title">
         <i class="bx bx-message-dots"></i>
-        <h3>المحادثة </h3>
+        <h3>المحادثة</h3>
+      </div>
+      
+      <!-- Simple Chat Tabs -->
+      <div class="chat-tabs">
+        <button class="chat-tab" 
+                [class.active]="activeChatTab === 'instructor'" 
+                (click)="switchChatTab('instructor')">
+          مدرب
+        </button>
+        <button class="chat-tab" 
+                [class.active]="activeChatTab === 'ai'" 
+                (click)="switchChatTab('ai')">
+          AI
+        </button>
       </div>
     </div>
 
     <div class="chat-body">
-      <div class="messages-container"   #messagesContainer *ngIf="messages?.length; else noMessages">
-        <div *ngFor="let msg of messages" class="message-wrapper">
-          <div class="message" [ngClass]="{
-                 'message-sent': msg.userId === currentUserId,
-                 'message-received': msg.userId !== currentUserId
-               }">
-            <div class="message-content">
-              <div class="message-header" *ngIf="msg.userId !== currentUserId">
-                <div class="user-avatar">
-                  {{ getUserInitials(msg.userName) }}
+      <!-- Instructor Chat -->
+      <div *ngIf="activeChatTab === 'instructor'" class="chat-content">
+        <div class="messages-container" #messagesContainer *ngIf="messages?.length; else noInstructorMessages">
+          <div *ngFor="let msg of messages" class="message-wrapper">
+            <div class="message" [ngClass]="{
+                   'message-sent': msg.userId === currentUserId,
+                   'message-received': msg.userId !== currentUserId
+                 }">
+              <div class="message-content">
+                <div class="message-header" *ngIf="msg.userId !== currentUserId">
+                  <div class="user-avatar">
+                    {{ getUserInitials(msg.userName) }}
+                  </div>
+                  <span class="user-name">{{ msg.userName }}</span>
                 </div>
-                <span class="user-name">{{ msg.userName }}</span>
-              </div>
 
-              <div class="message-text">
-                {{ msg.textMessage }}
-              </div>
+                <div class="message-text">
+                  {{ msg.textMessage }}
+                </div>
 
-              <div class="message-time">
-                {{ msg.messageDate | date:'shortTime' }}
-                <span class="message-date">{{ msg.messageDate | date:'shortDate' }}</span>
+                <div class="message-time">
+                  {{ msg.messageDate | date:'shortTime' }}
+                  <span class="message-date">{{ msg.messageDate | date:'shortDate' }}</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <ng-template #noInstructorMessages>
+          <div class="no-messages">
+            <i class="bx bx-message-x"></i>
+            <h4>لا توجد رسائل مع المدرب حتى الآن</h4>
+            <p>ابدأ المحادثة مع المدرب بإرسال أول رسالة</p>
+          </div>
+        </ng-template>
       </div>
 
-      <ng-template #noMessages>
-        <div class="no-messages">
-          <i class="bx bx-message-x"></i>
-          <h4>لا توجد رسائل حتى الآن</h4>
-          <p>ابدأ المحادثة بإرسال أول رسالة</p>
+      <!-- AI Chat -->
+      <div *ngIf="activeChatTab === 'ai'" class="chat-content">
+        <div class="messages-container" #aiMessagesContainer *ngIf="aiMessages?.length; else noAiMessages">
+          <div *ngFor="let msg of aiMessages" class="message-wrapper">
+            <div class="message" [ngClass]="{
+                   'message-sent': msg.role === AIChatRole.User,
+                   'message-received': msg.role === AIChatRole.Assistant,
+                   'message-ai': msg.role === AIChatRole.Assistant
+                 }">
+              <div class="message-content">
+                <div class="message-header" *ngIf="msg.role === AIChatRole.Assistant">
+                  <div class="user-avatar ai-avatar">
+                    <i class="bx bx-brain"></i>
+                  </div>
+                  <span class="user-name">المساعد الذكي</span>
+                </div>
+
+                <div class="message-text">
+                  {{ msg.messageText }}
+                </div>
+
+                <div class="message-time">
+                  {{ msg.sentAt | date:'shortTime' }}
+                  <span class="message-date">{{ msg.sentAt | date:'shortDate' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- AI Thinking Animation -->
+          <div *ngIf="aiIsThinking" class="message-wrapper">
+            <div class="message message-received message-ai">
+              <div class="message-content">
+                <div class="message-header">
+                  <div class="user-avatar ai-avatar">
+                    <i class="bx bx-brain"></i>
+                  </div>
+                  <span class="user-name">المساعد الذكي</span>
+                </div>
+
+                <div class="message-text">
+                  <div class="typing-indicator">
+                    <div class="typing-dots">
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                    </div>
+                    <span class="typing-text">يكتب...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </ng-template>
+
+        <ng-template #noAiMessages>
+          <div class="no-messages">
+            <i class="bx bx-brain"></i>
+            <h4>لا توجد رسائل مع المساعد الذكي حتى الآن</h4>
+            <p>اسأل المساعد الذكي أي سؤال متعلق بالمحتوى</p>
+          </div>
+        </ng-template>
+      </div>
     </div>
 
     <div class="chat-footer">
       <div class="message-input-container">
-        <div class="input-group">
-          <input [(ngModel)]="newMessage" type="text" class="message-input" placeholder="اكتب رسالتك هنا..."
-            (keyup.enter)="sendMessage()" maxlength="500" />
-          <button class="send-button" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+        <!-- Instructor Chat Input -->
+        <div class="input-group" *ngIf="activeChatTab === 'instructor'">
+          <input 
+            [(ngModel)]="newMessage" 
+            type="text" 
+            class="message-input" 
+            placeholder="اكتب رسالتك للمدرب هنا..."
+            (keyup.enter)="sendMessage()" 
+            maxlength="500" />
+          <button 
+            class="send-button" 
+            (click)="sendMessage()" 
+            [disabled]="!newMessage.trim()">
             <i class="bx bx-send"></i>
           </button>
         </div>
-        <div class="input-footer" *ngIf="newMessage">
-          <span class="char-count">{{ newMessage.length }}/500</span>
+        
+        <!-- AI Chat Input -->
+        <div class="input-group" *ngIf="activeChatTab === 'ai'">
+          <input 
+            [(ngModel)]="prompt" 
+            type="text" 
+            class="message-input" 
+            placeholder="اسأل المساعد الذكي..."
+            (keyup.enter)="sendAiMessage()" 
+            maxlength="500"
+            [disabled]="aiIsThinking" />
+          <button 
+            class="send-button" 
+            (click)="sendAiMessage()" 
+            [disabled]="!prompt.trim() || aiIsThinking">
+            <i class="bx" [ngClass]="aiIsThinking ? 'bx-loader-alt bx-spin' : 'bx-send'"></i>
+          </button>
+        </div>
+
+        <!-- Character Count -->
+        <div class="input-footer" *ngIf="(activeChatTab === 'instructor' && newMessage) || (activeChatTab === 'ai' && prompt)">
+          <span class="char-count">
+            {{ activeChatTab === 'instructor' ? newMessage.length : prompt.length }}/500
+          </span>
         </div>
       </div>
     </div>

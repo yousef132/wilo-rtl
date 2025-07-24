@@ -1,5 +1,12 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, HostListener, input, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+    Component,
+    HostListener,
+    input,
+    Input,
+    OnDestroy,
+    OnInit,
+} from '@angular/core';
 import {
     Router,
     RouterLink,
@@ -34,15 +41,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     notifications: Notification[] = [];
     showNotifications = false;
-     readonly unreadCount = input<number>(0);
+    readonly unreadCount = input<number>(0);
     loadingNotifications = false;
     private destroy$ = new Subject<void>();
     constructor(
         private authService: AuthService,
         private router: Router,
-        private notificationService: NotificationsService,
-        // private spinnerService: NgxSpinnerService
-    ) {
+        private notificationService: NotificationsService
+    ) // private spinnerService: NgxSpinnerService
+    {
         this.authService.currentUser.subscribe((user) => {
             this.currentUser = user || null;
         });
@@ -51,30 +58,42 @@ export class NavbarComponent implements OnInit, OnDestroy {
             this.isLoggedIn = isLoggedIn;
         });
     }
-    ngOnInit(): void {
-
-    }
+    ngOnInit(): void {}
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
     }
     toggleNotifications(): void {
         this.showNotifications = !this.showNotifications;
-
-        if (this.showNotifications && this.notifications.length === 0) {
+        if (this.showNotifications && this.unreadCount() !== 0) {
             this.loadNotifications();
+
+            this.notifications = this.notifications.map((notification) => ({
+                ...notification,
+                isRead: true,
+            }));
         }
     }
 
     closeNotifications(): void {
         this.showNotifications = false;
     }
+    handleNotificationClick(notification: Notification): void {
+        // Mark it as read in the UI
+        notification.isRead = true;
+
+        this.closeNotifications();
+    }
+
     // Load notifications from API
     loadNotifications(): void {
         this.loadingNotifications = true;
         this.notificationService.loadNotifications(1).subscribe({
             next: (notification: Notification[] | undefined) => {
-                this.notifications = notification || [];
+                // push comming notifications to the current
+
+                this.notifications.push(...(notification || []));
+                // this.notifications.push = notification || [];
                 this.loadingNotifications = false;
             },
             error: (error) => {

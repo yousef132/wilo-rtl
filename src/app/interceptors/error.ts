@@ -41,14 +41,20 @@ export class ErrorInterceptor implements HttpInterceptor {
                 ;
                 let errorMessage = '';
                 let message = error?.error?.message ?? '';
+                debugger;
                 switch (error.status) {
+                    
                    
                     case 400:
                         errorMessage = message || 'خطأ فى البيانات المرسلة';
 
                         break;
-                    case 401:
+                    case 401 :
                         errorMessage = message || 'فشل عمليه تسجيل الدخول';
+                        this.authService.logout(); // Log out the user
+                        break;
+
+                    case 0 :
                         this.authService.logout(); // Log out the user
                         break;
                     case 403:

@@ -13,6 +13,7 @@ import {
     ContentDetails,
     Message,
     NextContentResponse,
+    PassResponse,
     SendMessage,
 } from '../../models/content/content';
 
@@ -28,6 +29,22 @@ import { AuthService } from '../../services/authr/auth.service';
 import { YoutubePlayerComponent } from '../../common/youtube-player/youtube-player.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SharedService } from '../../shared/shared.service';
+export interface ContentAIChatMessage {
+    messageText: string;
+    role: AIChatRole;
+    sentAt: Date;
+}
+
+export enum AIChatRole {
+    System = 0,
+    User = 1,
+    Assistant = 2,
+}
+
+export interface SendAIMessage {
+    contentId: number;
+    question: string;
+}
 
 @Component({
     selector: 'app-content-details',
@@ -57,6 +74,14 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
     currentUserId: string = '';
     @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
+    // AI chat props
+    activeChatTab: 'instructor' | 'ai' = 'instructor';
+    aiMessages: ContentAIChatMessage[] = [];
+    prompt: string = '';
+    aiIsThinking: boolean = false;
+    AIChatRole = AIChatRole; // Make enum available in template
+    @ViewChild('aiMessagesContainer') aiMessagesContainer!: ElementRef;
+
     constructor(
         private route: ActivatedRoute,
         private contentService: ContentService,
@@ -81,7 +106,11 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
         });
     }
     ngAfterViewInit(): void {
-        this.scrollToBottom();
+        if (this.activeChatTab === 'instructor') {
+            this.scrollToBottom();
+        } else {
+            this.scrollAiToBottom();
+        }
     }
 
     scrollToBottom(): void {
@@ -121,13 +150,99 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
         });
     }
 
+    loadAIChat(): void {
+        this.contentService.getAiChat(this.contentId).subscribe({
+            next: (aiMessages: ContentAIChatMessage[] | undefined) => {
+                this.aiMessages = aiMessages || [];
+                this.scrollAiToBottom();
+            },
+            error: (err) => {
+                this.aiMessages = [];
+            },
+        });
+    }
+    sendAiMessage(): void {
+        const trimmed = this.prompt.trim();
+        if (!trimmed || this.aiIsThinking) return;
+
+        // Create user message object
+        const userMessage: ContentAIChatMessage = {
+            messageText: trimmed,
+            role: AIChatRole.User,
+            sentAt: new Date(),
+        };
+
+        // Add user message to UI immediately
+        this.aiMessages.push(userMessage);
+        this.prompt = '';
+        this.scrollAiToBottom();
+
+        // Start AI thinking animation
+        this.aiIsThinking = true;
+
+        // Send message to server
+        const sendMessage: SendAIMessage = {
+            contentId: this.contentId,
+            question: trimmed,
+        };
+
+        this.contentService.sendAIMessage(sendMessage).subscribe({
+            next: (response: any) => {
+                // Add AI response to messages
+                this.aiMessages.push(userMessage);
+                this.aiIsThinking = false;
+                this.scrollAiToBottom();
+            },
+            error: (error) => {
+                console.error('Send AI message failed:', error);
+                this.aiIsThinking = false;
+
+                // Remove the user message if sending failed
+                this.aiMessages = this.aiMessages.filter(
+                    (msg) => msg !== userMessage
+                );
+
+                // Show error message (you can customize this)
+                alert('فشل في إرسال الرسالة، يرجى المحاولة مرة أخرى');
+            },
+        });
+    }
+    switchChatTab(tab: 'instructor' | 'ai'): void {
+        this.activeChatTab = tab;
+
+        // Load AI messages when switching to AI tab for the first time
+        if (tab === 'ai' && this.aiMessages.length === 0) {
+            this.loadAIChat();
+        }
+
+        // Scroll to bottom when switching tabs
+        setTimeout(() => {
+            if (tab === 'ai') {
+                this.scrollAiToBottom();
+            } else {
+                this.scrollToBottom();
+            }
+        }, 100);
+    }
+    scrollAiToBottom(): void {
+        setTimeout(() => {
+            try {
+                if (this.aiMessagesContainer?.nativeElement) {
+                    this.aiMessagesContainer.nativeElement.scrollTop =
+                        this.aiMessagesContainer.nativeElement.scrollHeight;
+                }
+            } catch (err) {
+                console.error('AI Scroll error:', err);
+            }
+        }, 100);
+    }
+
     getPercentage(result: number, total: number): number {
         if (!total || total === 0) return 0;
         return (result / total) * 100;
     }
 
     loadContent() {
-        
         forkJoin({
             content: this.getContent(),
             nextPrev: this.contentService.getNextPrevContent(
@@ -137,8 +252,6 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
             chat: this.getChat(), // ✅ called in parallel, no dependency on content
         }).subscribe({
             next: ({ content, nextPrev, chat }) => {
-        
-
                 this.content = content || null;
 
                 if (this.content?.contentUrl) {
@@ -190,21 +303,22 @@ export class ContentDetailsComponent implements OnInit, AfterViewInit {
             registrationId: this.content?.userContentRegistrationId!,
         };
 
+        debugger
+
         this.contentService.sendMessage(sendMessage).subscribe({
-            next: (nextContentId: number | null | undefined) => {
+            next: (response: PassResponse| undefined) => {
                 // null => already registered in next content
                 // -1 => last content, user passed the pargram
                 // value => next content opened
-                ;
-                if (nextContentId) {
-                    if (nextContentId == -1) {
+                if (response?.nextContentId) {
+                    if (response.nextContentId == -1) {
                         this.router.navigate(['/program-completed']);
                         return;
                     }
                     //nextContentId = [1,2,3,...]
                     this.router.navigate([
                         '/content-details',
-                        nextContentId,
+                        response.nextContentId,
                         this.userId,
                         this.programId,
                     ]);

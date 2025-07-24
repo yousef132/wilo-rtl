@@ -124,7 +124,7 @@
       <!-- Actions Section -->
       <div class="actions-section">
         <button 
-          *ngIf="student.lastContent?.passingRequirements === ContentPassingRequirement.Manually"
+          *ngIf="student.lastContent?.passingRequirements === ContentPassingRequirement.Manually && !student.lastContent.isPassed "
           class="action-btn pass-btn"
           (click)="passStudent(student.userId, student.lastContent.id)"
           [disabled]="loading"

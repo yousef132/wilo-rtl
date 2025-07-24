@@ -46,6 +46,7 @@ export class AuthService {
         );
     }
     logout() {
+      debugger;
         if (isPlatformBrowser(this.platformId))
             localStorage.removeItem('token');
 

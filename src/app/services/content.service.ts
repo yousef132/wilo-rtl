@@ -9,8 +9,10 @@ import {
     CourseStructureResponse,
     Message,
     NextContentResponse,
+    PassResponse,
     SendMessage,
 } from '../models/content/content';
+import { ContentAIChatMessage, SendAIMessage } from '../pages/content-details/content-details.component';
 
 @Injectable({
     providedIn: 'root',
@@ -51,6 +53,8 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
+
+
     getContentForEdit(contentId: number) {
         return this.http
             .get<Result<ContentData>>(
@@ -62,14 +66,35 @@ export class ContentService {
     }
 
     sendMessage(message: SendMessage) {
-        ;
+        
         return this.http
-            .post<Result<number | null>>(
+            .post<Result<PassResponse>>(
                 this.baseUrl + API_CONSTANTS.CONTENT.SEND_MESSAGE,
                 message
             )
             .pipe(map((response) => response.data));
     }
+
+
+    sendAIMessage(SendAIMessage: SendAIMessage) {
+        ;
+        return this.http
+            .post<Result<number | null>>(
+                this.baseUrl + API_CONSTANTS.CONTENT.SEND_AI_MESSAGE,
+                SendAIMessage
+            )
+            .pipe(map((response) => response.data));
+    }
+
+    getAiChat(contentId:number){
+        return this.http
+            .get<Result<ContentAIChatMessage[]>>(
+                this.baseUrl +
+                    API_CONSTANTS.CONTENT.GET_AI_CHAT + contentId
+            )
+            .pipe(map((response) => response.data));
+    }
+    
     passStudent(contentId: number, studentId: string) {
         return this.http
             .post<Result<any>>(

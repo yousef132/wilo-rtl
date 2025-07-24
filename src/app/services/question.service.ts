@@ -8,6 +8,7 @@ import {
 } from '../models/question/question';
 import { API_CONSTANTS, Result } from '../constants/apiConstants';
 import { map } from 'rxjs';
+import { PassResponse } from '../models/content/content';
 
 @Injectable({
     providedIn: 'root',
@@ -36,7 +37,7 @@ export class QuestionService {
 
     submitQuestions(command: SubmitQuestions) {
         return this.http
-            .post<Result<number >>(
+            .post<Result<PassResponse >>(
                 this.baseUrl + API_CONSTANTS.QUESTION.SUBMIT_QUESTIONS,
                 command
             )

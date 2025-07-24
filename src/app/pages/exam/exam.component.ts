@@ -15,6 +15,7 @@ import { InnerPageBannerComponent } from '../../common/inner-page-banner/inner-p
 import { AuthService } from '../../services/authr/auth.service';
 import { debug } from 'node:console';
 import { Subject, takeUntil } from 'rxjs';
+import { PassResponse } from '../../models/content/content';
 
 @Component({
     selector: 'app-exam',
@@ -183,8 +184,8 @@ export class ExamComponent {
             .submitQuestions(requestPayload)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
-                next: (nextContentId: number | undefined) => {
-                    this.handleSubmissionSuccess(nextContentId);
+                next: (response: PassResponse| undefined) => {
+                    this.handleSubmissionSuccess(response?.nextContentId);
                 },
                 error: (error) => {
                     this.handleSubmissionError(error);
@@ -230,7 +231,7 @@ export class ExamComponent {
         console.error('Error submitting answers:', error);
         this.spinner.hide();
         this.isSubmitting = false;
-        this.showAlert('حدث خطأ أثناء إرسال الإجابات. يرجى المحاولة مرة أخرى.');
+        // this.showAlert('حدث خطأ أثناء إرسال الإجابات. يرجى المحاولة مرة أخرى.');
     }
 
     /**

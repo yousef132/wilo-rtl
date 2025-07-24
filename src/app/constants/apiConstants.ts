@@ -30,6 +30,8 @@ export const API_CONSTANTS = {
         GET_CONTENT_FOR_UPDATE: 'Content/edit/',
         GET_NEXT_PREV: 'Content/prev-next',
         UPDATE_CONTENT: 'Content/edit',
+        SEND_AI_MESSAGE: 'Content/ai',
+        GET_AI_CHAT: 'Content/ai/chat/',
     },
     QUESTION:{
         CREATE_QUESTION:'Exam',

@@ -60,6 +60,11 @@ export interface ContentData {
     comment: string;
     registrationId:number;
   }
+
+  export interface PassResponse{
+    nextContentId?:number,
+    certificateUrl?:string
+  }
   
   export interface ContentSubscribers{
     userId: string;
@@ -104,4 +109,5 @@ export interface LastContent {
   id: number;
   title: string;
   passingRequirements: ContentPassingRequirement;
+  isPassed:boolean;
 }

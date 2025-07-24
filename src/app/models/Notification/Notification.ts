@@ -4,6 +4,7 @@ export interface Notification {
   url: string;
   type: NotificationType;
   creationDate: Date;
+  isRead:boolean;
 }
 export enum NotificationType {
   PassedContentByCoach = "PassedContentByCoach",
