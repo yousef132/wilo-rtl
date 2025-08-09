@@ -1,24 +1,37 @@
-<app-inner-page-banner
-    [pageTitle]="''"
-/>
+<app-inner-page-banner [pageTitle]="''" />
 
 <div class="completion-container">
-  <div class="trophy-icon">
-    🏆
+  <div *ngIf="isSuccess; else failureTemplate">
+    <div class="trophy-icon">🏆</div>
+
+    <h1 class="main-title">مبروك!</h1>
+
+    <div class="success-message">
+      <h2>تهانينا لقد نجحت في إتمام البرنامج</h2>
+      <p class="sub-message">لقد أظهرت إصراراً رائعاً وتفانياً مميزاً في رحلتك التعليمية</p>
+      <p class="email-note">سيتم إرسال الشهادة إلى بريدك الإلكتروني قريباً</p>
+    </div>
+
+    <div class="confetti">
+      <div class="confetti-piece"></div>
+      <div class="confetti-piece"></div>
+      <div class="confetti-piece"></div>  
+      <div class="confetti-piece"></div>
+      <div class="confetti-piece"></div>
+    </div>
   </div>
-  
-  <h1 class="main-title">مبروك!</h1>
-  
-  <div class="success-message">
-    <h2>تهانينا لقد نجحت في إتمام البرنامج</h2>
-    <p class="sub-message">لقد أظهرت إصراراً رائعاً وتفانياً مميزاً في رحلتك التعليمية</p>
-  </div>
-  
-  <div class="confetti">
-    <div class="confetti-piece"></div>
-    <div class="confetti-piece"></div>
-    <div class="confetti-piece"></div>
-    <div class="confetti-piece"></div>
-    <div class="confetti-piece"></div>
-  </div>
+
+  <ng-template #failureTemplate>
+    <div class="error-icon">❌</div>
+
+    <h1 class="main-title">حدث خطأ</h1>
+
+    <div class="error-message">
+      <h2>لم نتمكن من إصدار الشهادة</h2>
+      <p class="sub-message">يرجى فتح تذكرة دعم لمعالجة المشكلة في أقرب وقت ممكن</p>
+      <a class="ticket-link btn btn-primary mt-3" [routerLink]="['/support/ticket']">
+        فتح تذكرة دعم
+      </a>
+    </div>
+  </ng-template>
 </div>

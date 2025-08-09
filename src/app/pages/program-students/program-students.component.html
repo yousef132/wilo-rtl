@@ -126,7 +126,7 @@
         <button 
           *ngIf="student.lastContent?.passingRequirements === ContentPassingRequirement.Manually && !student.lastContent.isPassed "
           class="action-btn pass-btn"
-          (click)="passStudent(student.userId, student.lastContent.id)"
+          (click)="passStudent(student)"
           [disabled]="loading"
           title="نجاح الطالب">
           <i class="bx bx-check"></i>

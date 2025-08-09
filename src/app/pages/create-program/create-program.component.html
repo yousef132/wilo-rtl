@@ -1,74 +1,239 @@
-
-
 <app-inner-page-banner [pageTitle]="'إنشاء تدريب جديد'"></app-inner-page-banner>
+
 <div class="container mt-4">
+  <div class="form-container">
+    <div class="form-header">
+      <h2 class="form-title">
+        <i class="bx bx-plus-circle"></i>
+        إنشاء تدريب جديد
+      </h2>
+      <p class="form-subtitle">املأ المعلومات أدناه لإنشاء تدريب جديد</p>
+    </div>
+
     <form [formGroup]="programForm" (ngSubmit)="submitForm()" enctype="multipart/form-data" novalidate>
       
-      <!-- Title -->
-      <div class="form-group mb-3">
-        <label>عنوان التدريب</label>
-        <input formControlName="title" class="form-control" placeholder="عنوان التدريب">
-        <div class="text-danger" *ngIf="programForm.get('title')?.touched && programForm.get('title')?.invalid">
-          العنوان مطلوب
+      <!-- Progress indicator -->
+      <div class="progress-indicator">
+        <div class="step" [ngClass]="{'active': programForm.get('title')?.valid}">
+          <span class="step-number">1</span>
+          <span class="step-label">المعلومات الأساسية</span>
+        </div>
+        <div class="step" [ngClass]="{'active': programForm.get('details')?.valid && programForm.get('duration')?.valid}">
+          <span class="step-number">2</span>
+          <span class="step-label">التفاصيل</span>
+        </div>
+        <div class="step" [ngClass]="{'active': coverFile && certificateFile}">
+          <span class="step-number">3</span>
+          <span class="step-label">المرفقات</span>
         </div>
       </div>
-  
-      <!-- Details -->
-      <div class="form-group mb-3">
-        <label>تفاصيل</label>
-        <textarea formControlName="details" rows="4" class="form-control" placeholder="أدخل تفاصيل التدريب"></textarea>
-        <div class="text-danger" *ngIf="programForm.get('details')?.touched && programForm.get('details')?.invalid">
-          التفاصيل مطلوبة
+
+      <!-- Title Field -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bx bx-heading"></i>
+          عنوان التدريب
+          <span class="required">*</span>
+        </label>
+        <div class="input-wrapper">
+          <input 
+            formControlName="title" 
+            class="form-control"
+            [ngClass]="{'is-invalid': isFieldInvalid('title'), 'is-valid': programForm.get('title')?.valid && programForm.get('title')?.touched}"
+            placeholder="أدخل عنوان التدريب هنا">
+          <i class="input-icon bx bx-text"></i>
+        </div>
+        <div class="error-message" *ngIf="getFieldError('title')">
+          <i class="bx bx-error-circle"></i>
+          {{ getFieldError('title') }}
         </div>
       </div>
-  
-      <!-- Duration -->
-      <div class="form-group mb-3">
-        <label>المدة (بالأيام)</label>
-        <input type="number" formControlName="duration" class="form-control" style="direction: ltr; text-align: left;">
-        <div class="text-danger" *ngIf="programForm.get('duration')?.touched && programForm.get('duration')?.invalid">
-          <span *ngIf="programForm.get('duration')?.errors?.['required']">المدة مطلوبة</span>
-          <span *ngIf="programForm.get('duration')?.errors?.['min']">يجب أن تكون المدة أكبر من 0</span>
+
+      <!-- Details Field -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bx bx-file-blank"></i>
+          تفاصيل التدريب
+          <span class="required">*</span>
+        </label>
+        <div class="input-wrapper">
+          <textarea 
+            formControlName="details" 
+            rows="5" 
+            class="form-control"
+            [ngClass]="{'is-invalid': isFieldInvalid('details'), 'is-valid': programForm.get('details')?.valid && programForm.get('details')?.touched}"
+            placeholder="اكتب وصفاً تفصيلياً عن محتوى التدريب وأهدافه..."></textarea>
+        </div>
+        <div class="character-count">
+          {{ programForm.get('details')?.value?.length || 0 }} حرف
+        </div>
+        <div class="error-message" *ngIf="getFieldError('details')">
+          <i class="bx bx-error-circle"></i>
+          {{ getFieldError('details') }}
         </div>
       </div>
-  
-      <!-- Price -->
-      <!-- <div class="form-group mb-3">
-        <label>السعر</label>
-        <input type="number" formControlName="price" class="form-control" dir="ltr">
-        <div class="text-danger" *ngIf="programForm.get('price')?.touched && programForm.get('price')?.invalid">
-          <span *ngIf="programForm.get('price')?.errors?.['required']">السعر مطلوب</span>
-          <span *ngIf="programForm.get('price')?.errors?.['min']">السعر لا يمكن أن يكون سالبًا</span>
+
+      <!-- Duration Field -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bx bx-calendar"></i>
+          مدة التدريب (بالأيام)
+          <span class="required">*</span>
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="number" 
+            formControlName="duration" 
+            class="form-control"
+            [ngClass]="{'is-invalid': isFieldInvalid('duration'), 'is-valid': programForm.get('duration')?.valid && programForm.get('duration')?.touched}"
+            style="direction: ltr; text-align: left;"
+            placeholder="مثال: 30"
+            min="1">
+          <i class="input-icon bx bx-time"></i>
         </div>
-      </div> -->
-  
-      <!-- Cover -->
-      <div class="form-group mb-3">
-        <label>غلاف التدريب (صورة)</label>
-        <input type="file" class="form-control" (change)="onFileChange($event)" accept="image/*">
-        <div class="text-danger" *ngIf="coverFile === null && programForm.get('cover')?.touched">
-          الغلاف مطلوب
+        <div class="error-message" *ngIf="getFieldError('duration')">
+          <i class="bx bx-error-circle"></i>
+          {{ getFieldError('duration') }}
         </div>
-        <div class="text-danger" *ngIf="fileErrorMessage">
-            <span >{{fileErrorMessage}}</span>
+      </div>
+
+      <!-- Cover Image Upload -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bx bx-image"></i>
+          غلاف التدريب
+          <span class="required">*</span>
+        </label>
+        
+        <div class="file-upload-area" *ngIf="!coverPreview">
+          <input 
+            type="file" 
+            id="coverFile"
+            class="file-input" 
+            (change)="onFileChange($event, 'cover')" 
+            accept="image/*">
+          <label for="coverFile" class="file-upload-label">
+            <div class="upload-content">
+              <i class="bx bx-cloud-upload"></i>
+              <h4>اختر صورة الغلاف</h4>
+              <p>اسحب وأفلت الصورة هنا أو انقر للاختيار</p>
+              <span class="file-requirements">JPG, PNG, WebP - حد أقصى 500KB</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Image Preview -->
+        <div class="image-preview" *ngIf="coverPreview">
+          <img [src]="coverPreview" alt="Cover Preview">
+          <div class="preview-overlay">
+            <button type="button" class="btn-remove" (click)="removeCoverImage()">
+              <i class="bx bx-trash"></i>
+            </button>
           </div>
+        </div>
+
+        <div class="error-message" *ngIf="fileErrorMessage">
+          <i class="bx bx-error-circle"></i>
+          {{ fileErrorMessage }}
+        </div>
+        <div class="error-message" *ngIf="!coverFile && programForm.touched">
+          <i class="bx bx-error-circle"></i>
+          صورة الغلاف مطلوبة
+        </div>
       </div>
-  
-      <!-- Submit Button -->
-      <button class="default-btn" type="submit" [disabled]="isSubmitting || programForm.invalid || !coverFile">
-        {{ isSubmitting ? 'جاري الإرسال...' : 'إنشاء التدريب' }}
-      </button>
+
+      <!-- Certificate Template File Upload (Mandatory) -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bx bx-certification"></i>
+          ملف قالب الشهادة
+          <span class="required">*</span>
+        </label>
+        
+        <div class="file-upload-area compact" *ngIf="!certificateFile">
+          <input 
+            type="file" 
+            id="certificateFile"
+            class="file-input" 
+            (change)="onFileChange($event, 'certificate')" 
+            accept="image/*,.pdf">
+          <label for="certificateFile" class="file-upload-label">
+            <div class="upload-content">
+              <i class="bx bx-file-plus"></i>
+              <h4>اختر ملف قالب الشهادة</h4>
+              <p>PDF, JPG, PNG - حد أقصى 1MB</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- File Preview -->
+        <div class="file-preview" *ngIf="certificateFile">
+          <div class="file-info">
+            <i class="bx bx-file"></i>
+            <span>{{ certificateFile.name }}</span>
+            <button type="button" class="btn-remove" (click)="removeCertificateFile()">
+              <i class="bx bx-x"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="help-text">
+          <i class="bx bx-info-circle"></i>
+          ارفق ملف قالب الشهادة التي سيحصل عليها المتدربون
+        </div>
+
+        <div class="error-message" *ngIf="certificateErrorMessage">
+          <i class="bx bx-error-circle"></i>
+          {{ certificateErrorMessage }}
+        </div>
+        <div class="error-message" *ngIf="!certificateFile && programForm.touched">
+          <i class="bx bx-error-circle"></i>
+          ملف قالب الشهادة مطلوب
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          [disabled]="isSubmitting">
+          <i class="bx bx-x"></i>
+          إلغاء
+        </button>
+        
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="isSubmitting || programForm.invalid || !coverFile || !certificateFile"
+          [ngClass]="{'loading': isSubmitting}">
+          <span *ngIf="!isSubmitting">
+            <i class="bx bx-plus"></i>
+            إنشاء التدريب
+          </span>
+          <span *ngIf="isSubmitting" class="loading-content">
+            <i class="bx bx-loader-alt bx-spin"></i>
+            جاري الإنشاء...
+          </span>
+        </button>
+      </div>
     </form>
   </div>
+</div>
 
-  
+<!-- Enhanced Loading Spinner -->
 <ngx-spinner
-bdColor="rgba(0, 0, 0, 0.8)"
-size="default"
-color="#fff"
-type="cube-transition"
-[fullScreen]="true"
-[zIndex]="9999">
+  bdColor="rgba(0, 0, 0, 0.8)"
+  size="default"
+  color="#fff"
+  type="ball-scale-multiple"
+  [fullScreen]="true"
+  [zIndex]="9999">
+  <div class="custom-spinner">
+    <div class="spinner-content">
+      <i class="bx bx-rocket"></i>
+      <h3>جاري إنشاء التدريب...</h3>
+      <p>يرجى الانتظار قليلاً</p>
+    </div>
+  </div>
 </ngx-spinner>
-
-  

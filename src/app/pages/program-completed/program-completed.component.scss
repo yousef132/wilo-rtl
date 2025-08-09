@@ -201,3 +201,45 @@
     font-size: 3rem;
   }
 }
+
+.completion-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.trophy-icon, .error-icon {
+  font-size: 4rem;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  color: #2878EB;
+  margin-top: 1rem;
+}
+
+.success-message, .error-message {
+  margin-top: 1rem;
+}
+
+.sub-message {
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+.email-note {
+  margin-top: 1rem;
+  color: green;
+}
+
+.confetti {
+  margin-top: 2rem;
+}
+
+.confetti-piece {
+  width: 10px;
+  height: 10px;
+  background-color: #FF70B1;
+  margin: 5px;
+  display: inline-block;
+  border-radius: 50%;
+}

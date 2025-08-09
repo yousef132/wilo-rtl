@@ -55,7 +55,7 @@ export class ErrorInterceptor implements HttpInterceptor {
                         break;
 
                     case 0 :
-                        this.authService.logout(); // Log out the user
+                        // this.authService.logout(); // Log out the user
                         break;
                     case 403:
                         errorMessage =

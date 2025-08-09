@@ -27,3 +27,37 @@ export interface UserResponse {
   email: string;
   title:string;
 }
+
+export interface UserCourses {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  progress: number;
+  status: 'enrolled' | 'completed';
+  enrolledDate: Date;
+  completedDate?: Date;
+  instructor: string;
+  duration: string;
+  certificateUrl?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  title: string;
+  avatar?: string;
+  joinDate: Date;
+  totalCourses: number;
+  completedCourses: number;
+}
+
+//                     // ArName = user.ArName,
+//                     // EnName = user.EnName,
+//                     // ProfileImage = user.ProfileImage
+export interface UpdateProfileResponse{
+arName:string;
+profileImage?:string;  
+title:string;
+}

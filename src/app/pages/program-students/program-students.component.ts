@@ -1,15 +1,24 @@
 import { Component } from '@angular/core';
-import { GetStudentsWithLevelResponse } from '../../models/content/content';
-import { ContentPassingRequirement } from '../../models/program/programs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+
+import { GetStudentsWithLevelResponse } from '../../models/content/content';
+import {
+    ContentPassingRequirement,
+    ProgramCertificateDetails,
+} from '../../models/program/programs';
+
 import { ProgramsService } from '../../services/programs.service';
 import { ContentService } from '../../services/content.service';
+import { PdfGeneratorService } from '../../services/pdf-generator.service';
+
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
-import { InnerPageBannerComponent } from "../../common/inner-page-banner/inner-page-banner.component";
+import { InnerPageBannerComponent } from '../../common/inner-page-banner/inner-page-banner.component';
 
 @Component({
     selector: 'app-program-students',
+    standalone: true,
     imports: [CommonModule, InnerPageBannerComponent],
     templateUrl: './program-students.component.html',
     styleUrl: './program-students.component.scss',
@@ -19,8 +28,8 @@ export class ProgramStudentsComponent {
     loading = false;
     error: string | null = null;
     courseId!: number;
+    certificateDetails!: ProgramCertificateDetails;
 
-    // إتاحة التعداد في القالب
     ContentPassingRequirement = ContentPassingRequirement;
 
     constructor(
@@ -28,18 +37,34 @@ export class ProgramStudentsComponent {
         private contentService: ContentService,
         private router: Router,
         private route: ActivatedRoute,
-        private toastr: ToastrService
+        private toastr: ToastrService,
+        private pdfGeneratorService: PdfGeneratorService
     ) {
-        // الحصول على courseId من باراميتر الرابط
         this.route.params.subscribe((params) => {
             this.courseId = +params['id'];
         });
     }
 
     ngOnInit(): void {
-        this.loadStudents();
-    }
+        this.loading = true;
+        this.error = null;
 
+        forkJoin({
+            students: this.programService.getProgramStudents(this.courseId),
+            certificate: this.programService.getProgramTemplate(this.courseId),
+        }).subscribe({
+            next: ({ students, certificate }) => {
+                this.students = students ?? [];
+                this.certificateDetails = certificate!;
+                this.loading = false;
+            },
+            error: (error) => {
+                this.error = 'فشل في تحميل البيانات. حاول مرة أخرى.';
+                this.loading = false;
+                console.error('خطأ أثناء تحميل البيانات:', error);
+            },
+        });
+    }
     loadStudents(): void {
         this.loading = true;
         this.error = null;
@@ -58,26 +83,81 @@ export class ProgramStudentsComponent {
             },
         });
     }
+    passStudent(student: GetStudentsWithLevelResponse): void {
+        if (!confirm('هل أنت متأكد أنك تريد نجاح هذا الطالب؟')) return;
 
-    passStudent(studentId: string, contentId: number): void {
-        if (confirm('هل أنت متأكد أنك تريد نجاح هذا الطالب؟')) {
-            this.loading = true;
+        this.loading = true;
 
-            this.contentService.passStudent(contentId, studentId).subscribe({
+        this.contentService
+            .passStudent(student.lastContent.id, student.userId)
+            .subscribe({
                 next: () => {
-                    this.loadStudents();
-                    this.toastr.success('تم النجاح بنجاح');
+                    if (student.lastContent.isLastContent) {
+                        // Call async logic outside the subscribe
+                        this.handleCertificateAndRefresh(student);
+                    } else {
+                        this.toastr.success('تم النجاح بنجاح');
+                        this.refreshStudents();
+                        this.loading = false;
+                    }
                 },
                 error: (error) => {
                     this.error = 'فشل في نجاح الطالب. حاول مرة أخرى.';
                     this.loading = false;
+                    console.error('خطأ أثناء نجاح الطالب:', error);
                 },
             });
+    }
+
+    private async handleCertificateAndRefresh(
+        student: GetStudentsWithLevelResponse
+    ): Promise<void> {
+        try {
+            debugger;
+            this.loading = true;
+
+            await this.pdfGeneratorService.fireAndForgetGenerateCertificate(
+                this.certificateDetails.templateUrl,
+                student.arName,
+                this.certificateDetails.programName,
+                new Date().toString(),
+                student.userId,
+                this.certificateDetails.programId,
+                student.lastContent.id,
+                true
+            );
+            this.loading = false;
+
+            this.toastr.success('تم النجاح بنجاح');
+            this.refreshStudents();
+        } catch (e) {
+            console.error('Error generating certificate:', e);
+            this.toastr.error('فشل في توليد الشهادة.');
+        } finally {
+            this.loading = false;
         }
     }
 
+    private refreshStudents(): void {
+        this.programService.getProgramStudents(this.courseId).subscribe({
+            next: (data) => {
+                this.students = data ?? [];
+                this.loading = false;
+            },
+            error: (error) => {
+                this.error = 'فشل في إعادة تحميل الطلاب.';
+                this.loading = false;
+            },
+        });
+    }
+
     openChat(studentId: string, contentId: number): void {
-        this.router.navigate(['/content-details', contentId, studentId, this.courseId]);
+        this.router.navigate([
+            '/content-details',
+            contentId,
+            studentId,
+            this.courseId,
+        ]);
     }
 
     getPassingRequirementText(requirement: ContentPassingRequirement): string {
@@ -124,7 +204,10 @@ export class ProgramStudentsComponent {
         return 'ضعيف';
     }
 
-    trackByStudentId(index: number, student: GetStudentsWithLevelResponse): string {
+    trackByStudentId(
+        index: number,
+        student: GetStudentsWithLevelResponse
+    ): string {
         return student.userId;
     }
 }

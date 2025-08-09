@@ -105,7 +105,7 @@ export class ProgramSectionsComponent implements OnInit {
             contentUrl: [''],
             requiredEffort: ['', Validators.required],
             minutes: [null, [Validators.required, Validators.min(1)]],
-            passingMark: [null],
+            passingMark: [null, [Validators.min(0), Validators.max(100)]],
             index: [null, [Validators.required, Validators.min(0)]],
             textContent: [null, [Validators.required, Validators.min(0)]],
             contentPassingRequirement: ['', Validators.required],

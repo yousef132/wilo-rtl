@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, DebugElement } from '@angular/core';
 import {
     AnswerSubmission,
     QuestionResponse,
@@ -14,8 +14,13 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { InnerPageBannerComponent } from '../../common/inner-page-banner/inner-page-banner.component';
 import { AuthService } from '../../services/authr/auth.service';
 import { debug } from 'node:console';
-import { Subject, takeUntil } from 'rxjs';
-import { PassResponse } from '../../models/content/content';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
+import {
+    IsLastContentResponse,
+    PassResponse,
+} from '../../models/content/content';
+import { PdfGeneratorService } from '../../services/pdf-generator.service';
+import { currentUser } from '../../constants/apiConstants';
 
 @Component({
     selector: 'app-exam',
@@ -33,11 +38,12 @@ export class ExamComponent {
     questions: QuestionResponse[] | null = null;
     selectedChoices: { [questionId: number]: string } = {};
     isSubmitting = false;
-
+    currentUser!: currentUser;
     // Route parameters
     contentId: number = 0;
     userId: string = '';
     programId: number = 0;
+    isLastContent!: IsLastContentResponse;
 
     // For component cleanup
     private destroy$ = new Subject<void>();
@@ -51,9 +57,14 @@ export class ExamComponent {
         private route: ActivatedRoute,
         private spinner: NgxSpinnerService,
         private router: Router,
-        private authService: AuthService
+        private authService: AuthService,
+        private contentService: ContentService,
+        private pdfGeneratorService: PdfGeneratorService
     ) {
         this.initializeUser();
+        this.authService.currentUser.subscribe((user) => {
+            this.currentUser = user!;
+        });
     }
 
     ngOnInit(): void {
@@ -102,20 +113,29 @@ export class ExamComponent {
      * Load questions for the content
      */
     loadQuestions(): void {
-        if (!this.contentId) {
-            console.error('Content ID is required to load questions');
+        if (!this.contentId || !this.programId) {
+            console.error(
+                'Content ID and Program ID are required to load questions'
+            );
             return;
         }
 
         this.isLoadingQuestions = true;
         this.hasLoadingError = false;
 
-        this.questionService
-            .getContentQuestions(this.contentId)
+        forkJoin({
+            questions: this.questionService.getContentQuestions(this.contentId),
+            isLast: this.contentService.isLastContent(
+                this.programId,
+                this.contentId
+            ),
+        })
             .pipe(takeUntil(this.destroy$))
             .subscribe({
-                next: (questions: QuestionResponse[] | undefined) => {
+                next: ({ questions, isLast }) => {
                     this.questions = questions ?? [];
+                    this.isLastContent = isLast!;
+
                     this.isLoadingQuestions = false;
 
                     if (this.questions.length === 0) {
@@ -126,7 +146,10 @@ export class ExamComponent {
                     }
                 },
                 error: (error) => {
-                    console.error('Error loading questions:', error);
+                    console.error(
+                        'Error loading questions or last content check:',
+                        error
+                    );
                     this.hasLoadingError = true;
                     this.isLoadingQuestions = false;
                     this.questions = [];
@@ -137,7 +160,7 @@ export class ExamComponent {
     /**
      * Submit exam answers
      */
-    submitAnswers(): void {
+    async submitAnswers(): Promise<void> {
         if (!this.questions || this.questions.length === 0) {
             this.showAlert('لا توجد أسئلة للإجابة عليها.');
             return;
@@ -158,7 +181,7 @@ export class ExamComponent {
             submissions: answers,
         };
 
-        this.performSubmission(requestPayload);
+        await this.performSubmission(requestPayload); // ✅ await the async function
     }
 
     /**
@@ -176,7 +199,9 @@ export class ExamComponent {
     /**
      * Perform the actual submission
      */
-    private performSubmission(requestPayload: SubmitQuestions): void {
+    private async performSubmission(
+        requestPayload: SubmitQuestions
+    ): Promise<void> {
         this.isSubmitting = true;
         this.spinner.show();
 
@@ -184,8 +209,8 @@ export class ExamComponent {
             .submitQuestions(requestPayload)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
-                next: (response: PassResponse| undefined) => {
-                    this.handleSubmissionSuccess(response?.nextContentId);
+                next: async (response: PassResponse | undefined) => {
+                    await this.handleSubmissionSuccess(response!);
                 },
                 error: (error) => {
                     this.handleSubmissionError(error);
@@ -196,28 +221,47 @@ export class ExamComponent {
     /**
      * Handle successful submission
      */
-    private handleSubmissionSuccess(nextContentId: number | undefined): void {
-        this.spinner.hide();
-        this.isSubmitting = false;
-      //=================================
-        // null => already registered in next content
-        // -1 => last content, user passed the pargram
-        // value => next content opened
-        // -2 => did not pass the exam
-        ;
-        if (nextContentId) {
-            if (nextContentId == -1) {
-                this.router.navigate(['/program-completed']);
+    private async handleSubmissionSuccess(
+        passResponse: PassResponse
+    ): Promise<void> {
+        if (passResponse.nextContentId) {
+            if (passResponse.nextContentId == -1) {
+                this.spinner.show();
+                await this.pdfGeneratorService.fireAndForgetGenerateCertificate(
+                    passResponse.templateUrl!,
+                    this.currentUser.userName,
+                    passResponse.programName!,
+                    new Date().toString(),
+                    this.currentUser.id,
+                    passResponse.programId!,
+                    this.contentId,
+                    false
+                );
+
+                this.spinner.hide();
+                this.isSubmitting = false;
+
+                // Don't navigate here, it's already done inside the service
                 return;
             }
-            if(nextContentId == -2){
-                this.router.navigate(['/content-details',this.contentId,this.userId,this.programId]);
+
+            if (passResponse.nextContentId == -2) {
+                this.spinner.hide();
+                this.isSubmitting = false;
+                this.router.navigate([
+                    '/content-details',
+                    this.contentId,
+                    this.userId,
+                    this.programId,
+                ]);
                 return;
             }
-            //nextContentId = [1,2,3,...]
+
+            this.spinner.hide();
+            this.isSubmitting = false;
             this.router.navigate([
                 '/content-details',
-                nextContentId,
+                passResponse.nextContentId,
                 this.userId,
                 this.programId,
             ]);
@@ -234,9 +278,6 @@ export class ExamComponent {
         // this.showAlert('حدث خطأ أثناء إرسال الإجابات. يرجى المحاولة مرة أخرى.');
     }
 
-    /**
-     * Get choice letter for display (أ، ب، ج، د...)
-     */
     getChoiceLetter(index: number): string {
         const letters = ['أ', 'ب', 'ج', 'د', 'هـ', 'و', 'ز', 'ح'];
         return letters[index] || (index + 1).toString();

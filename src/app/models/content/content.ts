@@ -1,12 +1,51 @@
-import { ContentPassingRequirement, ContentType, Status } from "../program/programs";
+import {
+    ContentPassingRequirement,
+    ContentType,
+    Status,
+} from '../program/programs';
 
-export interface CreateContent{
+export interface CreateContent {
     sectionId: number;
     title: string;
-    index:number;
+    index: number;
     content: string;
     contentType: number;
 }
+export interface ContentAIChatMessage {
+    messageText: string;
+    role: AIChatRole;
+    sentAt: Date;
+}
+export interface LoadingState {
+    content: boolean;
+    chat: boolean;
+    aiChat: boolean;
+    sendingMessage: boolean;
+    sendingAiMessage: boolean;
+    passingStudent: boolean;
+    courseStructure: boolean;
+    navigation: boolean;
+}
+export enum AIChatRole {
+    System = 0,
+    User = 1,
+    Assistant = 2,
+}
+
+export interface SendAIMessage {
+    contentId: number;
+    question: string;
+}
+
+// Add loading state interface
+// interface LoadingState {
+//     content: boolean;
+//     chat: boolean;
+//     aiChat: boolean;
+//     navigation: boolean;
+//     sendingMessage: boolean;
+//     sendingAiMessage: boolean;
+// }
 export interface ContentDetails {
     id: number;
     title: string;
@@ -19,26 +58,26 @@ export interface ContentDetails {
     contentPassingRequirement: ContentPassingRequirement;
     contentText?: string;
     userContentRegistrationId: number;
-    status:Status;
-    isOwner:boolean;
-    isPassed:boolean;
-    examTotal?:number;
-    examResult?:number;
-  }
+    status: Status;
+    isOwner: boolean;
+    isPassed: boolean;
+    examTotal?: number;
+    examResult?: number;
+}
 export interface ContentData {
-  id: number;
-  title: string;
-  contentType: ContentType;
-  contentUrl?: string;
-  requiredEffort: string;
-  minutes: number;
-  passMark?: number;
-  index: number;
-  contentText?: string;
-  contentPassingRequirement: ContentPassingRequirement;
+    id: number;
+    title: string;
+    contentType: ContentType;
+    contentUrl?: string;
+    requiredEffort: string;
+    minutes: number;
+    passMark?: number;
+    index: number;
+    contentText?: string;
+    contentPassingRequirement: ContentPassingRequirement;
 }
 
-  export interface ContentToEdit{
+export interface ContentToEdit {
     id: number;
     title: string;
     content: string;
@@ -46,68 +85,101 @@ export interface ContentData {
     passMark: number;
     contentPassingRequirement: number;
     contentText: string;
-  }
+}
 
-  export  interface Message {
+export interface Message {
     textMessage: string;
     userName: string;
     userId: string;
     messageDate: Date; // ISO 8601 string format, e.g., "2024-05-04T12:34:56Z"
-  }
-  
-  export interface SendMessage {
+
+
+}
+
+export interface SendMessage {
     contentId: number;
     comment: string;
-    registrationId:number;
-  }
+    registrationId: number;
+}
 
-  export interface PassResponse{
-    nextContentId?:number,
-    certificateUrl?:string
-  }
-  
-  export interface ContentSubscribers{
+export interface PassResponse {
+    nextContentId?: number;
+    programId?: number;
+    programName?: string;
+    templateUrl?: string;
+}
+
+export interface ContentSubscribers {
     userId: string;
     arName: string;
-    registrationDate:Date;
-  }
+    registrationDate: Date;
+}
 
 export interface CourseStructureResponse {
-  title: string;
-  sections: CourseSection[];
+    title: string;
+    sections: CourseSection[];
 }
 
 export interface CourseSection {
-  id: number;
-  title: string;
-  lectures: CourseLecture[];
-  isExpanded: boolean;
+    id: number;
+    title: string;
+    lectures: CourseLecture[];
+    isExpanded: boolean;
 }
 
 export interface CourseLecture {
-  id: number;
-  title: string;
-  contentType: ContentType;
-  minutes: number;
-  isPassed: boolean;
-  order: number;
+    id: number;
+    title: string;
+    contentType: ContentType;
+    minutes: number;
+    status: ContentStatus;
+    order: number;
+    isPassed : boolean;
+
 }
-export interface NextContentResponse{
-    id:number;
-    title:string;
-    isOpened :boolean
+export interface NextContentResponse {
+    id: number;
+    title: string;
+    isOpened: boolean;
 }
 export interface GetStudentsWithLevelResponse {
-  userId: string;
-  arName: string;
-  email: string;
-  lastContent: LastContent;
-  progressPercentage:number;
+    userId: string;
+    arName: string;
+    email: string;
+    lastContent: LastContent;
+    progressPercentage: number;
 }
 
 export interface LastContent {
-  id: number;
-  title: string;
-  passingRequirements: ContentPassingRequirement;
-  isPassed:boolean;
+    id: number;
+    title: string;
+    passingRequirements: ContentPassingRequirement;
+    isPassed: boolean;
+    isLastContent: boolean;
 }
+export enum ContentStatus {
+    IsLocked,
+    IsFinished,
+    IsProccessing,
+}
+export interface IsLastContentResponse{
+    isLast:boolean;
+    templateUrl:string;
+    programId:number;
+    programName:string;
+}
+
+export interface ChatMessage{
+    senderId:string;
+    message:string;
+    sentAt:Date;
+    arName:string;
+    nextContentId:number;
+}
+
+// SenderId = senderId,
+// Message = message,
+// SentAt = chatMessage.RecordDate,
+// MessageId = chatMessage.Id,
+// ArName = arName,
+// NextContentId = nextContentId,

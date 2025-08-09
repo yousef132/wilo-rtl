@@ -4,16 +4,18 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { API_CONSTANTS, Result } from '../constants/apiConstants';
 import { map, Observable } from 'rxjs';
 import {
+    ContentAIChatMessage,
     ContentData,
     ContentDetails,
     CourseStructureResponse,
+    IsLastContentResponse,
     Message,
     NextContentResponse,
     PassResponse,
     SendMessage,
 } from '../models/content/content';
-import { ContentAIChatMessage, SendAIMessage } from '../pages/content-details/content-details.component';
 
+import { SendAIMessage } from '../models/content/content';
 @Injectable({
     providedIn: 'root',
 })
@@ -79,7 +81,7 @@ export class ContentService {
     sendAIMessage(SendAIMessage: SendAIMessage) {
         ;
         return this.http
-            .post<Result<number | null>>(
+            .post<Result<string>>(
                 this.baseUrl + API_CONSTANTS.CONTENT.SEND_AI_MESSAGE,
                 SendAIMessage
             )
@@ -112,11 +114,17 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
-    getCourseStructure(contentId: number): Observable<CourseStructureResponse> {
-        return this.http.get<CourseStructureResponse>(
-            `${this.baseUrl}/content/${contentId}/course-structure`
-        );
-    }
+  getCourseStructure(programId: number): Observable<CourseStructureResponse | undefined> {
+  return this.http
+    .get<Result<CourseStructureResponse >>(
+      `${this.baseUrl}CoachingProgram/course-structure/${programId}`
+    )
+    .pipe(
+      map((response: Result<CourseStructureResponse>) => {
+        return response.data;
+      })
+    );
+}
 
     getCourseMentors(programId: number) {
         return this.http
@@ -125,6 +133,21 @@ export class ContentService {
             )
             .pipe(map((response) => response.data));
     }
+
+    
+isLastContent(programId: number, contentId: number) {
+  const params = new HttpParams()
+    .set('ProgramId', programId)
+    .set('ContentId', contentId);
+
+  return this.http
+    .get<Result<IsLastContentResponse>>(
+      `${this.baseUrl}${API_CONSTANTS.CONTENT.IS_LAST_CONTENT}`, 
+      { params }
+    )
+    .pipe(map((response) => response.data));
+}
+
 
     addMentor(programId: number, mentorEmail: string) {
         // params

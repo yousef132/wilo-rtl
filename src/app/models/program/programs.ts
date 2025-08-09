@@ -85,6 +85,8 @@ export enum Status {
 }
 export interface Section extends Base {
     contents: SectionContent[];
+     isExpanded?: boolean;
+
 }
 
 export enum ContentType {
@@ -109,9 +111,15 @@ export interface ProgramDetailsForUpdate {
     coverUrl?: string;
     secretKey: string; // Guid is typically represented as a string in TypeScript
     status: CoachingProgramStatus;
+    certificateTemplate?:string;
 }
 export enum CoachingProgramStatus {
     Active = 1,
     InActive = 2,
     Deleted = 3,
+}
+export interface ProgramCertificateDetails{
+    templateUrl: string;
+    programId: number;
+    programName: string;
 }

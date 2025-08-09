@@ -1,0 +1,181 @@
+<div class="user-profile-container " style="margin-top: 100px;">
+    <!-- قسم رأس الملف الشخصي -->
+    <div class="profile-header">
+        <div class="profile-card">
+            <!-- هيكل التحميل -->
+            <div *ngIf="isLoading" class="skeleton-container">
+                <div class="skeleton-avatar"></div>
+                <div class="skeleton-info">
+                    <div class="skeleton-line skeleton-name"></div>
+                    <div class="skeleton-line skeleton-title"></div>
+                    <div class="skeleton-line skeleton-email"></div>
+                </div>
+                <div class="skeleton-button"></div>
+            </div>
+
+            <!-- محتوى الملف الشخصي -->
+            <div *ngIf="!isLoading && user" class="profile-content">
+                <div class="profile-image-section">
+                    <img [src]="user?.avatar ?? '/images/default-profile.png'" [alt]="user?.name" class="profile-avatar" (error)="onImageError($event)">
+                    <!-- <div class="profile-status"></div> -->
+                </div>
+
+                <div class="profile-info">
+                    <h1 class="profile-name">{{ user?.name }}</h1>
+                    <p class="profile-title">{{ user?.title}}</p>
+                    <p class="profile-email">{{ user?.email}}</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">{{ user?.totalCourses }}</span>
+                            <span class="stat-label">إجمالي الدورات</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ user?.completedCourses }}</span>
+                            <span class="stat-label">مكتملة</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ user?.joinDate| date:'MMM yyyy' }}</span>
+                            <span class="stat-label">عضو منذ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-actions" *ngIf="currentUserId ==routeUserId ">
+                    <button class="edit-profile-btn" [routerLink]="['/edit-profile']">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        تعديل الملف
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- قسم الدورات -->
+    <div class="courses-section">
+        <div class="section-header">
+            <h2>دوراتي</h2>
+            <div class="tab-navigation">
+                <button class="tab-btn" [class.active]="activeTab === 'enrolled'" (click)="setActiveTab('enrolled')">
+                    المسجلة ({{ enrolledCourses.length }})
+                </button>
+                <button class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setActiveTab('completed')">
+                    المكتملة ({{ completedCourses.length }})
+                </button>
+            </div>
+        </div>
+
+        <!-- هيكل التحميل للدورات -->
+        <div *ngIf="isLoading" class="courses-grid">
+            <div class="course-skeleton" *ngFor="let item of [1,2,3,4]">
+                <div class="skeleton-course-image"></div>
+                <div class="skeleton-course-content">
+                    <div class="skeleton-line skeleton-course-title"></div>
+                    <div class="skeleton-line skeleton-course-desc"></div>
+                    <div class="skeleton-line skeleton-course-progress"></div>
+                    <div class="skeleton-course-button"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الدورات المسجلة -->
+        <div *ngIf="!isLoading && activeTab === 'enrolled'" class="courses-grid">
+            <div class="course-card" *ngFor="let course of enrolledCourses">
+                <div class="course-image">
+                    <img [src]="course.thumbnail" [alt]="course.title">
+                    <div class="course-progress-overlay">
+                        <div class="progress-circle">
+                            <svg class="progress-ring" width="60" height="60">
+                                <circle class="progress-ring-background" stroke="#e5e7eb" stroke-width="4"
+                                    fill="transparent" r="26" cx="30" cy="30" />
+                                <circle class="progress-ring-progress" [attr.stroke]="getProgressColor(course.progress)"
+                                    stroke-width="4" fill="transparent" r="26" cx="30" cy="30"
+                                    [attr.stroke-dasharray]="163.36"
+                                    [attr.stroke-dashoffset]="163.36 - (163.36 * course.progress) / 100" />
+                            </svg>
+                            <span class="progress-text">{{ course.progress }}%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">{{ course.title }}</h3>
+                    <p class="course-description">{{ course.description }}</p>
+                    <div class="course-meta">
+                        <span class="course-instructor">{{ course.instructor }}</span>
+                        <span class="course-duration">{{ course.duration }}</span>
+                    </div>
+                    <div class="course-progress-bar">
+                        <div class="progress-bar">
+                            <div class="progress-fill" [style.width.%]="course.progress"
+                                [style.background-color]="getProgressColor(course.progress)">
+                            </div>
+                        </div>
+                        <span class="progress-label">{{ course.progress }}% اكتمال</span>
+                    </div>
+                    <button class="continue-btn" (click)="continueCourse(course.id)">
+                        متابعة التعلم
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- الدورات المكتملة -->
+        <div *ngIf="!isLoading && activeTab === 'completed'" class="courses-grid">
+            <div class="course-card completed" *ngFor="let course of completedCourses">
+                <div class="course-image">
+                    <img [src]="course.thumbnail" [alt]="course.title">
+                    <div class="completion-badge">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" fill="#10b981" />
+                            <path d="m9 12 2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">{{ course.title }}</h3>
+                    <p class="course-description">{{ course.description }}</p>
+                    <div class="course-meta">
+                        <span class="course-instructor">{{ course.instructor }}</span>
+                        <span class="course-duration">{{ course.duration }}</span>
+                    </div>
+                    <div class="completion-info">
+                        <span class="completion-date">
+                            مكتملة في {{ course.completedDate | date:'MMM dd, yyyy' }}
+                        </span>
+                    </div>
+                    <a class="certificate-btn" href="{{ course.certificateUrl }}" target="_blank"
+                        *ngIf="course.certificateUrl">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14,2 14,8 20,8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10,9 9,9 8,9"></polyline>
+                        </svg>
+                        تحميل الشهادة
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- حالة فارغة -->
+        <div *ngIf="!isLoading && 
+                ((activeTab === 'enrolled' && enrolledCourses.length === 0) || 
+                 (activeTab === 'completed' && completedCourses.length === 0))" class="empty-state">
+            <div class="empty-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+            </div>
+            <h3>لا توجد دورات {{ activeTab === 'enrolled' ? 'مسجلة' : 'مكتملة' }} بعد</h3>
+            <p>{{ activeTab === 'enrolled' ? 'ابدأ رحلة التعلم الخاصة بك بالتسجيل في الدورات' : 'أكمل بعض الدورات لتراها
+                هنا' }}</p>
+        </div>
+    </div>
+</div>

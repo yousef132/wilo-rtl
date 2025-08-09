@@ -1,4 +1,4 @@
-import { HttpStatusCode } from "@angular/common/http";
+import { HttpStatusCode } from '@angular/common/http';
 
 export const API_CONSTANTS = {
     AUTH: {
@@ -7,6 +7,9 @@ export const API_CONSTANTS = {
         REFRESH_TOKEN: 'User/confirm-email',
         GET_USERS: 'User/users',
         CREATE_COACH: 'User/coach',
+        EDIT_USER: 'User/edit',
+        GET_USER_COURSE: 'User/user-courses/',
+        GET_USER_DATA: 'User/user-data/',
     },
     USER: {
         GET_ALL_USER: '/User/get-all-user',
@@ -15,36 +18,38 @@ export const API_CONSTANTS = {
         UPDATE_USER: '/user/update-user',
         DELETE_USER: '/user/delete-user',
     },
-    SECTION:{
-        CREATE_SECTION:'ProgramSection',
-        UPDATE_SECTION:'ProgramSection',
-        UPDATE_SECTION_INDEX:'ProgramSection/index',
+    SECTION: {
+        CREATE_SECTION: 'ProgramSection',
+        UPDATE_SECTION: 'ProgramSection',
+        UPDATE_SECTION_INDEX: 'ProgramSection/index',
     },
-    CONTENT:{
-        CREATE_CONTENT:'Content',
-        GET_CONTENT_BY_ID:'Content',
-        GET_CONTENT_CHAT:'Content/chat',
-        SEND_MESSAGE:'Content/chat',
-        GET_SUBSCRIBERS:'Content/subscribers/',
+    CONTENT: {
+        CREATE_CONTENT: 'Content',
+        GET_CONTENT_BY_ID: 'Content',
+        GET_CONTENT_CHAT: 'Content/chat',
+        SEND_MESSAGE: 'Content/chat',
+        GET_SUBSCRIBERS: 'Content/subscribers/',
         PASS_STUDENT: 'Content/pass',
         GET_CONTENT_FOR_UPDATE: 'Content/edit/',
         GET_NEXT_PREV: 'Content/prev-next',
         UPDATE_CONTENT: 'Content/edit',
         SEND_AI_MESSAGE: 'Content/ai',
         GET_AI_CHAT: 'Content/ai/chat/',
+        IS_LAST_CONTENT: 'Content/last',
     },
-    QUESTION:{
-        CREATE_QUESTION:'Exam',
-        GET_CONTENT_QUESTIONS:'Exam/questions/',
-        SUBMIT_QUESTIONS:'Exam/solve',
+    QUESTION: {
+        CREATE_QUESTION: 'Exam',
+        GET_CONTENT_QUESTIONS: 'Exam/questions/',
+        SUBMIT_QUESTIONS: 'Exam/solve',
     },
     PROGRAM: {
         GET_ALL_PROGRAMS: 'CoachingProgram',
         ADMIN_PROGRAMS: 'CoachingProgram/coach',
         GET_PROGRAM_BY_ID: 'CoachingProgram',
-        REGISTER_IN_PROGRAM : 'CoachingProgram/',
+        REGISTER_IN_PROGRAM: 'CoachingProgram/',
         GET_PROGRAM_DETAILS: 'CoachingProgram/',
         CREATE_PROGRAM: 'CoachingProgram',
+        FINISH_PROGRAM: 'CoachingProgram/finish',
         GET_STUDENT_PROGRAMS: 'CoachingProgram/member',
         GET_SECTIONS_WITH_PROGRAMS: 'CoachingProgram/sections/',
         GET_PROGRAM_DETAILS_FOR_DASHBOARD: 'CoachingProgram/update-details/',
@@ -53,37 +58,36 @@ export const API_CONSTANTS = {
         UPDATE_PROGRAM_STUDENTS: 'CoachingProgram/program-subscribers/',
         GET_PROGRAM_MENTORS: 'CoachingProgram/mentors/',
         ADD_PROGRAM_MENTOR: 'CoachingProgram/mentors',
-        GET_PROGRAM_STUDENTS_CHAT_NOTIFICATIONS: 'CoachingProgram/students/chats/',
+        GET_PROGRAM_STUDENTS_CHAT_NOTIFICATIONS:
+            'CoachingProgram/students/chats/',
         GET_PROGRESS: 'progress',
         IMPORT_PROGRAM: 'CoachingProgram/import',
         ALL_PROGRAMS: 'CoachingProgram/programs-admin',
         GET_STATICTS: 'CoachingProgram/staticts',
         UPDATE_PROGRAM_STATUS: 'CoachingProgram/status',
+        GET_PROGRAM_TEMPLATE: 'CoachingProgram/template/',
     },
-    NOTIFICATION:{
+    NOTIFICATION: {
         GET_NOTIFICATIONS: 'Notification',
         GET_NOTIFICATION_COUNT: 'Notification/count',
         MARK_NOTIFICATION_AS_READ: 'Notification',
-    }
+    },
 };
 
 export const FILES = 'https://ariduniversity.com/Files/';
 export const FILE_URL = 'https://ariduniversity.com/Files/';
-
 
 export interface currentUser {
     email: string;
     userName: string;
     tokenExpired: boolean;
     roles: string[];
-    id:string;
+    id: string;
 }
 
-
-export class Result<T>{
-    isSuccess!:boolean;
-    statusCode!:HttpStatusCode;
-    message?:string;
-    data?:T;
-  }
-
+export class Result<T> {
+    isSuccess!: boolean;
+    statusCode!: HttpStatusCode;
+    message?: string;
+    data?: T;
+}

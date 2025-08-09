@@ -1,0 +1,402 @@
+
+
+<div class="course-player" style="margin-top: 100px;">
+    <!-- Main Content Area -->
+    <div class="course-content">
+        <!-- Content Display Section -->
+        <div class="content-display">
+            <!-- Error Message -->
+            <div *ngIf="error" class="error-banner">
+                <i class="bx bx-error-circle"></i>
+                <span>{{ error }}</span>
+                <button class="btn btn-sm btn-outline-light" (click)="loadInitialData()">
+                    إعادة المحاولة
+                </button>
+            </div>
+
+            <!-- Loading Skeleton for Content -->
+            <div *ngIf="loading.content" class="content-skeleton">
+                <div class="skeleton-header">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-badges">
+                        <div class="skeleton-badge"></div>
+                        <div class="skeleton-badge"></div>
+                    </div>
+                </div>
+                <div class="skeleton-description"></div>
+                <div class="skeleton-media"></div>
+                <div class="skeleton-alert"></div>
+            </div>
+
+            <!-- Content Details -->
+            <div *ngIf="currentContent && !loading.content" class="content-details">
+                <!-- Content Header -->
+                <div class="content-header">
+                    <h1 class="content-title">{{ currentContent.title }}</h1>
+                    <div class="content-meta">
+                        <span class="badge content-type-badge">
+                            <i class="bx" [ngClass]="getContentTypeIcon(currentContent.contentType)"></i>
+                            {{ ContentType[currentContent.contentType] }}
+                        </span>
+                        <span class="badge duration-badge">
+                            <i class="bx bx-time"></i>
+                            {{ currentContent.minutes }} دقيقة
+                        </span>
+                        <span *ngIf="currentContent.isPassed" class="badge status-badge completed">
+                            <i class="bx bx-check-circle"></i>
+                            مكتمل
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Content Description -->
+                <div *ngIf="currentContent.contentText" class="content-description">
+                    <p>{{ currentContent.contentText }}</p>
+                </div>
+
+                <!-- Content Media -->
+                <div class="content-media">
+                    <ng-container [ngSwitch]="currentContent.contentType">
+                        <!-- Video Content -->
+                        <div *ngSwitchCase="ContentType.YouTube" class="video-container">
+                            <div *ngIf="safeContentHtml" [innerHTML]="safeContentHtml" class="video-wrapper"></div>
+                        </div>
+                        <div *ngSwitchCase="ContentType.Vimeo" class="video-container">
+                            <div *ngIf="safeContentHtml" [innerHTML]="safeContentHtml" class="video-wrapper"></div>
+                        </div>
+                        <div *ngSwitchCase="ContentType.Loom" class="video-container">
+                            <div *ngIf="safeContentHtml" [innerHTML]="safeContentHtml" class="video-wrapper"></div>
+                        </div>
+
+                        <!-- File Content -->
+                        <div *ngSwitchCase="ContentType.File" class="file-container">
+                            <a [href]="currentContent.contentUrl" target="_blank" class="file-link">
+                                <i class="bx bx-file"></i>
+                                <span>عرض الملف</span>
+                                <i class="bx bx-link-external"></i>
+                            </a>
+                        </div>
+
+                        <!-- Website Link -->
+                        <div *ngSwitchCase="ContentType.Website" class="website-container">
+                            <a [href]="currentContent.contentUrl" target="_blank" class="website-link">
+                                <i class="bx bx-globe"></i>
+                                <span>فتح الرابط</span>
+                                <i class="bx bx-link-external"></i>
+                            </a>
+                        </div>
+
+                        <!-- Image Content -->
+                        <div *ngSwitchCase="ContentType.Image" class="image-container">
+                            <img [src]="currentContent.contentUrl" alt="صورة المحتوى" class="content-image" />
+                        </div>
+                    </ng-container>
+                </div>
+
+                <!-- Requirements Alert -->
+                <div *ngIf="!currentContent.isPassed && !currentContent.isOwner" class="requirements-alert">
+                    <div class="alert-content">
+                        <i class="bx bx-info-circle"></i>
+                        <span>{{ getAlertMessage() }}</span>
+                    </div>
+
+                    <div class="alert-actions">
+                        <a *ngIf="currentContent.contentPassingRequirement === ContentPassingRequirement.Exam"
+                            [routerLink]="['/exam', currentContent.id, programId]" class="btn btn-primary">
+                            الذهاب للامتحان
+                        </a>
+
+                        <button *ngIf="currentContent.isOwner && 
+                           currentContent.contentPassingRequirement === ContentPassingRequirement.Manually"
+                            class="btn btn-success" (click)="passStudent()" [disabled]="loading.passingStudent">
+                            <i class="bx"
+                                [ngClass]="loading.passingStudent ? 'bx-loader-alt bx-spin' : 'bx-check-circle'"></i>
+                            {{ loading.passingStudent ? 'جاري التحديث...' : 'اجتياز الطالب' }}
+                        </button>
+                    </div>
+
+                    <div *ngIf="currentContent.passMark && 
+                     currentContent.contentPassingRequirement === ContentPassingRequirement.Exam" class="pass-mark">
+                        <i class="bx bx-target-lock"></i>
+                        <span>النسبة المطلوبة للنجاح: {{ currentContent.passMark }}%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!currentContent && !loading.content && !error" class="empty-content">
+                <i class="bx bx-file-blank"></i>
+                <h3>اختر محتوى للعرض</h3>
+                <p>اختر محتوى من قائمة المحتويات على الجانب لبدء التعلم</p>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Course Sidebar -->
+    <div class="course-sidebar">
+        <!-- Course Progress -->
+        <div class="course-progress">
+            <div class="progress-header">
+                <h3>تقدم الدورة</h3>
+                <div class="progress-stats">
+                    <span class="completed-count">{{ getCompletedCount() }}</span>
+                    <span class="total-count">/ {{ getTotalContentCount() }}</span>
+                </div>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="(getCompletedCount() / getTotalContentCount()) * 100">
+                    </div>
+                </div>
+                <span class="progress-percentage">
+                    {{ ((getCompletedCount() / getTotalContentCount()) * 100) | number:'1.0-0' }}%
+                </span>
+            </div>
+
+            <div class="duration-info">
+                <i class="bx bx-time"></i>
+                <span>{{ getTotalDuration() }} دقيقة إجمالية</span>
+            </div>
+        </div>
+
+        <!-- Sections Loading -->
+        <div *ngIf="loading.courseStructure" class="sections-skeleton">
+            <div class="skeleton-section" *ngFor="let item of [1,2,3]">
+                <div class="skeleton-section-header"></div>
+                <div class="skeleton-content-item" *ngFor="let content of [1,2,3]"></div>
+            </div>
+        </div>
+        <!-- Course Sections -->
+        <div class="course-sections" *ngIf="!loading.courseStructure">
+            <div *ngFor="let section of sections; trackBy: trackBySectionId" class="section">
+
+                <!-- Section Header -->
+                <div  class="section-header" (click)="toggleSection(section)">
+                    <div class="section-info">
+                        <h4 class="section-title">{{ section.title }}</h4>
+                        <span class="section-count">{{ section.lectures.length }} محتوى</span>
+                    </div>
+                    <i class="bx expand-icon" [ngClass]="section.isExpanded ? 'bx-chevron-up' : 'bx-chevron-down'"></i>
+                </div>
+                <div  class="section-contents" [class.expanded]="section.isExpanded">
+                    <div *ngFor="let lecture of section.lectures; trackBy: trackByLectureId" class="content-item"
+                        [class.active]="isLectureActive(lecture.id)" [class.completed]="isLectureCompleted(lecture)"
+                        [class.locked]="isLectureLocked(lecture)" (click)="selectContent(lecture)">
+
+                        <div class="content-icon">
+                            <i class="bx" [ngClass]="getContentStatusIcon(lecture)"></i>
+                        </div>
+
+                        <div class="content-info">
+                            <h5 class="content-title">{{ lecture.title }}</h5>
+                            <div class="content-meta">
+                                <span class="content-type">
+                                    <i class="bx" [ngClass]="getContentTypeIcon(lecture.contentType)"></i>
+                                    {{ ContentType[lecture.contentType] }}
+                                </span>
+                                <span class="content-duration">{{ lecture.minutes }} دقيقة</span>
+                            </div>
+                        </div>
+
+                        <div class="content-status">
+                         <i *ngIf="isLectureCompleted(lecture)" class="bx bx-check-circle completed-icon"></i>
+                            <i *ngIf="isLectureLocked(lecture)" class="bx bx-lock-alt locked-icon"></i> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty Sections State -->
+        <div *ngIf="!loading.courseStructure && sections.length === 0" class="empty-sections">
+            <i class="bx bx-folder-open"></i>
+            <h4>لا توجد أقسام</h4>
+            <p>لم يتم إضافة أي محتوى لهذه الدورة بعد</p>
+        </div>
+    </div>
+</div>
+
+        <!-- <div class="chat-section">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <i class="bx bx-message-dots"></i>
+                    <h3>المحادثة</h3>
+                </div>
+
+                <div class="chat-tabs">
+                    <button class="chat-tab" [class.active]="activeChatTab === 'instructor'"
+                        (click)="switchChatTab('instructor')">
+                        مدرب
+                    </button>
+                    <button class="chat-tab" [class.active]="activeChatTab === 'ai'" (click)="switchChatTab('ai')">
+                        AI
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-body">
+                <div *ngIf="activeChatTab === 'instructor'" class="chat-content">
+                    <div *ngIf="loading.chat" class="chat-loading">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <span>جاري تحميل الرسائل...</span>
+                        </div>
+                    </div>
+
+                    <div class="messages-container" #messagesContainer
+                        *ngIf="!loading.chat && messages.length; else noInstructorMessages">
+                        <div *ngFor="let msg of messages" class="message-wrapper">
+                            <div class="message" [ngClass]="{
+                     'message-sent': msg.userId === currentUserId,
+                     'message-received': msg.userId !== currentUserId
+                   }">
+                                <div class="message-content">
+                                    <div class="message-header" *ngIf="msg.userId !== currentUserId">
+                                        <div class="user-avatar">
+                                            {{ getUserInitials(msg.userName) }}
+                                        </div>
+                                        <span class="user-name">{{ msg.userName }}</span>
+                                    </div>
+
+                                    <div class="message-text">{{ msg.textMessage }}</div>
+
+                                    <div class="message-time">
+                                        {{ msg.messageDate | date:'shortTime' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="loading.sendingMessage" class="message-wrapper">
+                            <div class="message message-sent sending">
+                                <div class="message-content">
+                                    <div class="message-text">
+                                        <div class="typing-indicator">
+                                            <div class="typing-dots">
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
+                                            </div>
+                                            جاري الإرسال...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ng-template #noInstructorMessages>
+                        <div class="no-messages" *ngIf="!loading.chat">
+                            <i class="bx bx-message-x"></i>
+                            <h4>لا توجد رسائل</h4>
+                            <p>ابدأ المحادثة مع المدرب</p>
+                        </div>
+                    </ng-template>
+                </div>
+
+                <div *ngIf="activeChatTab === 'ai'" class="chat-content">
+                    <div *ngIf="loading.aiChat" class="chat-loading">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <span>جاري تحميل المحادثة مع المساعد الذكي...</span>
+                        </div>
+                    </div>
+
+                    <div class="messages-container" #aiMessagesContainer
+                        *ngIf="!loading.aiChat && aiMessages.length; else noAiMessages">
+                        <div *ngFor="let msg of aiMessages" class="message-wrapper">
+                            <div class="message" [ngClass]="{
+                     'message-sent': msg.role === AIChatRole.User,
+                     'message-received': msg.role === AIChatRole.Assistant,
+                     'message-ai': msg.role === AIChatRole.Assistant
+                   }">
+                                <div class="message-content">
+                                    <div class="message-header" *ngIf="msg.role === AIChatRole.Assistant">
+                                        <div class="user-avatar ai-avatar">
+                                            <i class="bx bx-brain"></i>
+                                        </div>
+                                        <span class="user-name">المساعد الذكي</span>
+                                    </div>
+
+                                    <div class="message-text">{{ msg.messageText }}</div>
+
+                                    <div class="message-time">
+                                        {{ msg.sentAt | date:'shortTime' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="aiIsThinking" class="message-wrapper">
+                            <div class="message message-received message-ai">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="user-avatar ai-avatar">
+                                            <i class="bx bx-brain"></i>
+                                        </div>
+                                        <span class="user-name">المساعد الذكي</span>
+                                    </div>
+
+                                    <div class="message-text">
+                                        <div class="typing-indicator">
+                                            <div class="typing-dots">
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
+                                            </div>
+                                            يفكر...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ng-template #noAiMessages>
+                        <div class="no-messages" *ngIf="!loading.aiChat">
+                            <i class="bx bx-brain"></i>
+                            <h4>لا توجد رسائل مع المساعد الذكي</h4>
+                            <p>اسأل المساعد الذكي أي سؤال متعلق بالمحتوى</p>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+
+            <div class="chat-footer">
+                <div class="message-input-container">
+                    <div class="input-group" *ngIf="activeChatTab === 'instructor'">
+                        <input [(ngModel)]="newMessage" type="text" class="message-input"
+                            placeholder="اكتب رسالتك للمدرب..." (keyup.enter)="sendMessage()"
+                            [disabled]="loading.sendingMessage" maxlength="500" />
+                        <button class="send-button" (click)="sendMessage()"
+                            [disabled]="!newMessage.trim() || loading.sendingMessage">
+                            <i class="bx" [ngClass]="loading.sendingMessage ? 'bx-loader-alt bx-spin' : 'bx-send'"></i>
+                        </button>
+                    </div>
+
+                    <div class="input-group" *ngIf="activeChatTab === 'ai'">
+                        <input [(ngModel)]="aiPrompt" type="text" class="message-input"
+                            placeholder="اسأل المساعد الذكي..." (keyup.enter)="sendAiMessage()" maxlength="500"
+                            [disabled]="loading.sendingAiMessage" />
+                        <button class="send-button" (click)="sendAiMessage()"
+                            [disabled]="!aiPrompt.trim() || loading.sendingAiMessage">
+                            <i class="bx"
+                                [ngClass]="loading.sendingAiMessage ? 'bx-loader-alt bx-spin' : 'bx-send'"></i>
+                        </button>
+                    </div>
+
+                    <div class="input-footer"
+                        *ngIf="(activeChatTab === 'instructor' && newMessage) || (activeChatTab === 'ai' && aiPrompt)">
+                        <span class="char-count">
+                            {{ activeChatTab === 'instructor' ? newMessage.length : aiPrompt.length }}/500
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+ -->
+
+        

@@ -24,6 +24,10 @@ import { ProgramStudentsComponent } from './pages/program-students/program-stude
 import { StudentsChatNotificationsComponent } from './pages/students-chat-notifications/students-chat-notifications.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
+import { ProgramPlayerComponent } from './pages/program-player/program-player.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { EditProgramComponent } from './pages/edit-program/edit-program.component';
+import { ProfileEditComponent } from './pages/edit-profile/edit-profile.component';
 
 export const routes: Routes = [
     { path: 'home', component: HomeDemoTwoComponent },
@@ -46,6 +50,9 @@ export const routes: Routes = [
     { path: 'program/students/:id', component: ProgramStudentsComponent },
     { path: 'notifications', component: NotificationsComponent },
     { path: 'dashboard', component: AdminDashboardComponent },
+    { path: 'program-player/:programId', component: ProgramPlayerComponent },
+    { path: 'profile/:userId', component: ProfileComponent },
+    { path: 'edit-profile', component: ProfileEditComponent },
 
 // contentId, subscriber.userId,programId
     { path: 'program-details/:id', component: CourseDetailsPageComponent },

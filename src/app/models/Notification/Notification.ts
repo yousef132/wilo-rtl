@@ -7,8 +7,8 @@ export interface Notification {
   isRead:boolean;
 }
 export enum NotificationType {
-  PassedContentByCoach = "PassedContentByCoach",
-  Chat = "Chat",
-  RegisterInProgram = "RegisterInProgram",
-  CompletedTheProgram = "CompletedTheProgram"
+  PassedContentByCoach = 0,
+  Chat = 1,
+  RegisterInProgram = 2,
+  CompletedTheProgram = 3
 }

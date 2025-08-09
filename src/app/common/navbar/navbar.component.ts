@@ -6,6 +6,8 @@ import {
     Input,
     OnDestroy,
     OnInit,
+    signal,
+    WritableSignal,
 } from '@angular/core';
 import {
     Router,
@@ -20,6 +22,7 @@ import { Subject } from 'rxjs';
 import { Notification } from '../../models/Notification/Notification';
 import { NotificationsService } from '../../services/notifications.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { sign } from 'node:crypto';
 
 @Component({
     selector: 'app-navbar',
@@ -38,36 +41,70 @@ export class NavbarComponent implements OnInit, OnDestroy {
     currentUser: currentUser | null = null;
     searchText: string = '';
     isLoggedIn: boolean | null = null;
+    isLoggingOut: boolean = false;
 
     notifications: Notification[] = [];
     showNotifications = false;
-    readonly unreadCount = input<number>(0);
+    unreadCount: WritableSignal<number> = signal(0);
+    // Input that sets the signal
+    @Input()
+    set unreadCountInput(value: number) {
+        this.unreadCount.set(value);
+    }
     loadingNotifications = false;
+
+    // Profile dropdown state
+    showProfileDropdown = false;
+
     private destroy$ = new Subject<void>();
+
     constructor(
         private authService: AuthService,
         private router: Router,
         private notificationService: NotificationsService
-    ) // private spinnerService: NgxSpinnerService
-    {
+    ) {
         this.authService.currentUser.subscribe((user) => {
             this.currentUser = user || null;
         });
 
         this.authService.isLoggedIn.subscribe((isLoggedIn) => {
             this.isLoggedIn = isLoggedIn;
+            if (isLoggedIn !== null) {
+                this.isLoggingOut = false;
+            }
         });
     }
+
     ngOnInit(): void {}
+
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
     }
+
+    // Profile dropdown methods
+    toggleProfileDropdown(): void {
+        this.showProfileDropdown = !this.showProfileDropdown;
+        // Close notifications dropdown if open
+        if (this.showProfileDropdown) {
+            this.showNotifications = false;
+        }
+    }
+
+    closeProfileDropdown(): void {
+        this.showProfileDropdown = false;
+    }
+
+    // Notification methods
     toggleNotifications(): void {
         this.showNotifications = !this.showNotifications;
+        // Close profile dropdown if open
+        if (this.showNotifications) {
+            this.showProfileDropdown = false;
+        }
+
         if (this.showNotifications && this.unreadCount() !== 0) {
             this.loadNotifications();
-
             this.notifications = this.notifications.map((notification) => ({
                 ...notification,
                 isRead: true,
@@ -78,95 +115,89 @@ export class NavbarComponent implements OnInit, OnDestroy {
     closeNotifications(): void {
         this.showNotifications = false;
     }
-    handleNotificationClick(notification: Notification): void {
-        // Mark it as read in the UI
-        notification.isRead = true;
 
+    handleNotificationClick(notification: Notification): void {
+        notification.isRead = true;
         this.closeNotifications();
     }
 
-    // Load notifications from API
     loadNotifications(): void {
         this.loadingNotifications = true;
         this.notificationService.loadNotifications(1).subscribe({
             next: (notification: Notification[] | undefined) => {
-                // push comming notifications to the current
-
                 this.notifications.push(...(notification || []));
-                // this.notifications.push = notification || [];
                 this.loadingNotifications = false;
             },
             error: (error) => {
+                console.error('Error loading notifications:', error);
                 this.loadingNotifications = false;
             },
         });
     }
 
-    // Load unread notifications count
-    // loadUnreadCount(): void {
-    //     this.notificationService.loadNotificationsCount().subscribe({
-    //         next: (count: number | undefined) => {
-    //             this.unreadCount = count || 0;
-    //         },
-    //         error: (error) => {},
-    //     });
-    // }
-
-    // Mark single notification as read
-    // markAsRead(notificationId: number): void {
-    //     this.notificationService.markNotificationsAsRead().subscribe({
-    //         next: (count: any) => {
-    //             this.unreadCount = count || 0;
-    //         },
-    //         error: (error) => {},
-    //     });
-    // }
-
-    // Mark all notifications as read
     markAllAsRead(): void {
-        // this.http.post('/api/notifications/mark-all-read', {})
-        //   .pipe(takeUntil(this.destroy$))
-        //   .subscribe({
+        this.notifications.forEach((notification) => {
+            notification.isRead = true;
+        });
+
+        // API call to mark all as read
+        // this.notificationService.markAllAsRead().subscribe({
         //     next: () => {
-        //       // Update local state
-        //       this.notifications.forEach(notification => {
-        //         notification.isRead = true;
-        //       });
-        //       this.unreadCount = 0;
+        //         // Handle success
         //     },
         //     error: (error) => {
-        //       console.error('Error marking all notifications as read:', error);
+        //         console.error('Error marking all notifications as read:', error);
         //     }
-        //   });
+        // });
     }
 
-    // Close dropdown when clicking outside
     @HostListener('document:click', ['$event'])
     onDocumentClick(event: Event): void {
         const target = event.target as HTMLElement;
         const notificationWrapper = target.closest('.notification-wrapper');
+        const profileWrapper = target.closest('.profile-dropdown-wrapper');
 
+        // Close notifications dropdown if clicked outside
         if (!notificationWrapper && this.showNotifications) {
             this.closeNotifications();
         }
+
+        // Close profile dropdown if clicked outside
+        if (!profileWrapper && this.showProfileDropdown) {
+            this.closeProfileDropdown();
+        }
     }
+
     // Responsive Menu Trigger
     classApplied = false;
-    toggleClass() {
+    toggleClass(): void {
         this.classApplied = !this.classApplied;
     }
 
     get isCoach(): boolean {
         return this.currentUser?.roles.includes('Coach') ?? false;
     }
+
     get isAdmin(): boolean {
         return this.currentUser?.roles.includes('Admin') ?? false;
     }
 
-    logout() {
+    logout(): void {
+        if (this.isLoggingOut) return;
+
+        this.isLoggingOut = true;
+        this.closeProfileDropdown(); // Close dropdown when logging out
         this.authService.logout();
+
+        setTimeout(() => {
+            this.isLoggingOut = false;
+        }, 5000);
+        this.notifications = [];
+        // change unreadcount to 0
+        this.unreadCount.set(0);
     }
-    search() {
+
+    search(): void {
         this.router.navigate(['/programs'], {
             queryParams: { search: this.searchText },
         });
@@ -175,7 +206,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     // Navbar Sticky
     isSticky: boolean = false;
     @HostListener('window:scroll', ['$event'])
-    checkScroll() {
+    checkScroll(): void {
         const scrollPosition =
             window.scrollY ||
             document.documentElement.scrollTop ||
@@ -192,6 +223,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     openSectionIndex: number = -1;
     openSectionIndex2: number = -1;
     openSectionIndex3: number = -1;
+
     toggleSection(index: number): void {
         if (this.openSectionIndex === index) {
             this.openSectionIndex = -1;
@@ -199,6 +231,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             this.openSectionIndex = index;
         }
     }
+
     toggleSection2(index: number): void {
         if (this.openSectionIndex2 === index) {
             this.openSectionIndex2 = -1;
@@ -206,6 +239,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             this.openSectionIndex2 = index;
         }
     }
+
     toggleSection3(index: number): void {
         if (this.openSectionIndex3 === index) {
             this.openSectionIndex3 = -1;
@@ -213,12 +247,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
             this.openSectionIndex3 = index;
         }
     }
+
     isSectionOpen(index: number): boolean {
         return this.openSectionIndex === index;
     }
+
     isSectionOpen2(index: number): boolean {
         return this.openSectionIndex2 === index;
     }
+
     isSectionOpen3(index: number): boolean {
         return this.openSectionIndex3 === index;
     }

@@ -11,6 +11,7 @@ import {
     CourseStats,
     PlatformStats,
     CoachingProgramStatus,
+    ProgramCertificateDetails,
 } from '../models/program/programs';
 import { API_CONSTANTS, Result } from '../constants/apiConstants';
 import { map } from 'rxjs';
@@ -60,6 +61,15 @@ export class ProgramsService {
                         programId:programId,
                         status:status
                     }
+            )
+            .pipe(map((response) => response.data));
+    }
+
+    
+    getProgramTemplate(programId: number) {
+        return this.http
+            .get<Result<ProgramCertificateDetails>>(
+                this.baseUrl + API_CONSTANTS.PROGRAM.GET_PROGRAM_TEMPLATE + programId
             )
             .pipe(map((response) => response.data));
     }
@@ -146,7 +156,7 @@ export class ProgramsService {
 
     updateProgramDetails(program: FormData) {
         return this.http
-            .put<Result<any>>(
+            .put<Result<ProgramDetailsForUpdate>>(
                 this.baseUrl + API_CONSTANTS.PROGRAM.UPDATE_PROGRAM_DETAILS,
                 program
             )
@@ -167,6 +177,15 @@ export class ProgramsService {
         return this.http
             .get<Result<ContentSubscribers[]>>(
                 this.baseUrl + API_CONSTANTS.CONTENT.GET_SUBSCRIBERS + contentId
+            )
+            .pipe(map((response) => response.data));
+    }
+
+    finishProgram(formData:FormData){
+      return this.http
+            .post<Result<any>>(
+                this.baseUrl + API_CONSTANTS.PROGRAM.FINISH_PROGRAM,
+                formData
             )
             .pipe(map((response) => response.data));
     }

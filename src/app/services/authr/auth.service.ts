@@ -12,6 +12,9 @@ import {
     CreateCoachCommand,
     Login,
     Register,
+    UpdateProfileResponse,
+    UserCourses,
+    UserProfile,
     UserResponse,
 } from '../../models/auth/auth';
 import { CookieService } from 'ngx-cookie-service';
@@ -46,7 +49,7 @@ export class AuthService {
         );
     }
     logout() {
-      debugger;
+        debugger;
         if (isPlatformBrowser(this.platformId))
             localStorage.removeItem('token');
 
@@ -73,6 +76,14 @@ export class AuthService {
             `${this.baseUrl}${API_CONSTANTS.AUTH.CREATE_COACH}`,
             command
         );
+    }
+
+    updateProfile(formData: FormData) {
+        return this.http.put<Result<UpdateProfileResponse>>(
+            `${this.baseUrl}${API_CONSTANTS.AUTH.EDIT_USER}`,
+            formData
+        ).pipe(map((response) => response.data));
+
     }
     // decodeTokenToUser(): currentUser | null {
     //     let token: string | null = '';
@@ -124,46 +135,69 @@ export class AuthService {
     // }
 
     decodeTokenToUser(): currentUser | null {
-  if (!isPlatformBrowser(this.platformId)) return null;
+        if (!isPlatformBrowser(this.platformId)) return null;
 
-  const token = localStorage.getItem('token');
-  if (!token) return null;
+        const token = localStorage.getItem('token');
+        if (!token) return null;
 
-  try {
-    // --- Decode ---
-    const base64Url = token.split('.')[1];
-    const json = JSON.parse(
-      decodeURIComponent(
-        atob(base64Url.replace(/-/g, '+').replace(/_/g, '/'))
-          .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      )
-    );
+        try {
+            // --- Decode ---
+            const base64Url = token.split('.')[1];
+            const json = JSON.parse(
+                decodeURIComponent(
+                    atob(base64Url.replace(/-/g, '+').replace(/_/g, '/'))
+                        .split('')
+                        .map(
+                            (c) =>
+                                '%' +
+                                ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                        )
+                        .join('')
+                )
+            );
 
-    // --- Expiry check ---
-    if (!json.exp || json.exp <= Math.floor(Date.now() / 1000)) return null;
+            // --- Expiry check ---
+            if (!json.exp || json.exp <= Math.floor(Date.now() / 1000))
+                return null;
 
-    // --- Claims mapping ---
-    const rawRoles =
-      json['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+            // --- Claims mapping ---
+            const rawRoles =
+                json[
+                    'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+                ];
 
-    return {
-      email:
-        json['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ?? '',
-      userName: json.ArName ?? '',
-      tokenExpired: false,
-      roles: Array.isArray(rawRoles)
-        ? rawRoles
-        : rawRoles
-        ? [rawRoles]
-        : [],
-      id: json.sub ?? '',
-    };
-  } catch (err) {
-    console.error('Error decoding token:', err);
-    return null;
-  }
-}
+            return {
+                email:
+                    json[
+                        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
+                    ] ?? '',
+                userName: json.ArName ?? '',
+                tokenExpired: false,
+                roles: Array.isArray(rawRoles)
+                    ? rawRoles
+                    : rawRoles
+                    ? [rawRoles]
+                    : [],
+                id: json.sub ?? '',
+            };
+        } catch (err) {
+            console.error('Error decoding token:', err);
+            return null;
+        }
+    }
 
+    getUserCourses(userId: string) {
+        return this.http
+            .get<Result<UserCourses[]>>(
+                `${this.baseUrl}${API_CONSTANTS.AUTH.GET_USER_COURSE}${userId}`
+            )
+            .pipe(map((response) => response.data));
+    }
+    getUserData(userId: string) {
+        return this.http
+            .get<Result<UserProfile>>(
+                `${this.baseUrl}${API_CONSTANTS.AUTH.GET_USER_DATA}${userId}`
+            )
+            .pipe(map((response) => response.data));
+    }
 }

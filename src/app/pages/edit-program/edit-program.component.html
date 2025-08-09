@@ -16,7 +16,7 @@
     </div>
   </div>
 
-    <div class="mb-3">
+  <div class="mb-3">
     <label class="form-label">الرقم السرى</label>
     <input type="text" class="form-control" formControlName="secretKey">
     <div *ngIf="programForm.get('secretKey')?.invalid && programForm.get('secretKey')?.touched" class="text-danger">
@@ -58,7 +58,7 @@
     </div>
   </div>
 
-  <div class="my-3">
+  <!-- <div class="my-3">
     <img [src]="previewImageUrl || programDetails?.coverUrl || 'images/default-cover.png'" alt="">
   </div>
   <div class="mb-3">
@@ -67,7 +67,32 @@
     <div class="text-danger">
       <small *ngIf="fileErrorMessage">{{ fileErrorMessage }}</small>
     </div>
+  </div> -->
+
+  <div class="my-3">
+    <img [src]="previewImageUrl || programDetails?.coverUrl || 'images/default-cover.png'" alt="">
   </div>
+  <div class="mb-3">
+    <label class="form-label">تحميل صورة الغلاف</label>
+    <input type="file" class="form-control" (change)="onFileChange($event)">
+    <div class="text-danger">
+      <small *ngIf="fileErrorMessage">{{ fileErrorMessage }}</small>
+    </div>
+  </div>
+
+  <!-- Certificate Section -->
+
+   <div class="my-3">
+    <img [src]="previewCertificateUrl || programDetails?.certificateTemplate || 'images/default-certificate.png'"
+      alt="">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">تحميل شهادة الدورة</label>
+    <input type="file" class="form-control" (change)="onCertificateFileChange($event)">
+    <div class="text-danger">
+      <small *ngIf="fileErrorMessage">{{ fileErrorMessage }}</small>
+    </div>
+  </div> 
 
   <button class="btn btn-primary" [disabled]="!hasChanges() || programForm.invalid || fileErrorMessage">تحديث</button>
 </form>

@@ -12,12 +12,12 @@ import {
 import { ProgramsService } from '../../services/programs.service';
 import { SharedService } from '../../shared/shared.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { NgIf } from '@angular/common';
+import { JsonPipe, NgIf } from '@angular/common';
 import { debug, warn } from 'console';
 
 @Component({
     selector: 'app-edit-program',
-    imports: [NgxSpinnerModule, ReactiveFormsModule, NgIf],
+    imports: [NgxSpinnerModule, ReactiveFormsModule, NgIf,JsonPipe],
     templateUrl: './edit-program.component.html',
     styleUrl: './edit-program.component.scss',
 })
@@ -26,8 +26,10 @@ export class EditProgramComponent implements OnInit {
     CoachingProgramStatus = CoachingProgramStatus;
     programForm!: FormGroup;
     coverImage: File | null = null;
+    certificateTemplateFile: File | null = null;
     fileErrorMessage: string | null = null;
     previewImageUrl: string | null = null;
+    previewCertificateUrl: string | null = null;
     @Input({ required: true }) programId: number = 0;
     @Output() statusEmitter: EventEmitter<CoachingProgramStatus> =
         new EventEmitter();
@@ -58,34 +60,61 @@ export class EditProgramComponent implements OnInit {
     hasChanges(): boolean {
         const formChanged = this.programForm.dirty;
         const imageChanged = this.coverImage != null;
-        return formChanged || imageChanged;
+        const certificateChanged = this.certificateTemplateFile!=null;
+        return formChanged || imageChanged || certificateChanged;
+    }
+
+    private handleFileChange(
+        event: Event,
+        allowedTypes: string[],
+        maxSizeKb: number,
+        onValidFile: (file: File, previewUrl: string) => void
+    ) {
+        const input = event.target as HTMLInputElement;
+        if (!input?.files?.length) return;
+
+        const file = input.files[0];
+        const message = this.sharedService.validateFile(
+            file,
+            allowedTypes,
+            maxSizeKb
+        );
+
+        this.fileErrorMessage = message;
+
+        if (!message) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                onValidFile(file, reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
     }
 
     onFileChange(event: Event) {
-        const input = event.target as HTMLInputElement;
-        if (input?.files?.length) {
-            let file = input.files[0];
-
-            let message = this.sharedService.validateFile(
-                file,
-                ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
-                500
-            );
-
-            this.fileErrorMessage = message;
-
-            if (!message) {
+        this.handleFileChange(
+            event,
+            ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
+            500,
+            (file, previewUrl) => {
                 this.coverImage = file;
-
-                // Generate temporary URL to preview the image
-                const reader = new FileReader();
-                reader.onload = () => {
-                    this.previewImageUrl = reader.result as string;
-                };
-                reader.readAsDataURL(file);
+                this.previewImageUrl = previewUrl;
             }
-        }
+        );
     }
+
+    onCertificateFileChange(event: Event) {
+        this.handleFileChange(
+            event,
+            ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
+            5000,
+            (file, previewUrl) => {
+                this.certificateTemplateFile = file;
+                this.previewCertificateUrl = previewUrl;
+            }
+        );
+    }
+
     initializeForm() {
         const isActive =
             this.programDetails?.status === CoachingProgramStatus.Active;
@@ -114,8 +143,6 @@ export class EditProgramComponent implements OnInit {
         const status = +newValue; // convert to number if you're using an enum
 
         if (status === CoachingProgramStatus.Active) {
-            ;
-
             const confirmed = confirm(
                 'احذر! لن تتمكن من إضافة المزيد من الأقسام أو المحتوى أو تعديل الترتيب بعد تفعيل البرنامج، ولا يمكنك التراجع عن هذا الإجراء. هل أنت متأكد؟'
             );
@@ -149,13 +176,21 @@ export class EditProgramComponent implements OnInit {
         if (this.coverImage) {
             formData.append('cover', this.coverImage);
         }
+        if (this.certificateTemplateFile) {
+            formData.append(
+                'certificateTemplate',
+                this.certificateTemplateFile
+            );
+        }
+        debugger
 
         this.programService.updateProgramDetails(formData).subscribe({
-            next: () => {
-                // alert('تم تحديث الدورة بنجاح');
+            next: (response:ProgramDetailsForUpdate | undefined) => {
+                if(response){
+                    this.programDetails = response;
+                }
             },
             error: (error) => console.error(error),
         });
-        document.location.reload();
     }
 }

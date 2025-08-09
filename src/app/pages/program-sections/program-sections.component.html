@@ -234,11 +234,21 @@
       <div class="mb-3" *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam">
         <label class="form-label">نسبه النجاح </label>
         <input type="number" class="form-control" formControlName="passingMark" />
+
         <div class="text-danger"
-          *ngIf="contentForm.get('passingMark')?.touched && contentForm.get('passingMark')?.invalid ">
-          <small>اختر نسبه النجاح</small>
+          *ngIf="contentForm.get('passingMark')?.touched && contentForm.get('passingMark')?.invalid">
+          <small *ngIf="contentForm.get('passingMark')?.errors?.['required']">
+            هذا الحقل مطلوب
+          </small>
+          <small *ngIf="contentForm.get('passingMark')?.errors?.['min']">
+            لا يمكن أن تكون النسبة أقل من 0
+          </small>
+          <small *ngIf="contentForm.get('passingMark')?.errors?.['max']">
+            لا يمكن أن تتجاوز النسبة 100
+          </small>
         </div>
       </div>
+
       <div class="mb-3">
         <label class="form-label">نوع المحتوى</label>
         <select (change)="onContentTypeChange($event)" class="form-select" formControlName="contentType">

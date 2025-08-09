@@ -1,0 +1,258 @@
+<div style="margin-top: 120px; margin-bottom: 100px;">
+  <div class="profile-edit-container" [@fadeIn]>
+    <!-- Header Section -->
+    <div class="profile-header" [@slideInFromTop]>
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h2 class="page-title">
+              <i class="bx bx-user-circle me-2"></i>
+              تعديل الملف الشخصي
+            </h2>
+            <p class="page-subtitle">قم بتحديث معلوماتك الشخصية</p>
+          </div>
+          <div class="col-md-6 text-end">
+            <button 
+              class="btn btn-outline-secondary me-2" 
+              (click)="goBack()"
+              [disabled]="isLoading">
+              <i class="bx bx-arrow-back me-1"></i>
+              العودة
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-content" [@slideInFromBottom]>
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" *ngIf="isInitialLoading" [@fadeIn]>
+              <div class="loading-spinner">
+                <i class="bx bx-loader-alt bx-spin"></i>
+                <div class="loading-text">جاري تحميل البيانات...</div>
+              </div>
+            </div>
+
+            <!-- Profile Form Card -->
+            <div class="profile-card" *ngIf="!isInitialLoading" [@slideInUp]>
+              
+              <!-- Avatar Section -->
+              <div class="avatar-section" [@scaleIn]>
+                <div class="avatar-wrapper">
+                  <div class="avatar-container">
+                    <img 
+                      [src]="finalImageSrc" 
+                      [alt]="userProfile?.name || 'صورة المستخدم'"
+                      class="avatar-image"
+                      (error)="onImageError($event)">
+                    <div class="avatar-overlay" (click)="fileInput.click()" [class.uploading]="isUploadingImage">
+                      <i class="bx" [class.bx-camera]="!isUploadingImage" [class.bx-loader-alt]="isUploadingImage" [class.bx-spin]="isUploadingImage"></i>
+                      <span style="cursor: pointer; margin-top: 10px;" >{{ isUploadingImage ? 'جاري الرفع...' : 'تغيير الصورة' }}</span>
+                    </div>
+                    <input 
+                      #fileInput 
+                      type="file" 
+                      accept="image/jpeg,image/jpg,image/png,image/webp" 
+                      (change)="onFileSelected($event)"
+                      style="display: none">
+                  </div>
+                  <!-- <div class="avatar-info" *ngIf="userProfile">
+                    <div class="avatar-name">{{ userProfile.name || 'غير محدد' }}</div>
+                    <div class="avatar-title">{{ userProfile.title || 'لا يوجد مسمى وظيفي' }}</div>
+                  </div> -->
+                </div>
+                <!-- Image Upload Progress -->
+                <div class="upload-progress" *ngIf="uploadProgress > 0 && uploadProgress < 100" [@slideInUp]>
+                  <div class="progress">
+                    <div class="progress-bar" [style.width.%]="uploadProgress"></div>
+                  </div>
+                  <small class="text-muted">جاري رفع الصورة... {{ uploadProgress }}%</small>
+                </div>
+              </div>
+
+              <!-- Form Section -->
+              <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="profile-form" novalidate>
+                
+                <!-- Personal Information -->
+                <div class="form-section" [@slideInLeft]>
+                  <h4 class="section-title">
+                    <i class="bx bx-user me-2"></i>
+                    المعلومات الشخصية
+                  </h4>
+                  
+                  <!-- Name Field -->
+                  <div class="form-group" [@inputFocus]>
+                    <label for="name" class="form-label required">
+                      <i class="bx bx-user me-1"></i>
+                      الاسم الكامل
+                    </label>
+                    <div class="input-wrapper">
+                      <input 
+                        type="text"
+                        id="name"
+                        class="form-control"
+                        formControlName="name"
+                        placeholder="أدخل اسمك الكامل"
+                        [class.is-invalid]="isFieldInvalid('name')"
+                        [class.is-valid]="isFieldValid('name')"
+                        autocomplete="name">
+                      <i class="bx bx-user input-icon"></i>
+                    </div>
+                    <div class="invalid-feedback" *ngIf="isFieldInvalid('name')">
+                      <div *ngIf="profileForm.get('name')?.errors?.['required']">
+                        <i class="bx bx-error-circle me-1"></i>
+                        الاسم مطلوب
+                      </div>
+                      <div *ngIf="profileForm.get('name')?.errors?.['minlength']">
+                        <i class="bx bx-error-circle me-1"></i>
+                        الاسم يجب أن يكون أكثر من حرفين
+                      </div>
+                      <div *ngIf="profileForm.get('name')?.errors?.['maxlength']">
+                        <i class="bx bx-error-circle me-1"></i>
+                        الاسم يجب أن يكون أقل من 50 حرف
+                      </div>
+                    </div>
+                    <div class="valid-feedback" *ngIf="isFieldValid('name')">
+                      <i class="bx bx-check-circle me-1"></i>
+                      الاسم صحيح
+                    </div>
+                  </div>
+
+                  <!-- Title Field -->
+                  <div class="form-group" [@inputFocus]>
+                    <label for="title" class="form-label">
+                      <i class="bx bx-briefcase me-1"></i>
+                      المسمى الوظيفي
+                    </label>
+                    <div class="input-wrapper">
+                      <input 
+                        type="text"
+                        id="title"
+                        class="form-control"
+                        formControlName="title"
+                        placeholder="أدخل مسماك الوظيفي"
+                        [class.is-invalid]="isFieldInvalid('title')"
+                        [class.is-valid]="isFieldValid('title')"
+                        autocomplete="organization-title">
+                      <i class="bx bx-briefcase input-icon"></i>
+                    </div>
+                    <div class="invalid-feedback" *ngIf="isFieldInvalid('title')">
+                      <div *ngIf="profileForm.get('title')?.errors?.['minlength']">
+                        <i class="bx bx-error-circle me-1"></i>
+                        المسمى الوظيفي يجب أن يكون أكثر من حرفين
+                      </div>
+                      <div *ngIf="profileForm.get('title')?.errors?.['maxlength']">
+                        <i class="bx bx-error-circle me-1"></i>
+                        المسمى الوظيفي يجب أن يكون أقل من 100 حرف
+                      </div>
+                    </div>
+                    <div class="valid-feedback" *ngIf="isFieldValid('title')">
+                      <i class="bx bx-check-circle me-1"></i>
+                      المسمى الوظيفي صحيح
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Form Summary -->
+                <div class="form-summary" *ngIf="hasChanges()" [@slideInUp]>
+                  <div class="summary-card">
+                    <h5 class="summary-title">
+                      <i class="bx bx-info-circle me-2"></i>
+                      ملخص التغييرات
+                    </h5>
+                    <ul class="changes-list">
+                      <li *ngIf="hasNameChanged()">
+                        <i class="bx bx-user me-2"></i>
+                        تم تغيير الاسم
+                      </li>
+                      <li *ngIf="hasTitleChanged()">
+                        <i class="bx bx-briefcase me-2"></i>
+                        تم تغيير المسمى الوظيفي
+                      </li>
+                      <li *ngIf="hasImageChanged()">
+                        <i class="bx bx-image me-2"></i>
+                        تم تغيير الصورة الشخصية
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions" [@slideInUp]>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary me-2"
+                    (click)="onCancel()"
+                    [disabled]="isLoading">
+                    <i class="bx bx-x me-1"></i>
+                    إلغاء
+                  </button>
+                  
+                  <button 
+                    type="submit" 
+                    class="btn btn-primary"
+                    [disabled]="!canSave()">
+                    <ng-container *ngIf="!isLoading">
+                      <i class="bx bx-save me-1"></i>
+                      حفظ التغييرات
+                    </ng-container>
+                    <ng-container *ngIf="isLoading">
+                      <i class="bx bx-loader-alt bx-spin me-1"></i>
+                      جاري الحفظ...
+                    </ng-container>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <!-- Success Toast -->
+    <div class="toast align-items-center border-0" 
+         [class.show]="showSuccessMessage" 
+         [@toastSlide]
+         role="alert" 
+         aria-live="assertive" 
+         aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body bg-success text-white rounded">
+          <i class="bx bx-check-circle me-2"></i>
+          تم حفظ التغييرات بنجاح!
+        </div>
+        <button type="button" 
+                class="btn-close btn-close-white me-2 m-auto" 
+                (click)="hideSuccessMessage()" 
+                aria-label="إغلاق"></button>
+      </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div class="toast align-items-center border-0" 
+         [class.show]="showErrorMessage" 
+         [@toastSlide]
+         role="alert" 
+         aria-live="assertive" 
+         aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body bg-danger text-white rounded">
+          <i class="bx bx-error-circle me-2"></i>
+          {{ errorMessage }}
+        </div>
+        <button type="button" 
+                class="btn-close btn-close-white me-2 m-auto" 
+                (click)="hideErrorMessage()" 
+                aria-label="إغلاق"></button>
+      </div>
+    </div>
+  </div>
+</div>
