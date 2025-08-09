@@ -71,7 +71,7 @@ export class ChatService {
         const token = localStorage.getItem('token') || '';
 
         this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl('https://localhost:7253/chatHub', {
+            .withUrl('https://cps.premiumasp.net/chatHub', {
                 accessTokenFactory: () => token, // token will be passed as query param
             })
             .withAutomaticReconnect()
