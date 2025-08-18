@@ -115,7 +115,7 @@
                         </div>
                         <span class="progress-label">{{ course.progress }}% اكتمال</span>
                     </div>
-                    <button class="continue-btn" (click)="continueCourse(course.id)">
+                    <button *ngIf="isProfileOwner" class="continue-btn" (click)="continueCourse(course.id)">
                         متابعة التعلم
                     </button>
                 </div>
@@ -147,8 +147,8 @@
                             مكتملة في {{ course.completedDate | date:'MMM dd, yyyy' }}
                         </span>
                     </div>
-                    <a class="certificate-btn" href="{{ course.certificateUrl }}" target="_blank"
-                        *ngIf="course.certificateUrl">
+                    <a  class="certificate-btn" href="{{ course.certificateUrl }}" target="_blank"
+                        *ngIf="course.certificateUrl && isProfileOwner">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>

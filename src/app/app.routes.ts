@@ -23,7 +23,7 @@ import { EmailConfirmationFailedComponent } from './pages/email-confirmation-fai
 import { ProgramStudentsComponent } from './pages/program-students/program-students.component';
 import { StudentsChatNotificationsComponent } from './pages/students-chat-notifications/students-chat-notifications.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
-import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
+// import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { ProgramPlayerComponent } from './pages/program-player/program-player.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { EditProgramComponent } from './pages/edit-program/edit-program.component';
@@ -49,7 +49,7 @@ export const routes: Routes = [
     { path: 'students/chats/:id', component: StudentsChatNotificationsComponent },
     { path: 'program/students/:id', component: ProgramStudentsComponent },
     { path: 'notifications', component: NotificationsComponent },
-    { path: 'dashboard', component: AdminDashboardComponent },
+    // { path: 'dashboard', component: AdminDashboardComponent },
     { path: 'program-player/:programId', component: ProgramPlayerComponent },
     { path: 'profile/:userId', component: ProfileComponent },
     { path: 'edit-profile', component: ProfileEditComponent },

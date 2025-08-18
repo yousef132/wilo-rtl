@@ -74,12 +74,12 @@
               <td>{{user.title}}</td>
               <td>
                 <div class="actions">
-                  <button class="btn btn-edit" (click)="editUser(user)" title="تعديل المستخدم">
+                  <button class="btn btn-edit" (click)="openEditUserModal(user)" title="تعديل المستخدم">
                     <i class="bx bx-edit"></i>
                   </button>
-                  <button class="btn btn-danger" (click)="deleteUser(user)" title="حذف المستخدم">
+                  <!-- <button class="btn btn-danger" (click)="deleteUser(user)" title="حذف المستخدم">
                     <i class="bx bx-trash"></i>
-                  </button>
+                  </button> -->
                 </div>
               </td>
             </tr>
@@ -205,9 +205,9 @@
                       [ngClass]="course.status === CoachingProgramStatus.Active ? 'bx-toggle-left' : 'bx-toggle-right'"></i>
                   </button>
 
-                  <button class="btn btn-danger " (click)="deleteProgram(course.id)" title="حذف البرنامج">
+                  <!-- <button class="btn btn-danger " (click)="deleteProgram(course.id)" title="حذف البرنامج">
                     <i class="bx bx-trash"></i>
-                  </button>
+                  </button> -->
                 </div>
               </tr>
             </tbody>
@@ -216,6 +216,68 @@
       </div>
     </div>
   </div>
+
+
+  <ng-template #editUserModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">تعديل المستخدم</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <form [formGroup]="editUserForm" (ngSubmit)="submitEditUser(modal)">
+    <div class="modal-body">
+      <!-- Name -->
+      <div class="mb-3">
+        <label class="form-label">الاسم</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          formControlName="name"
+          [ngClass]="{'is-invalid': editUserForm.get('name')?.invalid && editUserForm.get('name')?.touched}"
+        />
+        <div class="invalid-feedback" *ngIf="editUserForm.get('name')?.errors?.['required']">
+          الاسم مطلوب
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="mb-3">
+        <label class="form-label">البريد الإلكتروني</label>
+        <input 
+          type="email" 
+          class="form-control" 
+          formControlName="email"
+          [ngClass]="{'is-invalid': editUserForm.get('email')?.invalid && editUserForm.get('email')?.touched}"
+        />
+        <div class="invalid-feedback" *ngIf="editUserForm.get('email')?.errors?.['required']">
+          البريد الإلكتروني مطلوب
+        </div>
+        <div class="invalid-feedback" *ngIf="editUserForm.get('email')?.errors?.['email']">
+          البريد الإلكتروني غير صالح
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="mb-3">
+        <label class="form-label">الوظيفة</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          formControlName="title"
+          [ngClass]="{'is-invalid': editUserForm.get('title')?.invalid && editUserForm.get('title')?.touched}"
+        />
+        <div class="invalid-feedback" *ngIf="editUserForm.get('title')?.errors?.['required']">
+          الوظيفة مطلوبة
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">إلغاء</button>
+      <button type="submit" class="btn btn-primary" [disabled]="editUserForm.invalid">حفظ التعديلات</button>
+    </div>
+  </form>
+</ng-template>
 
   <!-- مودال إنشاء مدرب -->
   <ng-template #createCoachModal let-modal>

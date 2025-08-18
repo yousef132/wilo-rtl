@@ -1,10 +1,11 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, rgb } from 'pdf-lib';
 import { ProgramsService } from './programs.service';
 import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
     providedIn: 'root',
@@ -13,6 +14,7 @@ export class PdfGeneratorService {
     constructor(
         private programService: ProgramsService,
         private router: Router,
+        private toastr: ToastrService
     ) {}
 
     fireAndForgetGenerateCertificate(
@@ -25,6 +27,14 @@ export class PdfGeneratorService {
         contentId: number,
         isInstructor: boolean
     ): Promise<void> {
+        if (!isInstructor) {
+            this.toastr.info(
+                'تهانينا! لقد اجتزت البرنامج بنجاح 🎉',
+                'يتم الآن تجهيز شهادتك، برجاء الانتظار...'
+            );
+        } else {
+            this.toastr.info('يتم الآن تجهيز الشهادة، برجاء الانتظار...');
+        }
 
         return this.generateCertificate(
             templateUrl,
@@ -43,12 +53,12 @@ export class PdfGeneratorService {
                 }
             })
             .finally(() => {
-
                 if (!isInstructor) {
                     this.router.navigate(['/program-completed'], {
                         queryParams: { status: true },
                     });
                 }
+                this.toastr.clear();
             });
     }
 
@@ -66,47 +76,90 @@ export class PdfGeneratorService {
     ): Promise<void> {
         debugger;
 
-        // 1. Create canvas and load template image
-        const canvas = document.createElement('canvas');
-        canvas.width = 3508; // A3 size at high resolution
-        canvas.height = 2480;
-        const ctx = canvas.getContext('2d');
+        // 1. Load the template as an image into a canvas
+        const bgImage = await this.loadImage(templateUrl);
 
+        const canvas = document.createElement('canvas');
+        canvas.width = bgImage.width;
+        canvas.height = bgImage.height;
+        const ctx = canvas.getContext('2d');
         if (!ctx) throw new Error('Failed to get canvas context');
 
-        const bgImage = await this.loadImage(templateUrl); //May Cause CORS Errors
+        // Draw background
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
 
-        // 2. Add student name & course name
-        ctx.fillStyle = '#000';
-        ctx.font = 'bold 90px Arial';
+        // 2. Load Tajawal font dynamically
+        const font = new FontFace(
+            'Tajawal',
+            'url(/fonts/Tajawal-ExtraLight.ttf)'
+        );
+        await font.load();
+        (document as any).fonts.add(font);
+
+        // 3. Format date (Arabic style dd/mm/yyyy)
+        const formattedDate = new Date(date).toLocaleDateString('ar-EG', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
+
+        // 4. Build RTL-safe message
+        // Use Unicode RLI (U+2067) and PDI (U+2069) around Latin words
+        const rtlStudent = `\u2067${studentName}\u2069`;
+        const rtlCourse = `\u2067${courseName}\u2069`;
+
+        const message = `نشهد بأن الطالب/ة ${rtlStudent} قد اجتاز بنجاح دورة ${rtlCourse} بتاريخ ${formattedDate}`;
+
+        // 5. Text styling
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 40px Tajawal';
         ctx.textAlign = 'center';
-        ctx.fillText(studentName, canvas.width / 2, 1200);
-        ctx.font = '70px Arial';
-        ctx.fillText(courseName, canvas.width / 2, 1400);
+        ctx.direction = 'rtl'; // Important for Arabic alignment
 
-        // 3. Add date
-        ctx.font = '50px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(`Date: ${date}`, 500, 1600);
+        // 6. Multi-line wrapping
+        const maxWidth = canvas.width - 400; // padding left & right
+        const lineHeight = 70;
+        const lines = this.wrapText(ctx, message, maxWidth);
 
-        // 4. Generate and draw QR Code
-        // const qrImg = await this.generateQRCode(verificationUrl);
-        // ctx.drawImage(qrImg, canvas.width - 900, 1600, 300, 300);
+        let startY = canvas.height / 2 - (lines.length * lineHeight) / 2;
+        lines.forEach((line, i) => {
+            ctx.fillText(line, canvas.width / 2, startY + i * lineHeight);
+        });
 
-        // 5. Convert to PDF using pdf-lib
+        // 7. Convert canvas to PDF
         const pdfBytes = await this.canvasToPdf(canvas);
 
-        // 6. Download PDF for user
-        // this.downloadPdf(pdfBytes, `Certificate-${studentName}.pdf`);
-
-        // 7. Upload to backend
+        // 8. Send to backend
         await this.handleFinishingCourse(
-            pdfBytes,
+            new Uint8Array(pdfBytes),
             studentId,
             courseId,
             contentId
         );
+    }
+
+    /** Helper: wrap text into multiple lines */
+    private wrapText(
+        ctx: CanvasRenderingContext2D,
+        text: string,
+        maxWidth: number
+    ): string[] {
+        const words = text.split(' ');
+        const lines: string[] = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+            const word = words[i];
+            const width = ctx.measureText(currentLine + ' ' + word).width;
+            if (width < maxWidth) {
+                currentLine += ' ' + word;
+            } else {
+                lines.push(currentLine);
+                currentLine = word;
+            }
+        }
+        lines.push(currentLine);
+        return lines;
     }
 
     /** Load image from URL */
@@ -149,12 +202,16 @@ export class PdfGeneratorService {
         courseId: number,
         contentId: number
     ): Promise<boolean> {
+        debugger;
         const formData = new FormData();
         formData.append(
             'certificate',
-            new Blob([pdfBytes], { type: 'application/pdf' }),
+            new Blob([pdfBytes.buffer as ArrayBuffer], {
+                type: 'application/pdf',
+            }),
             'certificate.pdf'
         );
+
         formData.append('courseId', courseId.toString());
         formData.append('contentId', contentId.toString());
         formData.append('userId', studentId.toString());

@@ -1,5 +1,9 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
-import { CreateCoachCommand, UserResponse } from '../../models/auth/auth';
+import {
+    CreateCoachCommand,
+    UpdateUserForAdminResponse,
+    UserResponse,
+} from '../../models/auth/auth';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {
     FormBuilder,
@@ -21,6 +25,7 @@ import {
 } from '../../models/program/programs';
 import { forkJoin } from 'rxjs';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     standalone: true,
@@ -30,7 +35,7 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
         ReactiveFormsModule,
         InnerPageBannerComponent,
         NgxSpinnerModule,
-        RouterLink
+        RouterLink,
     ],
     templateUrl: './users.component.html',
     styleUrl: './users.component.scss',
@@ -40,6 +45,10 @@ export class UsersComponent {
     createCoachForm!: FormGroup;
     @ViewChild('createCoachModal') createCoachModalRef!: TemplateRef<any>;
     modalInstance!: NgbModalRef;
+
+    editingUserId!: string;
+    editUserForm!: FormGroup;
+    @ViewChild('editUserModal') userModalRef!: TemplateRef<any>;
 
     // Tab management
     activeTab: 'users' | 'statistics' = 'users';
@@ -72,7 +81,8 @@ export class UsersComponent {
         private modalService: NgbModal,
         private router: Router,
         private programService: ProgramsService,
-        private spinner: NgxSpinnerService
+        private spinner: NgxSpinnerService,
+        private toastr: ToastrService
     ) {
         this.initializeForm();
     }
@@ -96,6 +106,68 @@ export class UsersComponent {
             arName: ['', [Validators.required, Validators.minLength(2)]],
             title: ['', [Validators.required, Validators.minLength(2)]],
         });
+
+        this.editUserForm = this.fb.group({
+            name: ['', Validators.required],
+            email: ['', [Validators.email, Validators.required]],
+            title: ['', [Validators.required]],
+        });
+    }
+    openEditUserModal(user: UserResponse) {
+        debugger;
+        
+        this.editingUserId = user.id;
+        this.editUserForm.patchValue({
+            name: user.arName,
+            email: user.email,
+            title: user.title,
+        });
+        this.modalService.open(this.userModalRef, { centered: true });
+    }
+    submitEditUser(modal: any) {
+        debugger;
+        if (this.editUserForm.valid && this.editingUserId !== null) {
+            const formValue = this.editUserForm.value;
+
+            // validate email duplication
+            const existingUser = this.users.find(
+                (user) =>
+                    user.email === formValue.email &&
+                    user.id !== this.editingUserId
+            );
+            if (existingUser) {
+                this.toastr.error('لا يجب تكرار ترتيب البريد الالكترونى');
+
+                return;
+            }
+
+            this.authService
+                .UpdateUserForAdmin(
+                    this.editingUserId,
+                    formValue.title,
+                    formValue.email,
+                    formValue.name
+                )
+                .subscribe({
+                    next: (
+                        response: UpdateUserForAdminResponse | undefined
+                    ) => {
+                        if (response) {
+                            // this.toastr.success('تم تعديل المستخدم بنجاح');
+                            const userIndex = this.users.findIndex(
+                                (user) => user.id === this.editingUserId
+                            );
+                            if (userIndex !== -1) {
+                                this.users[userIndex].arName = response.arName;
+                                this.users[userIndex].email = response.email;
+                                // this.users[userIndex]. = response.title;
+                            }
+                            modal.close();
+                        }
+                    },
+                    error: (err) => console.error(err),
+                });
+        }
     }
 
     // Tab management methods
@@ -129,6 +201,7 @@ export class UsersComponent {
         this.authService.getUsers().subscribe({
             next: (response: UserResponse[] | undefined) => {
                 if (response) {
+                    debugger;
                     this.users = response;
                     this.totalUsers = response.length;
                 }
@@ -219,11 +292,7 @@ export class UsersComponent {
         });
     }
 
-    // Edit user - navigate to edit page
-    editUser(user: UserResponse): void {
-        // Navigate to edit user component with user ID
-        this.router.navigate(['/admin/users/edit', user.id]);
-    }
+
 
     // Delete user
     deleteUser(user: UserResponse): void {

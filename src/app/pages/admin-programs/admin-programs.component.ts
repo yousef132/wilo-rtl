@@ -6,24 +6,45 @@ import { RouterModule } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { currentUser } from '../../constants/apiConstants';
+import { AuthService } from '../../services/authr/auth.service';
+import { NgIf } from '@angular/common';
 
 @Component({
     selector: 'app-admin-programs',
-    imports: [InnerPageBannerComponent, RouterModule, NgxSpinnerModule,ReactiveFormsModule,FormsModule],
+    imports: [
+        InnerPageBannerComponent,
+        RouterModule,
+        NgxSpinnerModule,
+        ReactiveFormsModule,
+        FormsModule,
+        NgIf,
+    ],
     templateUrl: './admin-programs.component.html',
     styleUrl: './admin-programs.component.scss',
 })
 export class AdminProgramsComponent implements OnInit {
     query: ProgramQuery = new ProgramQuery('', 1, 15);
     programs: ProgramCard[] | null = null;
+    currentUser: currentUser | null = null;
     secretKey: string = '';
     @ViewChild('ImportProgramModal') ImportProgramModalRef!: TemplateRef<any>;
 
     constructor(
         private programsService: ProgramsService,
         private ngxSpinner: NgxSpinnerService,
-        private modalService: NgbModal
-    ) {}
+        private modalService: NgbModal,
+        private authservice: AuthService
+    ) {
+        this.authservice.currentUser.subscribe((user) => {
+            this.currentUser = user;
+        });
+    }
+
+    get isCoach(): boolean {
+        debugger;
+        return this.currentUser?.roles.includes('Coach') ?? false;
+    }
     ngOnInit(): void {
         this.getPrograms();
     }
@@ -40,7 +61,6 @@ export class AdminProgramsComponent implements OnInit {
 
     openModal() {
         this.modalService.open(this.ImportProgramModalRef, { centered: true });
-
     }
     importProgram(key: string): void {
         this.programsService.importProgram(key).subscribe({

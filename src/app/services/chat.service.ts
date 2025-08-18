@@ -10,6 +10,7 @@ import { UserInfo } from 'node:os';
 import { ProgramsService } from './programs.service';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { environment } from '../../environments/environment.development';
 
 export interface MessageConfirmation {
     nextContentId: number;
@@ -32,7 +33,7 @@ export class ChatService {
         private certificationService: PdfGeneratorService,
         private authService: AuthService,
         private route: Router,
-        private spinner: NgxSpinnerService,
+        private spinner: NgxSpinnerService
     ) {
         // get current user
         this.authService.currentUser.subscribe((user) => {
@@ -69,9 +70,9 @@ export class ChatService {
 
     startConnection(registrationId: number): Promise<void> {
         const token = localStorage.getItem('token') || '';
-
+        let signalRUrl = environment.SIGNALR_URL;
         this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl('https://cps.premiumasp.net/chatHub', {
+            .withUrl(signalRUrl, {
                 accessTokenFactory: () => token, // token will be passed as query param
             })
             .withAutomaticReconnect()
@@ -119,8 +120,9 @@ export class ChatService {
             'MessageSentConfirmation',
             (confirmation: MessageConfirmation) => {
                 (async () => {
-
                     if (confirmation?.nextContentId) {
+                        debugger;
+
                         if (confirmation.nextContentId == -1) {
                             this.spinner.show();
                             await this.certificationService.fireAndForgetGenerateCertificate(

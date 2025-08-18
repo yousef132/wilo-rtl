@@ -29,7 +29,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a *ngIf="isCoach" routerLink="/my-programs" class="nav-link">
+            <a *ngIf="isCoach || isMentor" routerLink="/my-programs" class="nav-link">
               حقائبى التدريبيه <i class='bx bx-chevron-down'></i>
             </a>
           </li>
@@ -61,12 +61,12 @@
 
               <!-- Notifications Dropdown -->
               <div class="notifications-dropdown" [class.show]="showNotifications" *ngIf="showNotifications">
-                <div class="notifications-header">
+                <!-- <div class="notifications-header">
                   <h6>الإشعارات</h6>
                   <button class="mark-all-read" (click)="markAllAsRead()" *ngIf="notifications.length > 0">
                     تعيين الكل كمقروء
                   </button>
-                </div>
+                </div> -->
 
                 <div class="notifications-body">
                   <div *ngIf="loadingNotifications" class="loading-state">
@@ -110,11 +110,11 @@
                   </ng-container>
                 </div>
 
-                <div class="notifications-footer" *ngIf="notifications.length > 0">
+                <!-- <div class="notifications-footer" *ngIf="notifications.length > 0">
                   <a routerLink="/notifications" (click)="closeNotifications()">
                     عرض جميع الإشعارات
                   </a>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -137,7 +137,8 @@
             </div>
 
             <!-- Login Button -->
-            <a *ngIf="isLoggedIn === false" routerLink="/login" class="default-btn">
+             
+            <a *ngIf="isLoggedIn == false" routerLink="/login" class="default-btn">
               <i class="flaticon-left"></i>
               الدخول
               <span></span>
@@ -165,7 +166,7 @@
                 </div>
 
                 <div class="profile-dropdown-body">
-                  <a [routerLink]="['/profile',currentUser?.id]" class="dropdown-item" (click)="closeProfileDropdown()">
+                  <a *ngIf="!isAdmin && !isCoach" [routerLink]="['/profile',currentUser?.id]" class="dropdown-item" (click)="closeProfileDropdown()">
                     <i class="bx bx-user me-2"></i>
                     الملف الشخصي
                   </a>
@@ -200,12 +201,16 @@
   <div class="offcanvas-body">
     <ul class="list-unstyled p-0 m-0">
       <li>
-        <a routerLink="/home" class="d-block py-2 fw-bold">الرئيسيه</a>
+        <a   routerLink="/home" class="d-block py-2 fw-bold">الرئيسيه</a>
       </li>
       <li>
         <a routerLink="/programs" class="d-block py-2 fw-bold">البرامج</a>
       </li>
-      <li *ngIf="isCoach">
+<!--       
+      <div *ngIf="isMentor == true" style="background-color: red; width: 100px;height: 100px;">
+
+      </div> -->
+      <li *ngIf="isCoach " >
         <a routerLink="/my-programs" class="d-block py-2 fw-bold">حقائبى التدريبيه</a>
       </li>
       <li *ngIf="isAdmin && isLoggedIn">
@@ -233,7 +238,8 @@
       </div>
 
       <!-- Login Button -->
-      <a *ngIf="isLoggedIn === false" routerLink="/login" class="btn btn-outline-primary w-100 mb-2">
+       
+      <a *ngIf="isLoggedIn == false" routerLink="/login" class="btn btn-outline-primary w-100 mb-2">
         <i class="flaticon-left me-1"></i> الدخول
       </a>
       <!-- Profile Options for Mobile -->

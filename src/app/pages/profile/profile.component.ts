@@ -36,6 +36,10 @@ export class ProfileComponent implements OnInit {
         this.loadUserProfile();
     }
 
+    get isProfileOwner():boolean {
+        return this.currentUserId === this.routeUserId;
+    }
+
     loadUserProfile(): void {
         this.isLoading = true;
 

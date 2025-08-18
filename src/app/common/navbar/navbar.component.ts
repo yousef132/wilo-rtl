@@ -1,5 +1,6 @@
-import { CommonModule, NgClass } from '@angular/common';
+import { CommonModule, NgClass, NgIf } from '@angular/common';
 import {
+    AfterViewInit,
     Component,
     HostListener,
     input,
@@ -21,8 +22,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { Notification } from '../../models/Notification/Notification';
 import { NotificationsService } from '../../services/notifications.service';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { sign } from 'node:crypto';
 
 @Component({
     selector: 'app-navbar',
@@ -32,12 +31,13 @@ import { sign } from 'node:crypto';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
+        NgIf
         // NgxSpinnerModule
     ],
     templateUrl: './navbar.component.html',
     styleUrl: './navbar.component.scss',
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class NavbarComponent implements OnInit, OnDestroy  {
     currentUser: currentUser | null = null;
     searchText: string = '';
     isLoggedIn: boolean | null = null;
@@ -74,6 +74,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             }
         });
     }
+
 
     ngOnInit(): void {}
 
@@ -176,6 +177,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     get isCoach(): boolean {
         return this.currentUser?.roles.includes('Coach') ?? false;
+    }
+
+    get isMentor(): boolean {
+        return this.currentUser?.roles.includes('Mentor') ?? false;
     }
 
     get isAdmin(): boolean {

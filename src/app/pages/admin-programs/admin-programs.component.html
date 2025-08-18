@@ -4,7 +4,7 @@
 <div class="programs-container">
     <div class="container">
         <!-- Header Actions -->
-        <div class="header-actions">
+        <div *ngIf="isCoach" class="header-actions">
             <div class="actions-wrapper">
                 <button [routerLink]="'/create-program'" class="action-btn primary-btn">
                     <i class="flaticon-plus"></i>

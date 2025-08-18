@@ -52,28 +52,20 @@
                     <!-- Passing Mark Field (Conditional) -->
                     <div class="mb-3"
                         *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam">
-                        <label class="form-label">نسبه النجاح</label>
+
+                        <label class="form-label">نسبة النجاح</label>
                         <input type="number" class="form-control" formControlName="passingMark" />
+
                         <div class="text-danger"
                             *ngIf="contentForm.get('passingMark')?.touched && contentForm.get('passingMark')?.invalid">
-                            <small>اختر نسبه النجاح</small>
+                            <small *ngIf="contentForm.get('passingMark')?.errors?.['required']">النسبة مطلوبة</small>
+                            <small *ngIf="contentForm.get('passingMark')?.errors?.['min']">النسبة يجب أن تكون أكبر من
+                                0</small>
+                            <small *ngIf="contentForm.get('passingMark')?.errors?.['max']">النسبة يجب أن تكون أقل من أو
+                                تساوي 100</small>
                         </div>
                     </div>
 
-
-                    <!-- Content Type Field -->
-                    <!-- <div class="mb-3">
-                        <label class="form-label">نوع المحتوى</label>
-                        <select (change)="onContentTypeChange($event)" class="form-select"
-                            formControlName="contentType">
-                            <option *ngFor="let type of sharedService.contentTypes" [value]="type.value">{{ type.label
-                                }}</option>
-                        </select>
-                        <div class="text-danger"
-                            *ngIf="contentForm.get('contentType')?.touched && contentForm.get('contentType')?.invalid">
-                            <small>اختر نوع المحتوى</small>
-                        </div>
-                    </div> -->
 
                     <div class="mb-3 mt-3">
                         <label class="form-label">نوع المحتوى</label>

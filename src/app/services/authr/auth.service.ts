@@ -13,6 +13,7 @@ import {
     Login,
     Register,
     UpdateProfileResponse,
+    UpdateUserForAdminResponse,
     UserCourses,
     UserProfile,
     UserResponse,
@@ -38,6 +39,7 @@ export class AuthService {
     getCurrentUser(): currentUser | null {
         return this.currentUser.value;
     }
+    
 
     getIsLoggedIn(): Observable<boolean> {
         return this.isLoggedIn.asObservable();
@@ -78,6 +80,25 @@ export class AuthService {
         );
     }
 
+    UpdateUserForAdmin(
+        id: string,
+        title: string,
+        email: string,
+        arName: string
+    ) {
+        debugger
+        return this.http
+            .put<Result<UpdateUserForAdminResponse>>(
+                `${this.baseUrl}${API_CONSTANTS.AUTH.UPDATE_USER_FOR_ADMIN}`,
+                {
+                    id,
+                    title,
+                    email,
+                    arName,
+                }
+            )
+            .pipe(map((response) => response.data));
+    }
     updateProfile(formData: FormData) {
         return this.http.put<Result<UpdateProfileResponse>>(
             `${this.baseUrl}${API_CONSTANTS.AUTH.EDIT_USER}`,

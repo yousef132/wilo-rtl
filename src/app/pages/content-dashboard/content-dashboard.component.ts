@@ -23,10 +23,15 @@ import { ContentService } from '../../services/content.service';
 import { JsonPipe, NgIf } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-
 @Component({
     selector: 'app-content-dashboard',
-    imports: [InnerPageBannerComponent, NgIf, ReactiveFormsModule, FormsModule,RouterLink],
+    imports: [
+        InnerPageBannerComponent,
+        NgIf,
+        ReactiveFormsModule,
+        FormsModule,
+        RouterLink,
+    ],
     templateUrl: './content-dashboard.component.html',
     styleUrl: './content-dashboard.component.scss',
 })
@@ -36,7 +41,7 @@ export class ContentDashboardComponent implements OnInit {
 
     ContentType = ContentType;
     ContentPassingRequirement = ContentPassingRequirement;
-    oldContentUrl! :string;
+    oldContentUrl!: string;
     contentForm!: FormGroup;
     selectedFile: File | null = null;
     fileError: string | null = null;
@@ -56,6 +61,7 @@ export class ContentDashboardComponent implements OnInit {
 
     ngOnInit(): void {
         this.getContentData();
+        // Watch for changes
     }
 
     private initializeForm(): void {
@@ -82,6 +88,34 @@ export class ContentDashboardComponent implements OnInit {
                 Validators.required,
             ],
         });
+        debugger;
+
+        if (this.contentData?.contentPassingRequirement) {
+            this.togglePassingMarkValidators(
+                this.contentData.contentPassingRequirement
+            );
+        }
+        this.contentForm
+            .get('contentPassingRequirement')
+            ?.valueChanges.subscribe((value) => {
+                this.togglePassingMarkValidators(value);
+            });
+    }
+    private togglePassingMarkValidators(value: ContentPassingRequirement) {
+        const passingMarkControl = this.contentForm.get('passingMark');
+
+        if (value === ContentPassingRequirement.Exam) {
+            passingMarkControl?.setValidators([
+                Validators.required,
+                Validators.min(1),
+                Validators.max(100),
+            ]);
+        } else {
+            passingMarkControl?.clearValidators();
+            passingMarkControl?.setValue(null); // reset if hidden
+        }
+
+        passingMarkControl?.updateValueAndValidity();
     }
 
     getContentData(): void {
@@ -141,7 +175,11 @@ export class ContentDashboardComponent implements OnInit {
             this.contentData.contentPassingRequirement ===
             ContentPassingRequirement.Exam
         ) {
-            passingMarkControl?.setValidators([Validators.required]);
+            passingMarkControl?.setValidators([
+                Validators.required,
+                Validators.min(1),
+                Validators.max(100), // should be max, not min(100)
+            ]);
         } else {
             passingMarkControl?.clearValidators();
         }
@@ -179,12 +217,11 @@ export class ContentDashboardComponent implements OnInit {
             contentUrlControl?.clearValidators();
             contentUrlControl?.setValue(null);
             contentUrlControl?.updateValueAndValidity();
-
         } else {
             // URL is required, File is not
             contentUrlControl?.setValidators([Validators.required]);
             contentUrlControl?.updateValueAndValidity();
-            contentUrlControl?.setValue(null);;
+            contentUrlControl?.setValue(null);
 
             this.selectedFile = null;
         }
@@ -194,12 +231,15 @@ export class ContentDashboardComponent implements OnInit {
         const selectedValue = +(event.target as HTMLSelectElement).value;
         const passingMarkControl = this.contentForm.get('passingMark');
 
-        // If the selected value is 'Exam', make passing mark required
         if (selectedValue === ContentPassingRequirement.Exam) {
-            passingMarkControl?.setValidators([Validators.required]);
+            passingMarkControl?.setValidators([
+                Validators.required,
+                Validators.min(1),
+                Validators.max(100),
+            ]);
         } else {
             passingMarkControl?.clearValidators();
-            passingMarkControl?.setValue(null); // Optional: clear value when not required
+            passingMarkControl?.setValue(null);
         }
 
         passingMarkControl?.updateValueAndValidity();
@@ -207,7 +247,7 @@ export class ContentDashboardComponent implements OnInit {
 
     onSubmit(): void {
         if (!this.contentForm.valid || !this.contentData) return;
-        
+
         this.isSubmitting = true;
         const formData = new FormData();
         const form = this.contentForm.value;
@@ -224,17 +264,18 @@ export class ContentDashboardComponent implements OnInit {
             'ContentPassingRequirement',
             form.contentPassingRequirement.toString()
         );
-        
-        if (form.passingMark && form.contentPassingRequirement == ContentPassingRequirement.Exam)
+
+        if (
+            form.passingMark &&
+            form.contentPassingRequirement == ContentPassingRequirement.Exam
+        )
             formData.append('PassMark', form.passingMark.toString());
         if (form.textContent) formData.append('ContentText', form.textContent);
         if (form.contentUrl) formData.append('ContentUrl', form.contentUrl);
-        if (this.selectedFile)
-            formData.append('File', this.selectedFile);
-        
-        if(form.contentType == ContentType.File && !this.selectedFile)
-            formData.append('ContentUrl', this.oldContentUrl);  
-          
+        if (this.selectedFile) formData.append('File', this.selectedFile);
+
+        if (form.contentType == ContentType.File && !this.selectedFile)
+            formData.append('ContentUrl', this.oldContentUrl);
 
         this.contentService.updateContent(formData).subscribe({
             next: () => {

@@ -10,6 +10,7 @@ export const API_CONSTANTS = {
         EDIT_USER: 'User/edit',
         GET_USER_COURSE: 'User/user-courses/',
         GET_USER_DATA: 'User/user-data/',
+        UPDATE_USER_FOR_ADMIN: 'User',
     },
     USER: {
         GET_ALL_USER: '/User/get-all-user',

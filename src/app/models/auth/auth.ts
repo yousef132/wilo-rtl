@@ -41,7 +41,6 @@ export interface UserCourses {
   duration: string;
   certificateUrl?: string;
 }
-
 export interface UserProfile {
   id: string;
   name: string;
@@ -60,4 +59,10 @@ export interface UpdateProfileResponse{
 arName:string;
 profileImage?:string;  
 title:string;
+}
+
+export interface UpdateUserForAdminResponse {
+  title: string;
+  email: string;
+  arName: string;
 }
