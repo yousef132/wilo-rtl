@@ -19,6 +19,11 @@ export const API_CONSTANTS = {
         UPDATE_USER: '/user/update-user',
         DELETE_USER: '/user/delete-user',
     },
+    AIEXAM:{
+        GENERATE_QUESTIONS:'AIExam/',
+        EVALUATE_QUESTION:'AIExam/evaluate',
+        EVALUATE_ALL_QUESTIONS:'AIExam/evaluate-all'
+    },
     SECTION: {
         CREATE_SECTION: 'ProgramSection',
         UPDATE_SECTION: 'ProgramSection',

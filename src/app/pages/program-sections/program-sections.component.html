@@ -231,7 +231,7 @@
           <small>اختر شرط النجاح</small>
         </div>
       </div>
-      <div class="mb-3" *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam">
+      <div class="mb-3" *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam || contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.AiExam">
         <label class="form-label">نسبه النجاح </label>
         <input type="number" class="form-control" formControlName="passingMark" />
 

@@ -102,6 +102,7 @@ export enum ContentPassingRequirement {
     Exam = 1,
     Comment = 2,
     Manually = 3,
+    AiExam = 4,
 }
 export interface ProgramDetailsForUpdate {
     programId: number;

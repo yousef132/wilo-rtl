@@ -571,6 +571,10 @@ export class ContentDetailsComponent
             case ContentPassingRequirement.Manually:
                 this.alertMessage = 'سيقوم المدرب بتحديد نجاحك فى هذا المحتوى';
                 break;
+            case ContentPassingRequirement.AiExam:
+                this.alertMessage =
+                    'قم بحل الاسئله التى يقدمها الذكاء الاصطناعى للنجاح فى هذا المحتوى';
+                break;
         }
     }
 

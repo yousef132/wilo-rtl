@@ -326,9 +326,9 @@ export class ProgramSectionsComponent implements OnInit {
     onPassingRequirementChange(event: Event) {
         const selectedValue = +(event.target as HTMLSelectElement).value;
         const passingMarkControl = this.contentForm.get('passingMark');
-
-        // If the selected value is 'Exam', make passing mark required
-        if (selectedValue === ContentPassingRequirement.Exam) {
+        debugger
+        // If the selected value is 'Exam' or 'AiExam', make passing mark required
+        if (selectedValue === ContentPassingRequirement.Exam || selectedValue === ContentPassingRequirement.AiExam) {
             passingMarkControl?.setValidators([Validators.required]);
         } else {
             passingMarkControl?.clearValidators();
@@ -378,48 +378,7 @@ export class ProgramSectionsComponent implements OnInit {
             },
             error: (err) => console.error(err),
         });
-
-        // this.http.post('/api/content', formData).subscribe(() => {
-        //   modal.close();
-        //   // Optionally: refresh content list for the section
-        // });
     }
 
-    // deleteSection(sectionId: number) {
-    //     console.log('Delete section', sectionId);
-    // }
-    // editSection(sectionId: number) {}
-    // deleteContent(contentId: number) {}
 
-    // addQuestion(contentId: number) {
-    //     // logic for adding a question
-    // }
-
-    // saveSectionIndex(section: DashboardSectionUI) {
-    //     if (!this.isSectionIndexValid(section.index, section.id)) {
-    //         this.toastr.error('لا يجب تكرار ترتيب القسم');
-    //         return;
-    //     }
-    //     this.sectionService
-    //         .updateSectionIndex(section.id, section.index, this.programId)
-    //         .subscribe({
-    //             next: () => {
-    //                 section.editingIndex = false;
-
-    //                 // order the sections with new index
-    //                 this.sections?.sort((a, b) => a.index - b.index);
-    //             },
-    //             error: (err) => console.error(err),
-    //         });
-    // }
-
-    // saveContentIndex(section: DahsboardSection, content: DahsboardContent) {
-    //     this.contentService.updateContentIndex(content.id, content.index).subscribe({
-    //         next: () => {
-    //             content.editingIndex = false;
-    //             this.toastr.success('تم تحديث ترتيب المحتوى');
-    //         },
-    //         error: (err) => console.error(err)
-    //     });
-    // }
 }

@@ -143,14 +143,27 @@
             <i class="bx bx-info-circle"></i>
             <div class="alert-text">
               <span>{{ alertMessage }}</span>
-              <a [routerLink]="['/exam', content.id,programId]"
-                *ngIf="content.contentPassingRequirement === ContentPassingRequirement.Exam" class="exam-link">
+
+
+
+              <!-- Normal Exam Link -->
+              <a [routerLink]="['/exam', content.id, programId]"
+                *ngIf="content.contentPassingRequirement == ContentPassingRequirement.Exam " class="exam-link">
                 الذهاب للامتحان
+              </a>
+
+              <!-- AI Exam Link -->
+              <a [routerLink]="['/ai-exam', content.id, programId]"
+                *ngIf="content.contentPassingRequirement == ContentPassingRequirement.AiExam"
+                class="exam-link ai-exam-link">
+                <i class="bx bx-brain"></i>
+                الذهاب للامتحان الذكي
               </a>
             </div>
           </div>
 
-          <div *ngIf="content.passMark && content.contentPassingRequirement === ContentPassingRequirement.Exam"
+          <div *ngIf="content.passMark && content.contentPassingRequirement === ContentPassingRequirement.Exam || 
+                      content.contentPassingRequirement === ContentPassingRequirement.AiExam"
             class="pass-mark">
             <i class="bx bx-target-lock"></i>
             <span>النسبه المطلوبة للنجاح: {{ content.passMark }} %</span>

@@ -28,8 +28,10 @@ import { ProgramPlayerComponent } from './pages/program-player/program-player.co
 import { ProfileComponent } from './pages/profile/profile.component';
 import { EditProgramComponent } from './pages/edit-program/edit-program.component';
 import { ProfileEditComponent } from './pages/edit-profile/edit-profile.component';
+import { AiExamComponent } from './pages/ai-exam/ai-exam.component';
 
 export const routes: Routes = [
+
     { path: 'home', component: HomeDemoTwoComponent },
     { path: 'login', component: LoginComponent },
     { path: 'programs', component: ProgramsComponent },
@@ -53,6 +55,7 @@ export const routes: Routes = [
     { path: 'program-player/:programId', component: ProgramPlayerComponent },
     { path: 'profile/:userId', component: ProfileComponent },
     { path: 'edit-profile', component: ProfileEditComponent },
+    { path: 'ai-exam/:contentId/:programId', component: AiExamComponent },
 
 // contentId, subscriber.userId,programId
     { path: 'program-details/:id', component: CourseDetailsPageComponent },

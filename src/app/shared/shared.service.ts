@@ -28,6 +28,10 @@ export class SharedService {
             value: ContentPassingRequirement.Manually,
             label: 'بواسطه المدرب',
         },
+        {
+            value: ContentPassingRequirement.AiExam,
+            label: 'امتحان بالذكاء الاصطناعي',
+        },
     ];
     // shared attribute
 

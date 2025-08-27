@@ -13,7 +13,7 @@ import { AuthInterceptor } from './interceptors/languageInterceptor';
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
-        provideRouter(routes,withHashLocation()),
+        provideRouter(routes),
         provideClientHydration(),
         provideAnimationsAsync(),
 

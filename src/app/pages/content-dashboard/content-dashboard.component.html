@@ -43,6 +43,7 @@
                             <option [value]="ContentPassingRequirement.Exam">Exam</option>
                             <option [value]="ContentPassingRequirement.Comment">Comment</option>
                             <option [value]="ContentPassingRequirement.Manually">Manually</option>
+                            <option [value]="ContentPassingRequirement.AiExam">Ai Exam</option>
                         </select>
                         <div class="text-danger"
                             *ngIf="contentForm.get('contentPassingRequirement')?.touched && contentForm.get('contentPassingRequirement')?.invalid">

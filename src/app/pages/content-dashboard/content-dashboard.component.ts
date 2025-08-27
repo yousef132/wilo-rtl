@@ -231,7 +231,8 @@ export class ContentDashboardComponent implements OnInit {
         const selectedValue = +(event.target as HTMLSelectElement).value;
         const passingMarkControl = this.contentForm.get('passingMark');
 
-        if (selectedValue === ContentPassingRequirement.Exam) {
+        if (selectedValue === ContentPassingRequirement.Exam ||
+             selectedValue === ContentPassingRequirement.AiExam) {
             passingMarkControl?.setValidators([
                 Validators.required,
                 Validators.min(1),
