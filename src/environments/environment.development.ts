@@ -4,6 +4,3 @@ export const environment = {
   // SIGNALR_URL: 'https://localhost:7253/chatHub',
      SIGNALR_URL: 'https://cps.premiumasp.net/chatHub',
 };
-
-
-
