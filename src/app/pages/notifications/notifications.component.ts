@@ -112,6 +112,7 @@ export class NotificationsComponent {
                     },
                 });
         }
+        
         // ✅ Handle navigation
         if (notification.url) {
             if (notification.type === NotificationType.CompletedTheProgram) {
