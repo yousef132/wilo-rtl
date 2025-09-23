@@ -4,7 +4,7 @@
     <div class="ai-avatar">
       <div class="ai-brain">
         <div class="brain-pulse" [class.thinking]="isThinking"></div>
-        🤖
+        <i class='bx bx-bot'></i>
       </div>
     </div>
     <h1 class="ai-title">المساعد الذكي للتعلم</h1>
@@ -38,7 +38,7 @@
   <div *ngIf="examState === 'question'" class="question-phase">
     <div class="ai-card">
       <div class="ai-message-bubble">
-        <div class="ai-avatar-small">🤖</div>
+        <div class="ai-avatar-small"><i class='bx bx-bot'></i></div>
         <div class="message-content">
           <div class="ai-badge">مولد الأسئلة الذكي</div>
           <h3 class="question-title">السؤال {{ currentQuestionIndex + 1 }}</h3>
@@ -93,7 +93,7 @@
       </div>
 
       <div class="ai-feedback-bubble">
-        <div class="ai-avatar-small">🤖</div>
+        <div class="ai-avatar-small"><i class='bx bx-bot'></i></div>
         <div class="feedback-content">
           <div class="ai-badge">محرك التغذية الراجعة</div>
           <p class="feedback-text">{{ lastEvaluation?.feedback }}</p>
@@ -177,7 +177,10 @@
       </div>
 
       <div class="completion-message">
-        <div class="ai-avatar-small">🤖</div>
+        <div class="ai-avatar-small">
+          <i class='bx bx-bot'></i>
+
+        </div>
         <div class="message-content">
           <div class="ai-badge">تهاني الذكاء الاصطناعي</div>
           <p>{{ finalEvaluation?.feedback }}</p>
@@ -213,7 +216,7 @@
       </div>
 
       <div class="failure-feedback">
-        <div class="ai-avatar-small">🤖</div>
+        <div class="ai-avatar-small"><i class='bx bx-bot'></i></div>
         <div class="feedback-content">
           <div class="ai-badge">تحليل الأداء</div>
           <p>{{ finalEvaluation?.feedback }}</p>
@@ -225,7 +228,7 @@
           🔄 إعادة المحاولة
         </button>
         <button (click)="goToCourses()" class="back-btn">
-          ← العودة للدورات
+          ← العودة للدرس
         </button>
       </div>
     </div>
@@ -244,7 +247,7 @@
       </div>
 
       <div class="ai-summary-bubble">
-        <div class="ai-avatar-small">🤖</div>
+        <div class="ai-avatar-small"><i class='bx bx-bot'></i></div>
         <div class="summary-content">
           <div class="ai-badge">تحليل الأداء</div>
           <p class="summary-text">{{ finalEvaluation?.feedback }}</p>
@@ -252,9 +255,8 @@
       </div>
 
       <div class="next-content-notification">
-        <div class="notification-icon">🚀</div>
         <h3>جاهز للمحتوى التالي؟</h3>
-        <p>تم فتح المحتوى التالي في الدورة</p>
+        <p style="color: white;">تم فتح المحتوى التالي في الدورة</p>
       </div>
 
       <div class="detailed-review">

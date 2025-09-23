@@ -74,7 +74,7 @@ export class PdfGeneratorService {
         courseId: number,
         contentId: number
     ): Promise<void> {
-        debugger;
+         ;
 
         // 1. Load the template as an image into a canvas
         const bgImage = await this.loadImage(templateUrl);
@@ -202,7 +202,7 @@ export class PdfGeneratorService {
         courseId: number,
         contentId: number
     ): Promise<boolean> {
-        debugger;
+         ;
         const formData = new FormData();
         formData.append(
             'certificate',

@@ -1,7 +1,8 @@
 import {
+    CoachingProgramStatus,
     ContentPassingRequirement,
     ContentType,
-    Status,
+    ContentStatus,
 } from '../program/programs';
 
 export interface CreateContent {
@@ -56,14 +57,15 @@ export interface ContentDetails {
     contentType: ContentType;
     passMark?: number;
     contentPassingRequirement: ContentPassingRequirement;
-    contentText?: string;
+    contentText: string;
     userContentRegistrationId: number;
-    status: Status;
+    status: ContentStatus;
     isOwner: boolean;
     isPassed: boolean;
     examTotal?: number;
     examResult?: number;
 }
+
 export interface ContentData {
     id: number;
     title: string;
@@ -157,11 +159,11 @@ export interface LastContent {
     isPassed: boolean;
     isLastContent: boolean;
 }
-export enum ContentStatus {
-    IsLocked,
-    IsFinished,
-    IsProccessing,
-}
+// export enum ContentStatus {
+//     IsLocked,
+//     IsFinished,
+//     IsProccessing,
+// }
 export interface IsLastContentResponse{
     isLast:boolean;
     templateUrl:string;

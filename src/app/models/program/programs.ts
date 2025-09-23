@@ -71,13 +71,13 @@ export interface StudentNotificationResponse {
     contents: ContentResponse[];
 }
 export interface SectionContent extends Base {
-    status?: Status;
+    status?: ContentStatus;
     contentType: ContentType;
     minutes: number;
     passingRequirement: ContentPassingRequirement;
 }
 
-export enum Status {
+export enum ContentStatus {
     Progressing = 1,
     PoorProgressing = 2,
     GoodProgressing = 3,
@@ -96,6 +96,7 @@ export enum ContentType {
     Website = 3,
     Loom = 4,
     Image = 5,
+    Text = 6
 }
 export enum ContentPassingRequirement {
     None = 0,

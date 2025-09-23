@@ -326,7 +326,7 @@ export class ProgramSectionsComponent implements OnInit {
     onPassingRequirementChange(event: Event) {
         const selectedValue = +(event.target as HTMLSelectElement).value;
         const passingMarkControl = this.contentForm.get('passingMark');
-        debugger
+         
         // If the selected value is 'Exam' or 'AiExam', make passing mark required
         if (selectedValue === ContentPassingRequirement.Exam || selectedValue === ContentPassingRequirement.AiExam) {
             passingMarkControl?.setValidators([Validators.required]);

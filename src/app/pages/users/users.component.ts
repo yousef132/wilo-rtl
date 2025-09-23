@@ -114,7 +114,7 @@ export class UsersComponent {
         });
     }
     openEditUserModal(user: UserResponse) {
-        debugger;
+         ;
         
         this.editingUserId = user.id;
         this.editUserForm.patchValue({
@@ -125,7 +125,7 @@ export class UsersComponent {
         this.modalService.open(this.userModalRef, { centered: true });
     }
     submitEditUser(modal: any) {
-        debugger;
+         ;
         if (this.editUserForm.valid && this.editingUserId !== null) {
             const formValue = this.editUserForm.value;
 
@@ -201,7 +201,7 @@ export class UsersComponent {
         this.authService.getUsers().subscribe({
             next: (response: UserResponse[] | undefined) => {
                 if (response) {
-                    debugger;
+                     ;
                     this.users = response;
                     this.totalUsers = response.length;
                 }

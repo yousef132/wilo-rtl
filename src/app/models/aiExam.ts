@@ -27,9 +27,7 @@ export interface FinalEvaluationResponse {
   nextContentId: number;
   finalScore: number;
   feedback: string;
-  programId?: number;
-  programName?: string;
-  templateUrl?: string;
+
 }
 
 export interface QuestionResponse {

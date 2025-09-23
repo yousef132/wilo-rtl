@@ -28,7 +28,6 @@ export class ProgramStudentsComponent {
     loading = false;
     error: string | null = null;
     courseId!: number;
-    certificateDetails!: ProgramCertificateDetails;
 
     ContentPassingRequirement = ContentPassingRequirement;
 
@@ -38,7 +37,6 @@ export class ProgramStudentsComponent {
         private router: Router,
         private route: ActivatedRoute,
         private toastr: ToastrService,
-        private pdfGeneratorService: PdfGeneratorService
     ) {
         this.route.params.subscribe((params) => {
             this.courseId = +params['id'];
@@ -49,19 +47,14 @@ export class ProgramStudentsComponent {
         this.loading = true;
         this.error = null;
 
-        forkJoin({
-            students: this.programService.getProgramStudents(this.courseId),
-            certificate: this.programService.getProgramTemplate(this.courseId),
-        }).subscribe({
-            next: ({ students, certificate }) => {
+        this.programService.getProgramStudents(this.courseId).subscribe({
+            next: (students:GetStudentsWithLevelResponse[] | undefined) => {
                 this.students = students ?? [];
-                this.certificateDetails = certificate!;
                 this.loading = false;
             },
-            error: (error) => {
+            error: () => {
                 this.error = 'فشل في تحميل البيانات. حاول مرة أخرى.';
                 this.loading = false;
-                console.error('خطأ أثناء تحميل البيانات:', error);
             },
         });
     }
@@ -86,20 +79,14 @@ export class ProgramStudentsComponent {
     passStudent(student: GetStudentsWithLevelResponse): void {
         if (!confirm('هل أنت متأكد أنك تريد نجاح هذا الطالب؟')) return;
 
+        debugger;
         this.loading = true;
-
         this.contentService
             .passStudent(student.lastContent.id, student.userId)
             .subscribe({
                 next: () => {
-                    if (student.lastContent.isLastContent) {
-                        // Call async logic outside the subscribe
-                        this.handleCertificateAndRefresh(student);
-                    } else {
-                        this.toastr.success('تم النجاح بنجاح');
-                        this.refreshStudents();
-                        this.loading = false;
-                    }
+                    this.refreshStudents();
+                    this.loading = false;
                 },
                 error: (error) => {
                     this.error = 'فشل في نجاح الطالب. حاول مرة أخرى.';
@@ -109,34 +96,34 @@ export class ProgramStudentsComponent {
             });
     }
 
-    private async handleCertificateAndRefresh(
-        student: GetStudentsWithLevelResponse
-    ): Promise<void> {
-        try {
-            debugger;
-            this.loading = true;
+    // private async handleCertificateAndRefresh(
+    //     student: GetStudentsWithLevelResponse
+    // ): Promise<void> {
+    //     try {
+    //          ;
+    //         this.loading = true;
 
-            await this.pdfGeneratorService.fireAndForgetGenerateCertificate(
-                this.certificateDetails.templateUrl,
-                student.arName,
-                this.certificateDetails.programName,
-                new Date().toString(),
-                student.userId,
-                this.certificateDetails.programId,
-                student.lastContent.id,
-                true
-            );
-            this.loading = false;
+    //         await this.pdfGeneratorService.fireAndForgetGenerateCertificate(
+    //             this.certificateDetails.templateUrl,
+    //             student.arName,
+    //             this.certificateDetails.programName,
+    //             new Date().toString(),
+    //             student.userId,
+    //             this.certificateDetails.programId,
+    //             student.lastContent.id,
+    //             true
+    //         );
+    //         this.loading = false;
 
-            this.toastr.success('تم النجاح بنجاح');
-            this.refreshStudents();
-        } catch (e) {
-            console.error('Error generating certificate:', e);
-            this.toastr.error('فشل في توليد الشهادة.');
-        } finally {
-            this.loading = false;
-        }
-    }
+    //         this.toastr.success('تم النجاح بنجاح');
+    //         this.refreshStudents();
+    //     } catch (e) {
+    //         console.error('Error generating certificate:', e);
+    //         this.toastr.error('فشل في توليد الشهادة.');
+    //     } finally {
+    //         this.loading = false;
+    //     }
+    // }
 
     private refreshStudents(): void {
         this.programService.getProgramStudents(this.courseId).subscribe({

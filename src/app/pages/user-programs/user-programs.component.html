@@ -12,7 +12,7 @@
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="single-course-box shadow-sm border rounded-3 overflow-hidden h-100">
                         <div class="courses-image position-relative">
-                            <a [routerLink]="['/program-details', program.id]" class="d-block">
+                            <a [routerLink]="['/lecture-viewer', program.id]" class="d-block">
                                 <img [src]="program.image" alt="image" class="img-fluid w-100" />
                             </a>
                             <!-- <div
@@ -26,7 +26,7 @@
                                 <span>{{program.coachName}}</span>
                             </div>
                             <h3 class="h5">
-                                <a [routerLink]="['/program-details', program.id]" class="text-dark text-decoration-none">
+                                <a [routerLink]="['/lecture-viewer', program.id]" class="text-dark text-decoration-none">
                                     {{ program.title }}
                                 </a>
                             </h3>

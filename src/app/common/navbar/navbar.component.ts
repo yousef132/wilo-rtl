@@ -20,7 +20,10 @@ import { AuthService } from '../../services/authr/auth.service';
 import { currentUser } from '../../constants/apiConstants';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { Notification } from '../../models/Notification/Notification';
+import {
+    Notification,
+    NotificationType,
+} from '../../models/Notification/Notification';
 import { NotificationsService } from '../../services/notifications.service';
 
 @Component({
@@ -31,13 +34,13 @@ import { NotificationsService } from '../../services/notifications.service';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        NgIf
+        NgIf,
         // NgxSpinnerModule
     ],
     templateUrl: './navbar.component.html',
     styleUrl: './navbar.component.scss',
 })
-export class NavbarComponent implements OnInit, OnDestroy  {
+export class NavbarComponent implements OnInit, OnDestroy {
     currentUser: currentUser | null = null;
     searchText: string = '';
     isLoggedIn: boolean | null = null;
@@ -75,7 +78,6 @@ export class NavbarComponent implements OnInit, OnDestroy  {
         });
     }
 
-
     ngOnInit(): void {}
 
     ngOnDestroy(): void {
@@ -101,32 +103,20 @@ export class NavbarComponent implements OnInit, OnDestroy  {
         this.showNotifications = !this.showNotifications;
         // Close profile dropdown if open
         if (this.showNotifications) {
+        }
+
+        if (this.showNotifications) {
+             ;
             this.showProfileDropdown = false;
-        }
-
-        if (this.showNotifications && this.unreadCount() !== 0) {
             this.loadNotifications();
-            this.notifications = this.notifications.map((notification) => ({
-                ...notification,
-                isRead: true,
-            }));
         }
     }
-
-    closeNotifications(): void {
-        this.showNotifications = false;
-    }
-
-    handleNotificationClick(notification: Notification): void {
-        notification.isRead = true;
-        this.closeNotifications();
-    }
-
     loadNotifications(): void {
         this.loadingNotifications = true;
-        this.notificationService.loadNotifications(1).subscribe({
+        // getting latest 20 notification (either readed or not)
+        this.notificationService.loadNotifications(1, 20).subscribe({
             next: (notification: Notification[] | undefined) => {
-                this.notifications.push(...(notification || []));
+                this.notifications = notification || []; // replace notification instead of push
                 this.loadingNotifications = false;
             },
             error: (error) => {
@@ -134,6 +124,43 @@ export class NavbarComponent implements OnInit, OnDestroy  {
                 this.loadingNotifications = false;
             },
         });
+    }
+
+    closeNotifications(): void {
+        this.showNotifications = false;
+    }
+
+    handleNotificationClick(notification: Notification): void {
+        // ✅ Optimistic update: mark as read in frontend immediately
+        if (!notification.isRead) {
+            notification.isRead = true;
+
+            // ✅ Send request to server in background
+            this.notificationService
+                .markNotificationsAsRead(notification.id)
+                .subscribe({
+                    next: () => {
+                       this.unreadCount.update(count => Math.max(0, count - 1));
+                    },
+                    error: () => {
+                        // ❌ If the request fails, revert back
+                        notification.isRead = false;
+                        console.error('Failed to mark notification as read');
+                    },
+                });
+        }
+
+        // ✅ Handle navigation
+        if (notification.url) {
+            if (notification.type === NotificationType.CompletedTheProgram) {
+                window.open(notification.url, '_blank');
+            } else {
+                this.router.navigateByUrl(notification.url);
+            }
+        }
+
+        // ✅ Close dropdown after click
+        this.closeNotifications();
     }
 
     markAllAsRead(): void {

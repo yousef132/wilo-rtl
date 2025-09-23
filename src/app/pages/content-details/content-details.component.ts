@@ -136,7 +136,7 @@ export class ContentDetailsComponent
                 this.userId = params['userId'];
                 this.programId = +params['programId'];
 
-                debugger;
+                 ;
                 // 1️ Wait until data is loaded before touching SignalR
                 await this.loadInitialData();
 
@@ -155,7 +155,7 @@ export class ContentDetailsComponent
     }
 
     ngOnDestroy(): void {
-        debugger;
+         ;
         this.disconnectSignalR();
 
         this.destroy$.next();
@@ -206,7 +206,7 @@ export class ContentDetailsComponent
         this.chatService.hubConnection?.on(
             'ReceiveMessage',
             (signalRMessage: any) => {
-                debugger;
+                 ;
                 // Convert SignalR message format to your Message format
                 const newMessage: Message = {
                     textMessage: signalRMessage.message,
@@ -464,7 +464,7 @@ export class ContentDetailsComponent
                 next: (response: string | undefined) => {
                     // Process AI response
                     if (response) {
-                        debugger;
+                         ;
                         const aiResponse: ContentAIChatMessage = {
                             messageText: response,
                             role: AIChatRole.Assistant,

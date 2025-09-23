@@ -48,7 +48,8 @@ export class ProfileComponent implements OnInit {
             user: this.authService.getUserData(this.routeUserId),
         }).subscribe({
             next: ({ courses, user }) => {
-                debugger;
+                 
+                console.log(courses);
                 if (courses) this.courses = courses;
                 if (user) this.user = user;
                 this.isLoading = false; // finish loading after both finish
@@ -68,7 +69,7 @@ export class ProfileComponent implements OnInit {
     }
 
     toggleEditMode(): void {
-        debugger;
+         ;
         this.isEditMode = !this.isEditMode;
     }
 
@@ -78,7 +79,7 @@ export class ProfileComponent implements OnInit {
 
     continueCourse(courseId: string): void {
         // /:contentId/:userId/:programId
-        this.router.navigate(['/program-details', courseId]);
+        this.router.navigate(['/lecture-viewer', courseId]);
     }
 
     downloadCertificate(certificateUrl: string): void {

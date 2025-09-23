@@ -182,7 +182,7 @@ export class EditProgramComponent implements OnInit {
                 this.certificateTemplateFile
             );
         }
-        debugger
+         
 
         this.programService.updateProgramDetails(formData).subscribe({
             next: (response:ProgramDetailsForUpdate | undefined) => {

@@ -80,41 +80,27 @@
                   </div>
 
                   <ng-container *ngFor="let notification of notifications">
-                    <!-- External Link -->
-                    <a *ngIf="notification.type === 3; else internalLink" [href]="notification.url" target="_blank"
-                      rel="noopener" [ngClass]="{ 'notification-item': true, 'unread': !notification.isRead }"
-                      (click)="handleNotificationClick(notification)">
+                    <a href="javascript:void(0)" (click)="handleNotificationClick(notification)"
+                      [ngClass]="{ 'notification-item': true, 'unread': !notification.isRead }">
                       <div class="notification-content">
                         <div class="notification-title">{{ notification.content }}</div>
-                        <div class="notification-time">{{ notification.creationDate | date: 'short' }}</div>
+                        <div class="notification-time">
+                          {{ notification.creationDate | date: 'short' }}
+                        </div>
                       </div>
                       <div class="notification-status" *ngIf="!notification.isRead">
                         <span class="unread-dot"></span>
                       </div>
                     </a>
-
-                    <!-- Internal Link -->
-                    <ng-template #internalLink>
-                      <a [routerLink]="notification.url"
-                        [ngClass]="{ 'notification-item': true, 'unread': !notification.isRead }"
-                        (click)="handleNotificationClick(notification)">
-                        <div class="notification-content">
-                          <div class="notification-title">{{ notification.content }}</div>
-                          <div class="notification-time">{{ notification.creationDate | date: 'short' }}</div>
-                        </div>
-                        <div class="notification-status" *ngIf="!notification.isRead">
-                          <span class="unread-dot"></span>
-                        </div>
-                      </a>
-                    </ng-template>
                   </ng-container>
+
                 </div>
 
-                <!-- <div class="notifications-footer" *ngIf="notifications.length > 0">
+                <div class="notifications-footer" *ngIf="notifications.length > 0">
                   <a routerLink="/notifications" (click)="closeNotifications()">
                     عرض جميع الإشعارات
                   </a>
-                </div> -->
+                </div>
               </div>
             </div>
           </div>
@@ -137,7 +123,7 @@
             </div>
 
             <!-- Login Button -->
-             
+
             <a *ngIf="isLoggedIn == false" routerLink="/login" class="default-btn">
               <i class="flaticon-left"></i>
               الدخول
@@ -166,7 +152,8 @@
                 </div>
 
                 <div class="profile-dropdown-body">
-                  <a *ngIf="!isAdmin && !isCoach" [routerLink]="['/profile',currentUser?.id]" class="dropdown-item" (click)="closeProfileDropdown()">
+                  <a *ngIf="!isAdmin && !isCoach" [routerLink]="['/profile',currentUser?.id]" class="dropdown-item"
+                    (click)="closeProfileDropdown()">
                     <i class="bx bx-user me-2"></i>
                     الملف الشخصي
                   </a>
@@ -201,16 +188,16 @@
   <div class="offcanvas-body">
     <ul class="list-unstyled p-0 m-0">
       <li>
-        <a   routerLink="/home" class="d-block py-2 fw-bold">الرئيسيه</a>
+        <a routerLink="/home" class="d-block py-2 fw-bold">الرئيسيه</a>
       </li>
       <li>
         <a routerLink="/programs" class="d-block py-2 fw-bold">البرامج</a>
       </li>
-<!--       
+      <!--       
       <div *ngIf="isMentor == true" style="background-color: red; width: 100px;height: 100px;">
 
       </div> -->
-      <li *ngIf="isCoach " >
+      <li *ngIf="isCoach ">
         <a routerLink="/my-programs" class="d-block py-2 fw-bold">حقائبى التدريبيه</a>
       </li>
       <li *ngIf="isAdmin && isLoggedIn">
@@ -238,7 +225,7 @@
       </div>
 
       <!-- Login Button -->
-       
+
       <a *ngIf="isLoggedIn == false" routerLink="/login" class="btn btn-outline-primary w-100 mb-2">
         <i class="flaticon-left me-1"></i> الدخول
       </a>

@@ -88,8 +88,7 @@ export class ContentDashboardComponent implements OnInit {
                 Validators.required,
             ],
         });
-        debugger;
-
+        
         if (this.contentData?.contentPassingRequirement) {
             this.togglePassingMarkValidators(
                 this.contentData.contentPassingRequirement
@@ -100,11 +99,13 @@ export class ContentDashboardComponent implements OnInit {
             ?.valueChanges.subscribe((value) => {
                 this.togglePassingMarkValidators(value);
             });
+
+        this.setupConditionalValidators();
     }
     private togglePassingMarkValidators(value: ContentPassingRequirement) {
         const passingMarkControl = this.contentForm.get('passingMark');
 
-        if (value === ContentPassingRequirement.Exam) {
+        if (value === ContentPassingRequirement.Exam || value == ContentPassingRequirement.AiExam) {
             passingMarkControl?.setValidators([
                 Validators.required,
                 Validators.min(1),
@@ -118,6 +119,14 @@ export class ContentDashboardComponent implements OnInit {
         passingMarkControl?.updateValueAndValidity();
     }
 
+    isTypeOfExam() {
+        return (
+            this.contentForm.get('contentPassingRequirement')?.value ==
+                ContentPassingRequirement.Exam ||
+            this.contentForm.get('contentPassingRequirement')?.value ==
+                ContentPassingRequirement.AiExam
+        );
+    }
     getContentData(): void {
         this.isLoading = true;
         this.contentService.getContentForEdit(this.contentId).subscribe({
@@ -169,12 +178,10 @@ export class ContentDashboardComponent implements OnInit {
         }
         contentUrlControl?.updateValueAndValidity();
 
+        ;
         // Set up passing mark validation based on passing requirement
         const passingMarkControl = this.contentForm.get('passingMark');
-        if (
-            this.contentData.contentPassingRequirement ===
-            ContentPassingRequirement.Exam
-        ) {
+        if (this.isTypeOfExam()) {
             passingMarkControl?.setValidators([
                 Validators.required,
                 Validators.min(1),
@@ -231,8 +238,10 @@ export class ContentDashboardComponent implements OnInit {
         const selectedValue = +(event.target as HTMLSelectElement).value;
         const passingMarkControl = this.contentForm.get('passingMark');
 
-        if (selectedValue === ContentPassingRequirement.Exam ||
-             selectedValue === ContentPassingRequirement.AiExam) {
+        if (
+            selectedValue === ContentPassingRequirement.Exam ||
+            selectedValue === ContentPassingRequirement.AiExam
+        ) {
             passingMarkControl?.setValidators([
                 Validators.required,
                 Validators.min(1),
@@ -254,6 +263,7 @@ export class ContentDashboardComponent implements OnInit {
         const form = this.contentForm.value;
         // form.contentUrl = this.oldContentUrl;
 
+        ;
         // Add content ID for update
         formData.append('Id', this.contentData.id.toString());
         formData.append('Title', form.title);
@@ -268,7 +278,7 @@ export class ContentDashboardComponent implements OnInit {
 
         if (
             form.passingMark &&
-            form.contentPassingRequirement == ContentPassingRequirement.Exam
+            form.contentPassingRequirement == ContentPassingRequirement.Exam ||form.contentPassingRequirement == ContentPassingRequirement.AiExam  
         )
             formData.append('PassMark', form.passingMark.toString());
         if (form.textContent) formData.append('ContentText', form.textContent);

@@ -110,7 +110,7 @@ export class CourseDetailsPageComponent {
                 next: (response: number | undefined) => {
                     this.programDetails!.isRegistered = true;
                     if(response){
-                        this.router.navigate(['/content-details',response,this.currentUser.id,this.programId]);
+                        this.router.navigate(['/lecture-viewer',this.programId]);
                     }
                 },
                 error: (error) => {

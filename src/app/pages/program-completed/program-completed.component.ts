@@ -13,11 +13,11 @@ export class ProgramCompletedComponent implements OnInit {
     isSuccess: boolean = false;
 
     constructor(private route: ActivatedRoute) {
-      debugger;
+       ;
     }
 
     ngOnInit(): void {
-      debugger;
+       ;
         this.route.queryParamMap.subscribe((params) => {
             const status = params.get('status');
             this.isSuccess = status === 'true'; // it's a string

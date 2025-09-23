@@ -44,8 +44,27 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
-    getContentChat(contentId:number,userId:string, programId: number) {
-        ;
+    getFirstContent(programId: number) {
+        return this.http
+            .get<Result<ContentDetails>>(
+                this.baseUrl +
+                    API_CONSTANTS.CONTENT.GET_FIRST_CONTENT +
+                    programId
+            )
+            .pipe(map((response) => response.data));
+    }
+
+    getCurrentContent(contentId: number) {
+        return this.http
+            .get<Result<ContentDetails>>(
+                this.baseUrl +
+                    API_CONSTANTS.CONTENT.GET_CURRENT_CONTENT +
+                    contentId
+            )
+            .pipe(map((response) => response.data));
+    }
+
+    getContentChat(contentId: number, userId: string, programId: number) {
         return this.http
             .get<Result<Message[]>>(
                 this.baseUrl +
@@ -54,8 +73,6 @@ export class ContentService {
             )
             .pipe(map((response) => response.data));
     }
-
-
 
     getContentForEdit(contentId: number) {
         return this.http
@@ -68,7 +85,6 @@ export class ContentService {
     }
 
     sendMessage(message: SendMessage) {
-        
         return this.http
             .post<Result<PassResponse>>(
                 this.baseUrl + API_CONSTANTS.CONTENT.SEND_MESSAGE,
@@ -77,9 +93,7 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
-
     sendAIMessage(SendAIMessage: SendAIMessage) {
-        ;
         return this.http
             .post<Result<string>>(
                 this.baseUrl + API_CONSTANTS.CONTENT.SEND_AI_MESSAGE,
@@ -88,15 +102,14 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
-    getAiChat(contentId:number){
+    getAiChat(contentId: number) {
         return this.http
             .get<Result<ContentAIChatMessage[]>>(
-                this.baseUrl +
-                    API_CONSTANTS.CONTENT.GET_AI_CHAT + contentId
+                this.baseUrl + API_CONSTANTS.CONTENT.GET_AI_CHAT + contentId
             )
             .pipe(map((response) => response.data));
     }
-    
+
     passStudent(contentId: number, studentId: string) {
         return this.http
             .post<Result<any>>(
@@ -114,17 +127,19 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
-  getCourseStructure(programId: number): Observable<CourseStructureResponse | undefined> {
-  return this.http
-    .get<Result<CourseStructureResponse >>(
-      `${this.baseUrl}CoachingProgram/course-structure/${programId}`
-    )
-    .pipe(
-      map((response: Result<CourseStructureResponse>) => {
-        return response.data;
-      })
-    );
-}
+    getCourseStructure(
+        programId: number
+    ): Observable<CourseStructureResponse | undefined> {
+        return this.http
+            .get<Result<CourseStructureResponse>>(
+                `${this.baseUrl}CoachingProgram/course-structure/${programId}`
+            )
+            .pipe(
+                map((response: Result<CourseStructureResponse>) => {
+                    return response.data;
+                })
+            );
+    }
 
     getCourseMentors(programId: number) {
         return this.http
@@ -134,20 +149,18 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
-    
-isLastContent(programId: number, contentId: number) {
-  const params = new HttpParams()
-    .set('ProgramId', programId)
-    .set('ContentId', contentId);
+    isLastContent(programId: number, contentId: number) {
+        const params = new HttpParams()
+            .set('ProgramId', programId)
+            .set('ContentId', contentId);
 
-  return this.http
-    .get<Result<IsLastContentResponse>>(
-      `${this.baseUrl}${API_CONSTANTS.CONTENT.IS_LAST_CONTENT}`, 
-      { params }
-    )
-    .pipe(map((response) => response.data));
-}
-
+        return this.http
+            .get<Result<IsLastContentResponse>>(
+                `${this.baseUrl}${API_CONSTANTS.CONTENT.IS_LAST_CONTENT}`,
+                { params }
+            )
+            .pipe(map((response) => response.data));
+    }
 
     addMentor(programId: number, mentorEmail: string) {
         // params

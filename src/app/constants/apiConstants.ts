@@ -42,6 +42,8 @@ export const API_CONSTANTS = {
         SEND_AI_MESSAGE: 'Content/ai',
         GET_AI_CHAT: 'Content/ai/chat/',
         IS_LAST_CONTENT: 'Content/last',
+        GET_FIRST_CONTENT:'Content/first/',
+        GET_CURRENT_CONTENT:'Content/current/'
     },
     QUESTION: {
         CREATE_QUESTION: 'Exam',
@@ -54,7 +56,8 @@ export const API_CONSTANTS = {
         GET_PROGRAM_BY_ID: 'CoachingProgram',
         REGISTER_IN_PROGRAM: 'CoachingProgram/',
         GET_PROGRAM_DETAILS: 'CoachingProgram/',
-        CREATE_PROGRAM: 'CoachingProgram',
+        CREATE_PROGRAM: 'CoachingProgram/',
+        CREATE_PROGRAM_BY_AI: 'CoachingProgram/ai-generate',
         FINISH_PROGRAM: 'CoachingProgram/finish',
         GET_STUDENT_PROGRAMS: 'CoachingProgram/member',
         GET_SECTIONS_WITH_PROGRAMS: 'CoachingProgram/sections/',

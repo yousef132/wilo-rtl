@@ -1,5 +1,5 @@
 import { Component, Input, input, OnInit } from '@angular/core';
-import { ContentType, Section, Status } from '../../models/program/programs';
+import { ContentType, Section, ContentStatus } from '../../models/program/programs';
 import { ProgramsService } from '../../services/programs.service';
 import { NgFor, NgIf } from '@angular/common';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
@@ -19,7 +19,7 @@ export class SectionsWithProgramsComponent implements OnInit {
     sections: Section[] | null = null;
     ContentType = ContentType;
     currentUserId!: string;
-    Status = Status;
+    Status = ContentStatus;
     constructor(
         private spinner: NgxSpinnerService,
         private sectionService: SectionService,

@@ -52,24 +52,24 @@ export class ProgramsService {
             )
             .pipe(map((response) => response.data));
     }
-    updateStatus(programId:number,status:CoachingProgramStatus){
+    updateStatus(programId: number, status: CoachingProgramStatus) {
         return this.http
             .put<Result<any>>(
-                this.baseUrl +
-                    API_CONSTANTS.PROGRAM.UPDATE_PROGRAM_STATUS,
-                    {
-                        programId:programId,
-                        status:status
-                    }
+                this.baseUrl + API_CONSTANTS.PROGRAM.UPDATE_PROGRAM_STATUS,
+                {
+                    programId: programId,
+                    status: status,
+                }
             )
             .pipe(map((response) => response.data));
     }
 
-    
     getProgramTemplate(programId: number) {
         return this.http
             .get<Result<ProgramCertificateDetails>>(
-                this.baseUrl + API_CONSTANTS.PROGRAM.GET_PROGRAM_TEMPLATE + programId
+                this.baseUrl +
+                    API_CONSTANTS.PROGRAM.GET_PROGRAM_TEMPLATE +
+                    programId
             )
             .pipe(map((response) => response.data));
     }
@@ -89,7 +89,7 @@ export class ProgramsService {
             .pipe(map((response) => response.data));
     }
 
-      getStatistics() {
+    getStatistics() {
         return this.http
             .get<Result<PlatformStats>>(
                 this.baseUrl + API_CONSTANTS.PROGRAM.GET_STATICTS
@@ -154,6 +154,15 @@ export class ProgramsService {
             .pipe(map((response) => response.data));
     }
 
+    createProgrambyAi(formData: FormData) {
+        return this.http
+            .post<Result<any>>(
+                this.baseUrl + API_CONSTANTS.PROGRAM.CREATE_PROGRAM_BY_AI,
+                formData
+            )
+            .pipe(map((response) => response.data));
+    }
+
     updateProgramDetails(program: FormData) {
         return this.http
             .put<Result<ProgramDetailsForUpdate>>(
@@ -181,8 +190,8 @@ export class ProgramsService {
             .pipe(map((response) => response.data));
     }
 
-    finishProgram(formData:FormData){
-      return this.http
+    finishProgram(formData: FormData) {
+        return this.http
             .post<Result<any>>(
                 this.baseUrl + API_CONSTANTS.PROGRAM.FINISH_PROGRAM,
                 formData

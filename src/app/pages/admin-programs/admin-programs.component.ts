@@ -42,7 +42,7 @@ export class AdminProgramsComponent implements OnInit {
     }
 
     get isCoach(): boolean {
-        debugger;
+         ;
         return this.currentUser?.roles.includes('Coach') ?? false;
     }
     ngOnInit(): void {

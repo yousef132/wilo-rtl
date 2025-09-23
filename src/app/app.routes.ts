@@ -14,7 +14,7 @@ import { CreateQuestionComponent } from './pages/create-question/create-question
 import { ContentDashboardComponent } from './pages/content-dashboard/content-dashboard.component';
 import { ExamComponent } from './pages/exam/exam.component';
 import { SubscriptersComponent } from './pages/subscripters/subscripters.component';
-// import { LecturesComponent } from './pages/lectures/lectures.component';
+import { LectureViewerComponent } from './pages/lecture-viewer/lecture-viewer.component';
 import { UsersComponent } from './pages/users/users.component';
 import { canActivateAdminGuard } from './Gaurds/admin.guard';
 import { ProgramCompletedComponent } from './pages/program-completed/program-completed.component';
@@ -24,14 +24,14 @@ import { ProgramStudentsComponent } from './pages/program-students/program-stude
 import { StudentsChatNotificationsComponent } from './pages/students-chat-notifications/students-chat-notifications.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 // import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
-import { ProgramPlayerComponent } from './pages/program-player/program-player.component';
+// import { ProgramPlayerComponent } from './pages/program-player/program-player.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { EditProgramComponent } from './pages/edit-program/edit-program.component';
 import { ProfileEditComponent } from './pages/edit-profile/edit-profile.component';
 import { AiExamComponent } from './pages/ai-exam/ai-exam.component';
+// import { LectureViewerComponent } from './pages/lecture-viewer/lecture-viewer.component';
 
 export const routes: Routes = [
-
     { path: 'home', component: HomeDemoTwoComponent },
     { path: 'login', component: LoginComponent },
     { path: 'programs', component: ProgramsComponent },
@@ -42,22 +42,42 @@ export const routes: Routes = [
     { path: 'exam/:id/:programId', component: ExamComponent },
     { path: 'create-program', component: CreateProgramComponent },
     { path: 'subscriptions', component: UserProgramsComponent },
-    { path: 'content/subscribers/:programId/:contentId', component: SubscriptersComponent },
+    {
+        path: 'content/subscribers/:programId/:contentId',
+        component: SubscriptersComponent,
+    },
     // { path: 'program/lectures/:contentId/:userId', component: LecturesComponent },
-    { path: 'users', component: UsersComponent,canActivate:[canActivateAdminGuard] },
+    {
+        path: 'users',
+        component: UsersComponent,
+        canActivate: [canActivateAdminGuard],
+    },
     { path: 'program-completed', component: ProgramCompletedComponent },
     { path: 'email-confirmed', component: EmailConfirmedComponent },
-    { path: 'email-confirmation-failed', component: EmailConfirmationFailedComponent },
-    { path: 'students/chats/:id', component: StudentsChatNotificationsComponent },
+    {
+        path: 'email-confirmation-failed',
+        component: EmailConfirmationFailedComponent,
+    },
+    {
+        path: 'students/chats/:id',
+        component: StudentsChatNotificationsComponent,
+    },
     { path: 'program/students/:id', component: ProgramStudentsComponent },
     { path: 'notifications', component: NotificationsComponent },
-    // { path: 'dashboard', component: AdminDashboardComponent },
-    { path: 'program-player/:programId', component: ProgramPlayerComponent },
+    // { path: 'dashboard', component:  },
+    // { path: 'program-player/:programId', component: ProgramPlayerComponent },
     { path: 'profile/:userId', component: ProfileComponent },
     { path: 'edit-profile', component: ProfileEditComponent },
     { path: 'ai-exam/:contentId/:programId', component: AiExamComponent },
-
-// contentId, subscriber.userId,programId
+    // {
+    //     path: 'lecture-viewer/:programId/:contentId',
+    //     component: LectureViewerComponent,
+    // },
+    {
+        path: 'lecture-viewer/:programId',
+        component: LectureViewerComponent,
+    },
+    // contentId, subscriber.userId,programId
     { path: 'program-details/:id', component: CourseDetailsPageComponent },
     {
         path: 'content-details/:contentId/:userId/:programId',

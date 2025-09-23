@@ -224,47 +224,36 @@ export class ExamComponent {
     private async handleSubmissionSuccess(
         passResponse: PassResponse
     ): Promise<void> {
+        debugger;
         if (passResponse.nextContentId) {
+            // finished course
             if (passResponse.nextContentId == -1) {
                 this.spinner.show();
-                await this.pdfGeneratorService.fireAndForgetGenerateCertificate(
-                    passResponse.templateUrl!,
-                    this.currentUser.userName,
-                    passResponse.programName!,
-                    new Date().toString(),
-                    this.currentUser.id,
-                    passResponse.programId!,
-                    this.contentId,
-                    false
-                );
-
+                // navigate to lecture viewer, with query param finishedCourse = true
+                this.router.navigate(['/lecture-viewer', this.programId], {
+                    queryParams: { passed: true },
+                });
                 this.spinner.hide();
                 this.isSubmitting = false;
-
-                // Don't navigate here, it's already done inside the service
                 return;
             }
+            // failed in the exam
+            // COMMENTED THIS BECAUSE IT WILL HANDLED IN SUBMISSION FAILED
+            // if (passResponse.nextContentId == -2) {
+            //     this.spinner.hide();
+            //     this.isSubmitting = false;
+            //     this.router.navigate(['/lecture-viewer', this.programId], {
+            //         queryParams: { contentId: this.contentId },
+            //     });
+            //     return;
+            // }
 
-            if (passResponse.nextContentId == -2) {
-                this.spinner.hide();
-                this.isSubmitting = false;
-                this.router.navigate([
-                    '/content-details',
-                    this.contentId,
-                    this.userId,
-                    this.programId,
-                ]);
-                return;
-            }
-
+            // passed the exam, go to next content
+            this.router.navigate(['/lecture-viewer', this.programId], {
+                queryParams: { contentId: passResponse.nextContentId },
+            });
             this.spinner.hide();
             this.isSubmitting = false;
-            this.router.navigate([
-                '/content-details',
-                passResponse.nextContentId,
-                this.userId,
-                this.programId,
-            ]);
         }
     }
 

@@ -12,14 +12,14 @@ export class NotificationsService {
     baseUrl = environment.API_URL;
     constructor(private http: HttpClient) {}
 
-    loadNotifications(index:number) {
-
+    loadNotifications(index: number, pageSize: number) {
         return this.http
             .get<Result<Notification[]>>(
                 this.baseUrl + API_CONSTANTS.NOTIFICATION.GET_NOTIFICATIONS,
                 {
                     params: {
                         index: index,
+                        pageSize: pageSize,
                     },
                 }
             )
@@ -34,13 +34,13 @@ export class NotificationsService {
             .pipe(map((response) => response.data));
     }
 
-    // markNotificationsAsRead(ids: number[]) {
-    //     return this.http
-    //         .put<Result<any>>(
-    //             this.baseUrl +
-    //                 API_CONSTANTS.NOTIFICATION.MARK_NOTIFICATION_AS_READ,
-    //             ids
-    //         )
-    //         .pipe(map((response) => response.data));
-    // }
+    markNotificationsAsRead(notificationId: string) {
+        return this.http
+            .put<Result<any>>(
+                this.baseUrl +
+                    API_CONSTANTS.NOTIFICATION.MARK_NOTIFICATION_AS_READ,
+                { id: notificationId }
+            )
+            .pipe(map((response) => response.data));
+    }
 }

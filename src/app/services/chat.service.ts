@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { EventEmitter, inject, Injectable, PLATFORM_ID } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { debug } from 'node:console';
 import { ChatMessage } from '../models/content/content';
@@ -14,10 +14,6 @@ import { environment } from '../../environments/environment.development';
 
 export interface MessageConfirmation {
     nextContentId: number;
-    certificateUrl: string;
-    programName: string;
-    programId: number;
-    currentContentId: number;
 }
 @Injectable({
     providedIn: 'root',
@@ -28,6 +24,8 @@ export class ChatService {
     public connected = false;
     currentUser!: currentUser;
 
+    public messageConfirmation = new EventEmitter<MessageConfirmation>();
+    public connectionStateChanged = new EventEmitter<boolean>();
     // public msgCount = 0;
     constructor(
         private certificationService: PdfGeneratorService,
@@ -78,85 +76,13 @@ export class ChatService {
             .withAutomaticReconnect()
             .build();
 
-        // this.hubConnection.on(
-        //     'MessageSentConfirmation',
-        //     (confirmation: MessageConfirmation) => {
-        //         debugger;
-        //         // if next content is -1, generate the certificate and make the api call to handle finishing course
-
-        //         // didn't pass to next content, either for pass reqs
-        //         if (confirmation?.nextContentId) {
-        //             if (confirmation.nextContentId == -1) {
-        //                 // completed the program
-        //                 this.certificationService.fireAndForgetGenerateCertificate(
-        //                     confirmation.certificateUrl,
-        //                     this.currentUser.userName,
-        //                     confirmation.programName,
-        //                     new Date().toString(),
-        //                     this.currentUser.id,
-        //                     confirmation.programId,
-        //                     confirmation.currentContentId,
-        //                     false
-        //                 );
-        //                 return;
-        //             }
-        //             this.route.navigate([
-        //                 // completed current content, navigate to next content
-        //                 '/content-details',
-        //                 confirmation.nextContentId,
-        //                 this.currentUser.id,
-        //                 confirmation.programId,
-        //             ]);
-        //             return;
-        //         }
-        //     }
-        // );
-
-        // 1. connect to signalR
-        // 2. JoinRegistrationGroup
-        // 3. ReceiveMessage
-        // 4. MessageRead
         this.hubConnection.on(
             'MessageSentConfirmation',
             (confirmation: MessageConfirmation) => {
-                (async () => {
-                    if (confirmation?.nextContentId) {
-                        debugger;
-
-                        if (confirmation.nextContentId == -1) {
-                            this.spinner.show();
-                            await this.certificationService.fireAndForgetGenerateCertificate(
-                                confirmation.certificateUrl,
-                                this.currentUser.userName,
-                                confirmation.programName,
-                                new Date().toString(),
-                                this.currentUser.id,
-                                confirmation.programId,
-                                confirmation.currentContentId,
-                                false
-                            );
-                            this.spinner.hide();
-                            // ✅ Waited for certificate to finish generating
-                            this.route.navigate(['/program-completed'], {
-                                queryParams: { status: true },
-                            });
-                            return;
-                        }
-
-                        // Navigate to next content
-                        this.route.navigate([
-                            '/content-details',
-                            confirmation.nextContentId,
-                            this.currentUser.id,
-                            confirmation.programId,
-                        ]);
-                    }
-                })().catch((err) => {
-                    console.error(
-                        'Error in MessageSentConfirmation handler:',
-                        err
-                    );
-                });
+                // -1 or a next content number
+                if (confirmation.nextContentId) {
+                    this.messageConfirmation.emit(confirmation);
+                }
             }
         );
 

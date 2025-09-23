@@ -51,7 +51,7 @@ export class AuthService {
         );
     }
     logout() {
-        debugger;
+         ;
         if (isPlatformBrowser(this.platformId))
             localStorage.removeItem('token');
 
@@ -86,7 +86,7 @@ export class AuthService {
         email: string,
         arName: string
     ) {
-        debugger
+         
         return this.http
             .put<Result<UpdateUserForAdminResponse>>(
                 `${this.baseUrl}${API_CONSTANTS.AUTH.UPDATE_USER_FOR_ADMIN}`,

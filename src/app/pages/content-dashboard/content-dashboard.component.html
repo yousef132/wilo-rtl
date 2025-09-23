@@ -52,7 +52,7 @@
                     </div>
                     <!-- Passing Mark Field (Conditional) -->
                     <div class="mb-3"
-                        *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam">
+                        *ngIf="isTypeOfExam()">
 
                         <label class="form-label">نسبة النجاح</label>
                         <input type="number" class="form-control" formControlName="passingMark" />
