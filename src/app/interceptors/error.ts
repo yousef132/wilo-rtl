@@ -43,11 +43,8 @@ export class ErrorInterceptor implements HttpInterceptor {
                 let message = error?.error?.message ?? '';
                  ;
                 switch (error.status) {
-                    
-                   
                     case 400:
                         errorMessage = message || 'خطأ فى البيانات المرسلة';
-
                         break;
                     case 401 :
                         errorMessage = message || 'فشل عمليه تسجيل الدخول';
