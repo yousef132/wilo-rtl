@@ -1,100 +1,89 @@
-
-<app-inner-page-banner
-    [pageTitle]="'Login'"
-/>
+  <app-inner-page-banner [pageTitle]="'Login'" />
 
 
-<!-- Contact -->
-<div class="contact-area pb-100 " style="padding-top: 70px;">
+  <!-- Contact -->
+  <div class="contact-area pb-100 " style="padding-top: 70px;">
     <div class="container">
 
-        
-        <div class="row">
-            <div class="col-lg-6 col-md-12">
-                    <div class="contact-image">
-                        <img src="images/about/login.jpg" alt="image">
-                    </div>
-                
-            </div>
-            <div class="col-lg-6 col-md-12">
-                <div class="contact-form">
-                    <div class="section-title">
-                        <span class="sub-title" style="font-size: 50px;">
-                            <img src="images/star-icon.png" alt="image"> تسجيل الدخول
-                        </span>
-                    </div>
-                    <form id="contactForm" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                        <div class="row">
-                          <!-- البريد الإلكتروني -->
-                          <div class="col-lg-12 col-md-6">
-                            <div class="form-group mb-3">
-                              <input
-                                type="email"
-                                formControlName="email"
-                                class="form-control"
-                                id="email"
-                                placeholder="البريد الإلكتروني"
-                              />
-                              <!-- أخطاء البريد الإلكتروني -->
-                              <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid" class="text-danger small mt-1">
-                                <div *ngIf="loginForm.get('email')?.errors?.['required']">
-                                  هذا الحقل مطلوب
-                                </div>
-                                <div *ngIf="loginForm.get('email')?.errors?.['email']">
-                                  البريد الإلكتروني غير صالح
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                      
-                          <!-- كلمة المرور -->
-                          <div class="col-lg-12 col-md-6">
-                            <div class="form-group mb-3">
-                              <input
-                                type="password"
-                                formControlName="password"
-                                class="form-control"
-                                id="password"
-                                placeholder="كلمة المرور"
-                              />
-                              <!-- أخطاء كلمة المرور -->
-                              <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid" class="text-danger small mt-1">
-                                <div *ngIf="loginForm.get('password')?.errors?.['required']">
-                                  هذا الحقل مطلوب
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                      
-                          <!-- زر تسجيل الدخول -->
-                          <div class="col-lg-12 col-md-12">
-                            <button type="submit" class="default-btn" [disabled]="loginForm.invalid">
-                              <i class="bx bx-log-in"></i>
-                              تسجيل الدخول
-                              <span></span>
-                            </button>
-                          </div>
-                        </div>
-                      </form>
-                      <div class="text-center mt-4">
-                        <span>ليس لديك حساب؟ </span>
-                        <a  routerLink="/register" class="text-primary fw-bold">سجل الآن</a>
-                      </div>
-                      
-                      
-                </div>
-            </div>
+      <div class="row">
+        <div class="col-lg-6 col-md-12">
+          <div class="contact-image">
+            <img src="images/about/login.jpg" alt="image">
+          </div>
+
         </div>
+        <div class="col-lg-6 col-md-12">
+          <div class="contact-form">
+            <div class="section-title">
+              <span class="sub-title" style="font-size: 50px;">
+                <img src="images/star-icon.png" alt="image"> تسجيل الدخول
+              </span>
+            </div>
+            <form id="contactForm" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <div class="row">
+                <!-- البريد الإلكتروني -->
+                <div class="col-lg-12 col-md-6">
+                  <div class="form-group mb-3">
+                    <input type="email" formControlName="email" class="form-control" id="email"
+                      placeholder="البريد الإلكتروني" />
+                    <!-- أخطاء البريد الإلكتروني -->
+                    <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+                      class="text-danger small mt-1">
+                      <div *ngIf="loginForm.get('email')?.errors?.['required']">
+                        هذا الحقل مطلوب
+                      </div>
+                      <div *ngIf="loginForm.get('email')?.errors?.['email']">
+                        البريد الإلكتروني غير صالح
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- كلمة المرور -->
+                <div class="col-lg-12 col-md-6">
+                  <div class="form-group mb-3">
+                    <input type="password" formControlName="password" class="form-control" id="password"
+                      placeholder="كلمة المرور" />
+                    <!-- أخطاء كلمة المرور -->
+                    <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+                      class="text-danger small mt-1">
+                      <div *ngIf="loginForm.get('password')?.errors?.['required']">
+                        هذا الحقل مطلوب
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- زر تسجيل الدخول -->
+                <div class="col-lg-12 col-md-12">
+                  <button type="submit" class="default-btn" [disabled]="loginForm.invalid">
+                    <i class="bx bx-log-in"></i>
+                    تسجيل الدخول
+                    <span></span>
+                  </button>
+<!-- 
+
+                  <button type="button" class="default-btn" (click)="signInWithGoogle()" style="background-color: #db4437; border-color: #db4437; margin-left: 10px;">
+                    login with google
+                    <i class="bx bxl-google-plus"></i>
+                  </button> -->
+                </div>
+              </div>
+            </form>
+            <div class="text-center mt-4">
+              <span>ليس لديك حساب؟ </span>
+              <a routerLink="/register" class="text-primary fw-bold">سجل الآن</a>
+            </div>
+
+
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
 
 
-<ngx-spinner
-  bdColor="rgba(0, 0, 0, 0.8)"
-  size="default"
-  color="#fff"
-  type="cube-transition"
-  [fullScreen]="true"
-  [zIndex]="9999">
-</ngx-spinner>
+  <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="default" color="#fff" type="cube-transition" [fullScreen]="true"
+    [zIndex]="9999">
+  </ngx-spinner>

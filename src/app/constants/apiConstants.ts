@@ -8,6 +8,7 @@ export const API_CONSTANTS = {
         GET_USERS: 'User/users',
         CREATE_COACH: 'User/coach',
         EDIT_USER: 'User/edit',
+        CONFIRM_USER_EMAIL_BY_ADMIN: 'User/confirm-email-admin/',
         GET_USER_COURSE: 'User/user-courses/',
         GET_USER_DATA: 'User/user-data/',
         UPDATE_USER_FOR_ADMIN: 'User',

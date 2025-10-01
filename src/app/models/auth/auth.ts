@@ -26,6 +26,8 @@ export interface UserResponse {
   arName: string;
   email: string;
   title:string;
+  isEmailConfirmed:boolean;
+
 }
 
 export interface UserCourses {

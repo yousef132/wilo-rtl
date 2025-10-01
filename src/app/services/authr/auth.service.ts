@@ -6,6 +6,8 @@ import {
     currentUser,
     Result,
 } from '../../constants/apiConstants';
+import { CredentialResponse } from 'google-one-tap';
+
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import {
@@ -39,7 +41,6 @@ export class AuthService {
     getCurrentUser(): currentUser | null {
         return this.currentUser.value;
     }
-    
 
     getIsLoggedIn(): Observable<boolean> {
         return this.isLoggedIn.asObservable();
@@ -51,7 +52,6 @@ export class AuthService {
         );
     }
     logout() {
-         ;
         if (isPlatformBrowser(this.platformId))
             localStorage.removeItem('token');
 
@@ -59,6 +59,7 @@ export class AuthService {
         this.currentUser.next(null);
         this.router.navigate(['/login']);
     }
+
 
     register(register: Register) {
         return this.http.post<Result<string>>(
@@ -86,7 +87,6 @@ export class AuthService {
         email: string,
         arName: string
     ) {
-         
         return this.http
             .put<Result<UpdateUserForAdminResponse>>(
                 `${this.baseUrl}${API_CONSTANTS.AUTH.UPDATE_USER_FOR_ADMIN}`,
@@ -100,11 +100,12 @@ export class AuthService {
             .pipe(map((response) => response.data));
     }
     updateProfile(formData: FormData) {
-        return this.http.put<Result<UpdateProfileResponse>>(
-            `${this.baseUrl}${API_CONSTANTS.AUTH.EDIT_USER}`,
-            formData
-        ).pipe(map((response) => response.data));
-
+        return this.http
+            .put<Result<UpdateProfileResponse>>(
+                `${this.baseUrl}${API_CONSTANTS.AUTH.EDIT_USER}`,
+                formData
+            )
+            .pipe(map((response) => response.data));
     }
     // decodeTokenToUser(): currentUser | null {
     //     let token: string | null = '';
@@ -218,6 +219,15 @@ export class AuthService {
         return this.http
             .get<Result<UserProfile>>(
                 `${this.baseUrl}${API_CONSTANTS.AUTH.GET_USER_DATA}${userId}`
+            )
+            .pipe(map((response) => response.data));
+    }
+
+    confirmUserEmail(userId: string) {
+        return this.http
+            .put<Result<any>>(
+                `${this.baseUrl}${API_CONSTANTS.AUTH.CONFIRM_USER_EMAIL_BY_ADMIN}`,
+                { userId }
             )
             .pipe(map((response) => response.data));
     }

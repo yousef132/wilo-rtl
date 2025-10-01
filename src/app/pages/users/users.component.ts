@@ -56,6 +56,7 @@ export class UsersComponent {
     // Loading states
     isLoadingUsers = false;
     isCreatingCoach = false;
+    isConfirmingEmail: { [userId: string]: boolean } = {};
 
     // Modal state
     isModalOpen = false;
@@ -113,9 +114,8 @@ export class UsersComponent {
             title: ['', [Validators.required]],
         });
     }
+
     openEditUserModal(user: UserResponse) {
-         ;
-        
         this.editingUserId = user.id;
         this.editUserForm.patchValue({
             name: user.arName,
@@ -124,8 +124,8 @@ export class UsersComponent {
         });
         this.modalService.open(this.userModalRef, { centered: true });
     }
+
     submitEditUser(modal: any) {
-         ;
         if (this.editUserForm.valid && this.editingUserId !== null) {
             const formValue = this.editUserForm.value;
 
@@ -137,7 +137,6 @@ export class UsersComponent {
             );
             if (existingUser) {
                 this.toastr.error('لا يجب تكرار ترتيب البريد الالكترونى');
-
                 return;
             }
 
@@ -153,21 +152,64 @@ export class UsersComponent {
                         response: UpdateUserForAdminResponse | undefined
                     ) => {
                         if (response) {
-                            // this.toastr.success('تم تعديل المستخدم بنجاح');
                             const userIndex = this.users.findIndex(
                                 (user) => user.id === this.editingUserId
                             );
                             if (userIndex !== -1) {
                                 this.users[userIndex].arName = response.arName;
                                 this.users[userIndex].email = response.email;
-                                // this.users[userIndex]. = response.title;
                             }
+                            this.toastr.success('تم تعديل المستخدم بنجاح');
                             modal.close();
                         }
                     },
-                    error: (err) => console.error(err),
+                    error: (err) => {
+                        console.error(err);
+                        this.toastr.error('فشل في تعديل المستخدم');
+                    },
                 });
         }
+    }
+
+    // Confirm user email
+    confirmUserEmail(user: UserResponse): void {
+        if (user.isEmailConfirmed) {
+            this.toastr.info('البريد الإلكتروني مفعّل بالفعل');
+            return;
+        }
+
+        const confirmMessage = `هل أنت متأكد من تفعيل البريد الإلكتروني للمستخدم ${
+            user.arName || user.userName
+        }؟`;
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        this.isConfirmingEmail[user.id] = true;
+        this.clearMessages();
+
+        this.authService.confirmUserEmail(user.id).subscribe({
+            next: (response) => {
+                // Update the user's email confirmation status in the local array
+                const userIndex = this.users.findIndex((u) => u.id === user.id);
+                if (userIndex !== -1) {
+                    this.users[userIndex].isEmailConfirmed = true;
+                }
+
+                this.toastr.success(
+                    `تم تفعيل البريد الإلكتروني للمستخدم ${
+                        user.arName || user.userName
+                    } بنجاح`
+                );
+                this.isConfirmingEmail[user.id] = false;
+            },
+            error: (error) => {
+                console.error('Error confirming email:', error);
+                this.toastr.error('حدث خطأ أثناء تفعيل البريد الإلكتروني');
+                this.isConfirmingEmail[user.id] = false;
+            },
+        });
     }
 
     // Tab management methods
@@ -201,7 +243,6 @@ export class UsersComponent {
         this.authService.getUsers().subscribe({
             next: (response: UserResponse[] | undefined) => {
                 if (response) {
-                     ;
                     this.users = response;
                     this.totalUsers = response.length;
                 }
@@ -223,7 +264,6 @@ export class UsersComponent {
                 ? CoachingProgramStatus.InActive
                 : CoachingProgramStatus.Active;
 
-        // Example call (you can adapt to your service)
         this.programService.updateStatus(courseId, newStatus).subscribe({
             next: () => {
                 const program = this.coursesStats?.find(
@@ -232,14 +272,19 @@ export class UsersComponent {
                 if (program) {
                     program.status = newStatus;
                 }
+                this.toastr.success('تم تحديث حالة البرنامج بنجاح');
             },
             error: (err) => {
                 console.error('Failed to update status', err);
+                this.toastr.error('فشل في تحديث حالة البرنامج');
             },
         });
     }
 
-    deleteProgram(courseId: number) {}
+    deleteProgram(courseId: number) {
+        // Implement delete program logic
+    }
+
     // Open create coach modal
     openCreateCoachModal(): void {
         this.clearMessages();
@@ -279,20 +324,21 @@ export class UsersComponent {
                     if (this.modalInstance) {
                         this.modalInstance.close();
                     }
+                    this.toastr.success('تم إنشاء المدرب بنجاح');
                 } else {
                     this.errorMessage =
                         response.message || 'فشل في إنشاء المدرب';
                     this.isCreatingCoach = false;
+                    this.toastr.error(this.errorMessage);
                 }
             },
             error: (error) => {
                 this.errorMessage = 'حدث خطأ أثناء إنشاء المدرب';
                 this.isCreatingCoach = false;
+                this.toastr.error(this.errorMessage);
             },
         });
     }
-
-
 
     // Delete user
     deleteUser(user: UserResponse): void {
@@ -307,7 +353,6 @@ export class UsersComponent {
     }
 
     // Get status label for courses
-
     getStatusLabel(status: CoachingProgramStatus): string {
         const labels: { [key in CoachingProgramStatus]: string } = {
             [CoachingProgramStatus.Active]: 'نشط',
@@ -317,6 +362,7 @@ export class UsersComponent {
 
         return labels[status] || 'غير معروف';
     }
+
     getStatusClass(status: CoachingProgramStatus): string {
         return 'status-' + CoachingProgramStatus[status].toLocaleLowerCase();
     }
