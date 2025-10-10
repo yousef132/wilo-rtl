@@ -64,6 +64,10 @@ export interface ContentDetails {
     isPassed: boolean;
     examTotal?: number;
     examResult?: number;
+    userName: string;
+    isAiChatEnabled:boolean;
+    isInstructorChatEnabled:boolean;
+    
 }
 
 export interface ContentData {
@@ -77,6 +81,9 @@ export interface ContentData {
     index: number;
     contentText?: string;
     contentPassingRequirement: ContentPassingRequirement;
+    status: CoachingProgramStatus;
+    isInstructorChatEnabled: boolean;
+    isAiChatEnabled: boolean;
 }
 
 export interface ContentToEdit {
@@ -94,8 +101,6 @@ export interface Message {
     userName: string;
     userId: string;
     messageDate: Date; // ISO 8601 string format, e.g., "2024-05-04T12:34:56Z"
-
-
 }
 
 export interface SendMessage {
@@ -136,8 +141,7 @@ export interface CourseLecture {
     minutes: number;
     status: ContentStatus;
     order: number;
-    isPassed : boolean;
-
+    isPassed: boolean;
 }
 export interface NextContentResponse {
     id: number;
@@ -164,19 +168,13 @@ export interface LastContent {
 //     IsFinished,
 //     IsProccessing,
 // }
-export interface IsLastContentResponse{
-    isLast:boolean;
-    templateUrl:string;
-    programId:number;
-    programName:string;
-}
 
-export interface ChatMessage{
-    senderId:string;
-    message:string;
-    sentAt:Date;
-    arName:string;
-    nextContentId:number;
+export interface ChatMessage {
+    senderId: string;
+    message: string;
+    sentAt: Date;
+    arName: string;
+    nextContentId: number;
 }
 
 // SenderId = senderId,

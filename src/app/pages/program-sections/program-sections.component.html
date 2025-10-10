@@ -231,6 +231,162 @@
           <small>اختر شرط النجاح</small>
         </div>
       </div>
+
+      <div class="mb-3"
+        *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam || contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.AiExam">
+        <label class="form-label">نسبه النجاح </label>
+        <input type="number" class="form-control" formControlName="passingMark" />
+        <div class="text-danger"
+          *ngIf="contentForm.get('passingMark')?.touched && contentForm.get('passingMark')?.invalid">
+          <small *ngIf="contentForm.get('passingMark')?.errors?.['required']">
+            هذا الحقل مطلوب
+          </small>
+          <small *ngIf="contentForm.get('passingMark')?.errors?.['min']">
+            لا يمكن أن تكون النسبة أقل من 0
+          </small>
+          <small *ngIf="contentForm.get('passingMark')?.errors?.['max']">
+            لا يمكن أن تتجاوز النسبة 100
+          </small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">نوع المحتوى</label>
+        <select (change)="onContentTypeChange($event)" class="form-select" formControlName="contentType">
+          <option *ngFor="let type of sharedService.contentTypes" [value]="type.value">{{ type.label }}</option>
+        </select>
+        <div class="text-danger"
+          *ngIf="contentForm.get('contentType')?.touched && contentForm.get('contentType')?.invalid">
+          <small>اختر نوع المحتوى</small>
+        </div>
+      </div>
+
+      <div class="mb-3"
+        *ngIf="contentForm.get('contentType')?.value == ContentType.File && contentForm.get('contentType')?.value !=null ">
+        <label class="form-label">الملف</label>
+        <input type="file" class="form-control" (change)="onFileSelected($event)">
+        <div *ngIf="fileError " class="text-danger mt-1">{{ fileError }}</div>
+      </div>
+
+      <div class="mb-3"
+        *ngIf="contentForm.get('contentType')?.value != ContentType.File && contentForm.get('contentType')?.value !=null">
+        <label class="form-label">الرابط</label>
+        <input class="form-control" formControlName="contentUrl" />
+        <div class="text-danger"
+          *ngIf="contentForm.get('contentUrl')?.touched && contentForm.get('contentUrl')?.invalid">
+          <small>الرابط غير صالح</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">الجهد المطلوب</label>
+        <input class="form-control" formControlName="requiredEffort" />
+        <div class="text-danger"
+          *ngIf="contentForm.get('requiredEffort')?.touched && contentForm.get('requiredEffort')?.invalid">
+          <small>الجهد مطلوب</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">عدد الدقائق</label>
+        <input type="number" class="form-control" formControlName="minutes" />
+        <div class="text-danger" *ngIf="contentForm.get('minutes')?.touched && contentForm.get('minutes')?.invalid">
+          <small>عدد الدقائق مطلوب ويجب أن يكون أكبر من 0</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">الترتيب</label>
+        <input type="number" class="form-control" formControlName="index" />
+        <div class="text-danger" *ngIf="contentForm.get('index')?.touched && contentForm.get('index')?.invalid">
+          <small>الترتيب مطلوب ويجب أن يكون 0 أو أكثر</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">نص المحتوى</label>
+        <div class="alert alert-warning mb-2" role="alert">
+          <small>
+            ⚠️ تنبيه: كن حذراً مع محتوى النص المدخل، حيث سيعتمد الذكاء الاصطناعي على هذه البيانات في استجاباته
+          </small>
+        </div>
+        <textarea class="form-control" formControlName="textContent" rows="3"></textarea>
+      </div>
+
+      <!-- Chat Features Section -->
+      <div class="mb-3">
+        <label class="form-label d-block mb-3">المميزات</label>
+
+        <!-- AI Chat Toggle -->
+        <div class="d-flex justify-content-between align-items-center p-3 mb-2 border rounded">
+          <div class="d-flex align-items-center">
+            <i class="bx bx-bot fs-4 text-primary me-2"></i>
+            <div>
+              <div class="fw-semibold">الدردشة مع الذكاء الاصطناعي</div>
+              <small class="text-muted">السماح للطلاب بطرح الأسئلة على المساعد الذكي</small>
+            </div>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" formControlName="isAiChatEnabled"
+              style="cursor: pointer;">
+          </div>
+        </div>
+
+        <!-- Instructor Chat Toggle -->
+        <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+          <div class="d-flex align-items-center">
+            <i class="bx bx-user fs-4 text-primary me-2"></i>
+            <div>
+              <div class="fw-semibold">الدردشة مع المدرب</div>
+              <small class="text-muted">السماح للطلاب بالتواصل المباشر مع المدرب</small>
+            </div>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" formControlName="isInstructorChatEnabled"
+              style="cursor: pointer;" (change)="onInstructorChatToggle($event)" id="instructorChatToggle">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" type="button" (click)="modal.dismiss()">إلغاء</button>
+      <button class="btn btn-primary" type="submit" [disabled]="contentForm.invalid || fileError != null">حفظ</button>
+    </div>
+  </form>
+</ng-template>
+
+<!-- Modal Template -->
+<!-- <ng-template #contentModal let-modal>
+
+  <div class="modal-header">
+    <h5 class="modal-title">إضافة محتوى جديد</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <form [formGroup]="contentForm" (ngSubmit)="submitContent(modal)">
+    <div class="modal-body">
+
+      <div class="mb-3">
+        <label class="form-label">العنوان</label>
+        <input class="form-control" formControlName="title" />
+        <div class="text-danger" *ngIf="contentForm.get('title')?.touched && contentForm.get('title')?.invalid">
+          <small>هذا الحقل مطلوب</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">شرط النجاح</label>
+        <select class="form-select" formControlName="contentPassingRequirement"
+          (change)="onPassingRequirementChange($event)">
+          <option *ngFor="let req of sharedService.passingRequirements" [value]="req.value">{{ req.label }}</option>
+        </select>
+        <div class="text-danger"
+          *ngIf="contentForm.get('contentPassingRequirement')?.touched && contentForm.get('contentPassingRequirement')?.invalid">
+          <small>اختر شرط النجاح</small>
+        </div>
+      </div>
       <div class="mb-3" *ngIf="contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.Exam || contentForm.get('contentPassingRequirement')?.value == ContentPassingRequirement.AiExam">
         <label class="form-label">نسبه النجاح </label>
         <input type="number" class="form-control" formControlName="passingMark" />
@@ -326,4 +482,4 @@
       <button class="btn btn-primary" type="submit" [disabled]="contentForm.invalid || fileError != null">حفظ</button>
     </div>
   </form>
-</ng-template>
+</ng-template> -->

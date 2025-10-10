@@ -1,186 +1,215 @@
 <app-inner-page-banner [pageTitle]="'إدارة المحتوى'" />
-<!-- Button to open edit modal -->
-<!-- Loading State -->
-<div class="container mt-4">
-    <div *ngIf="isLoading" class="text-center p-4">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">جاري التحميل...</span>
-        </div>
-        <p class="mt-2">جاري تحميل بيانات المحتوى...</p>
+
+<div class="content-edit-container">
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>جاري تحميل بيانات المحتوى...</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && contentData" class="content-wrapper">
+    <!-- Header Section -->
+    <div class="page-header">
+      <div class="header-content">
+        <h2 class="page-title">تعديل المحتوى</h2>
+        <a *ngIf="contentData.contentPassingRequirement == ContentPassingRequirement.Exam"
+           [routerLink]="['/questions/add', contentData.id]" 
+           class="add-question-btn">
+          <i class="bx bx-question-mark"></i>
+          <span>إضافة سؤال</span>
+        </a>
+      </div>
     </div>
 
-    <!-- Edit Form -->
-    <div *ngIf="!isLoading && contentData" class="edit-content-form">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">تعديل المحتوى</h5>
-                <a *ngIf="contentData.contentPassingRequirement == ContentPassingRequirement.Exam"
-                    [routerLink]="['/questions/add', contentData.id]" class="btn btn-outline-primary btn-sm"
-                    title="إضافة سؤال">
-                    <i class="bx bx-question-mark"></i> إضافة سؤال
-                </a>
-
+    <!-- Form Card -->
+    <div class="form-card">
+      <form [formGroup]="contentForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Basic Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">المعلومات الأساسية</h3>
+          
+          <div class="form-grid">
+            <!-- Title -->
+            <div class="form-group full-width">
+              <label class="form-label">العنوان</label>
+              <input type="text" class="form-input" formControlName="title" placeholder="أدخل عنوان المحتوى" />
+              <span class="error-message" *ngIf="contentForm.get('title')?.touched && contentForm.get('title')?.invalid">
+                هذا الحقل مطلوب
+              </span>
             </div>
 
-            <div class="card-body">
-                <form [formGroup]="contentForm" (ngSubmit)="onSubmit()">
-
-                    <!-- Title Field -->
-                    <div class="mb-3">
-                        <label class="form-label">العنوان</label>
-                        <input class="form-control" formControlName="title" />
-                        <div class="text-danger"
-                            *ngIf="contentForm.get('title')?.touched && contentForm.get('title')?.invalid">
-                            <small>هذا الحقل مطلوب</small>
-                        </div>
-                    </div>
-
-                    <!-- Passing Requirement Field -->
-                    <div class="mb-3">
-                        <label class="form-label">شرط النجاح</label>
-                        <select class="form-select" formControlName="contentPassingRequirement"
-                            (change)="onPassingRequirementChange($event)">
-                            <option [value]="ContentPassingRequirement.Exam">Exam</option>
-                            <option [value]="ContentPassingRequirement.Comment">Comment</option>
-                            <option [value]="ContentPassingRequirement.Manually">Manually</option>
-                            <option [value]="ContentPassingRequirement.AiExam">Ai Exam</option>
-                        </select>
-                        <div class="text-danger"
-                            *ngIf="contentForm.get('contentPassingRequirement')?.touched && contentForm.get('contentPassingRequirement')?.invalid">
-                            <small>اختر شرط النجاح</small>
-                        </div>
-                    </div>
-                    <!-- Passing Mark Field (Conditional) -->
-                    <div class="mb-3"
-                        *ngIf="isTypeOfExam()">
-
-                        <label class="form-label">نسبة النجاح</label>
-                        <input type="number" class="form-control" formControlName="passingMark" />
-
-                        <div class="text-danger"
-                            *ngIf="contentForm.get('passingMark')?.touched && contentForm.get('passingMark')?.invalid">
-                            <small *ngIf="contentForm.get('passingMark')?.errors?.['required']">النسبة مطلوبة</small>
-                            <small *ngIf="contentForm.get('passingMark')?.errors?.['min']">النسبة يجب أن تكون أكبر من
-                                0</small>
-                            <small *ngIf="contentForm.get('passingMark')?.errors?.['max']">النسبة يجب أن تكون أقل من أو
-                                تساوي 100</small>
-                        </div>
-                    </div>
-
-
-                    <div class="mb-3 mt-3">
-                        <label class="form-label">نوع المحتوى</label>
-                        <select (change)="onContentTypeChange($event)" class="form-select"
-                            formControlName="contentType">
-                            <option [value]="ContentType.File">File</option>
-                            <option [value]="ContentType.Loom">Loom</option>
-                            <option [value]="ContentType.Vimeo">Vimeo</option>
-                            <option [value]="ContentType.Image">Image</option>
-                            <option [value]="ContentType.Website">Website</option>
-                            <option [value]="ContentType.YouTube">YouTube</option>
-                        </select>
-                        <div *ngIf="contentForm.get('contentType')?.invalid && contentForm.get('contentType')?.touched"
-                            class="text-danger">
-                            <small>يجب تحديد حالة</small>
-                        </div>
-                    </div>
-
-                    <!-- File Upload Field (Conditional) -->
-                    <div class="mb-3"
-                        *ngIf="contentForm.get('contentType')?.value == ContentType.File && contentForm.get('contentType')?.value != null">
-                        <label class="form-label">الملف</label>
-                        <input type="file" class="form-control" (change)="onFileSelected($event)">
-                        <div *ngIf="fileError" class="text-danger mt-1">{{ fileError }}</div>
-
-                        <!-- Show current file info if exists -->
-                        <div *ngIf="contentData?.contentUrl && !selectedFile" class="mt-2">
-                            <small class="text-muted" *ngIf="contentData.contentType == ContentType.File">
-                                <a [href]="contentData.contentUrl">
-                                    <strong style="color: rgb(255, 157, 0);">
-                                        الملف الحالي
-                                    </strong>
-                                </a>
-                            </small>
-                        </div>
-
-                        <!-- Show selected new file -->
-                        <div *ngIf="selectedFile" class="mt-2">
-                            <small class="text-success">
-                                <i class="fas fa-file-upload"></i> ملف جديد محدد: {{ selectedFile.name }}
-                            </small>
-                        </div>
-                    </div>
-
-                    <!-- URL Field (Conditional) -->
-                    <div class="mb-3"
-                        *ngIf="contentForm.get('contentType')?.value != ContentType.File && contentForm.get('contentType')?.value != null">
-                        <label class="form-label">الرابط</label>
-                        <input class="form-control" formControlName="contentUrl" />
-                        <div class="text-danger"
-                            *ngIf="contentForm.get('contentUrl')?.touched && contentForm.get('contentUrl')?.invalid">
-                            <small>الرابط غير صالح</small>
-                        </div>
-                    </div>
-
-                    <!-- Required Effort Field -->
-                    <div class="mb-3">
-                        <label class="form-label">الجهد المطلوب</label>
-                        <input class="form-control" formControlName="requiredEffort" />
-                        <div class="text-danger"
-                            *ngIf="contentForm.get('requiredEffort')?.touched && contentForm.get('requiredEffort')?.invalid">
-                            <small>الجهد مطلوب</small>
-                        </div>
-                    </div>
-
-                    <!-- Minutes Field -->
-                    <div class="mb-3">
-                        <label class="form-label">عدد الدقائق</label>
-                        <input type="number" class="form-control" formControlName="minutes" />
-                        <div class="text-danger"
-                            *ngIf="contentForm.get('minutes')?.touched && contentForm.get('minutes')?.invalid">
-                            <small>عدد الدقائق مطلوب ويجب أن يكون أكبر من 0</small>
-                        </div>
-                    </div>
-
-                    <!-- Index Field -->
-                    <div class="mb-3">
-                        <label class="form-label">الترتيب</label>
-                        <input type="number" class="form-control" formControlName="index" />
-                        <div class="text-danger"
-                            *ngIf="contentForm.get('index')?.touched && contentForm.get('index')?.invalid">
-                            <small>الترتيب مطلوب ويجب أن يكون 0 أو أكثر</small>
-                        </div>
-                    </div>
-
-                    <!-- Text Content Field -->
-                    <div class="mb-3">
-                        <label class="form-label">نص المحتوى</label>
-                        <textarea class="form-control" formControlName="textContent" rows="4"></textarea>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-primary" type="submit"
-                            [disabled]="contentForm.invalid || fileError != null || isSubmitting">
-                            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
-                            {{ isSubmitting ? 'جاري الحفظ...' : 'حفظ التعديلات' }}
-                        </button>
-
-                        <button class="btn btn-secondary" type="button" (click)="resetForm()" [disabled]="isSubmitting">
-                            إعادة تعيين
-                        </button>
-                    </div>
-                </form>
+            <!-- Passing Requirement -->
+            <div class="form-group">
+              <label class="form-label">شرط النجاح</label>
+              <select class="form-select" formControlName="contentPassingRequirement" (change)="onPassingRequirementChange($event)">
+                <option [value]="ContentPassingRequirement.Exam">امتحان</option>
+                <option [value]="ContentPassingRequirement.Comment">تعليق</option>
+                <option [value]="ContentPassingRequirement.Manually">يدوي</option>
+                <option [value]="ContentPassingRequirement.AiExam">امتحان ذكي</option>
+              </select>
             </div>
-        </div>
-    </div>
 
-    <!-- Error State -->
-    <div *ngIf="!isLoading && !contentData" class="text-center p-4">
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle"></i>
-            حدث خطأ في تحميل بيانات المحتوى
+            <!-- Passing Mark (Conditional) -->
+            <div class="form-group" *ngIf="isTypeOfExam()">
+              <label class="form-label">نسبة النجاح (%)</label>
+              <input type="number" class="form-input" formControlName="passingMark" placeholder="0-100" />
+              <span class="error-message" *ngIf="contentForm.get('passingMark')?.touched && contentForm.get('passingMark')?.invalid">
+                <span *ngIf="contentForm.get('passingMark')?.errors?.['required']">النسبة مطلوبة</span>
+                <span *ngIf="contentForm.get('passingMark')?.errors?.['min']">النسبة يجب أن تكون أكبر من 0</span>
+                <span *ngIf="contentForm.get('passingMark')?.errors?.['max']">النسبة يجب أن تكون أقل من أو تساوي 100</span>
+              </span>
+            </div>
+
+            <!-- Required Effort -->
+            <div class="form-group">
+              <label class="form-label">الجهد المطلوب</label>
+              <input type="text" class="form-input" formControlName="requiredEffort" placeholder="مثال: متوسط" />
+            </div>
+
+            <!-- Minutes -->
+            <div class="form-group">
+              <label class="form-label">عدد الدقائق</label>
+              <input type="number" class="form-input" formControlName="minutes" placeholder="0" />
+              <span class="error-message" *ngIf="contentForm.get('minutes')?.touched && contentForm.get('minutes')?.invalid">
+                عدد الدقائق مطلوب ويجب أن يكون أكبر من 0
+              </span>
+            </div>
+
+            <!-- Index (Conditional) -->
+            <div class="form-group" *ngIf="contentData.status == CoachingProgramStatus.InActive">
+              <label class="form-label">الترتيب</label>
+              <input type="number" class="form-input" formControlName="index" placeholder="0" />
+            </div>
+          </div>
         </div>
-        <button class="btn btn-primary" (click)="getContentData()">إعادة المحاولة</button>
+
+        <!-- Content Type Section -->
+        <div class="form-section">
+          <h3 class="section-title">نوع المحتوى</h3>
+          
+          <div class="form-grid">
+            <!-- Content Type -->
+            <div class="form-group full-width">
+              <label class="form-label">نوع المحتوى</label>
+              <select class="form-select" formControlName="contentType" (change)="onContentTypeChange($event)">
+                <option [value]="ContentType.File">ملف</option>
+                <option [value]="ContentType.Loom">Loom</option>
+                <option [value]="ContentType.Vimeo">Vimeo</option>
+                <option [value]="ContentType.Image">صورة</option>
+                <option [value]="ContentType.Website">موقع ويب</option>
+                <option [value]="ContentType.YouTube">YouTube</option>
+              </select>
+            </div>
+
+            <!-- File Upload (Conditional) -->
+            <div class="form-group full-width" *ngIf="contentForm.get('contentType')?.value == ContentType.File">
+              <label class="form-label">الملف</label>
+              <div class="file-upload-wrapper">
+                <input type="file" id="fileInput" class="file-input" (change)="onFileSelected($event)" />
+                <label for="fileInput" class="file-upload-label">
+                  <i class="bx bx-cloud-upload"></i>
+                  <span>{{ selectedFile ? selectedFile.name : 'اختر ملف أو اسحبه هنا' }}</span>
+                </label>
+              </div>
+              
+              <div *ngIf="fileError" class="error-message">{{ fileError }}</div>
+              
+              <!-- <div *ngIf="contentData?.contentUrl && !selectedFile" class="current-file-info">
+                <i class="bx bx-file"></i>
+                 <a [href]="contentData.contentUrl" target="_blank">عرض الملف الحالي</a> 
+              </div> -->
+            </div>
+
+            <!-- URL (Conditional) -->
+            <div class="form-group full-width" *ngIf="contentForm.get('contentType')?.value != ContentType.File && contentForm.get('contentType')?.value != null">
+              <label class="form-label">الرابط</label>
+              <input type="url" class="form-input" formControlName="contentUrl" placeholder="https://example.com" />
+              <span class="error-message" *ngIf="contentForm.get('contentUrl')?.touched && contentForm.get('contentUrl')?.invalid">
+                الرابط غير صالح
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Content Section -->
+        <div class="form-section">
+          <h3 class="section-title">الوصف</h3>
+          <div class="form-group full-width">
+            <label class="form-label">نص المحتوى</label>
+            <textarea class="form-textarea" formControlName="textContent" rows="5" placeholder="أدخل وصف المحتوى..."></textarea>
+          </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="form-section">
+          <h3 class="section-title">المميزات</h3>
+          
+          <div class="features-grid">
+            <!-- AI Chat Toggle -->
+            <div class="toggle-group">
+              <div class="toggle-content">
+                <div class="toggle-info">
+                  <i class="bx bx-bot toggle-icon"></i>
+                  <div>
+                    <h4 class="toggle-title">الدردشة مع الذكاء الاصطناعي</h4>
+                    <p class="toggle-description">السماح للطلاب بطرح الأسئلة على المساعد الذكي</p>
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" formControlName="isAiChatEnabled" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Instructor Chat Toggle -->
+            <div class="toggle-group">
+              <div class="toggle-content">
+                <div class="toggle-info">
+                  <i class="bx bx-user toggle-icon"></i>
+                  <div>
+                    <h4 class="toggle-title">الدردشة مع المدرب</h4>
+                    <p class="toggle-description">السماح للطلاب بالتواصل المباشر مع المدرب</p>
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" formControlName="isInstructorChatEnabled" (change)="onInstructorChatToggle($event)"  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="contentForm.invalid || fileError != null || isSubmitting">
+            <span *ngIf="isSubmitting" class="btn-spinner"></span>
+            <i class="bx bx-save" *ngIf="!isSubmitting"></i>
+            <span>{{ isSubmitting ? 'جاري الحفظ...' : 'حفظ التعديلات' }}</span>
+          </button>
+          
+          <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="isSubmitting">
+            <i class="bx bx-reset"></i>
+            <span>إعادة تعيين</span>
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !contentData" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <h3>حدث خطأ في تحميل البيانات</h3>
+    <p>نعتذر، لم نتمكن من تحميل بيانات المحتوى</p>
+    <button class="btn btn-primary" (click)="getContentData()">
+      <i class="bx bx-refresh"></i>
+      <span>إعادة المحاولة</span>
+    </button>
+  </div>
 </div>

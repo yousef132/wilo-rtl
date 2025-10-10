@@ -313,7 +313,7 @@ export class CreateProgramComponent {
         formData.append('Details', this.programForm.value.details);
         formData.append('Duration', this.programForm.value.duration.toString());
         formData.append('Cover', this.coverFile!);
-        formData.append('Certificate', this.certificateFile!);
+        formData.append('CertificateTemplate', this.certificateFile!);
 
         if (this.creationMode === 'manual') {
             // Manual mode – wait for completion
@@ -340,6 +340,7 @@ export class CreateProgramComponent {
                 },
                 complete: () => {
                     this.isSubmitting = false;
+                    this.spinner.hide();
                 },
             });
         } else {
@@ -369,6 +370,7 @@ export class CreateProgramComponent {
                 },
                 complete: () => {
                     this.isSubmitting = false;
+                    this.spinner.hide();
                 },
             });
         }

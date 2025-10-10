@@ -238,7 +238,12 @@
         </div>
 
         <!-- Chat Toggle Button (only show when not in completion mode) -->
-        <div class="chat-toggle-container" *ngIf="!showCourseCompletion">
+        <!-- {{(currentLecture?.isAiChatEnabled || currentLecture?.isInstructorChatEnabled)}}
+        <br>
+         {{!showCourseCompletion }}
+         {{currentLecture|json}} -->
+  
+        <div class="chat-toggle-container" *ngIf="!showCourseCompletion && (currentLecture?.isAiChatEnabled || currentLecture?.isInstructorChatEnabled)">
           <button class="chat-toggle-btn" (click)="toggleChat()">
             <i class="bx bx-message-dots"></i>
             {{ isChatOpen ? 'إغلاق الدردشة' : 'فتح الدردشة' }}
@@ -357,13 +362,13 @@
           <div class="chat-controls">
             <!-- Chat Mode Tabs -->
             <div class="chat-mode-tabs">
-              <button class="chat-mode-tab" [class.active]="chatMode === 'instructor'"
+              <button class="chat-mode-tab" *ngIf="currentLecture?.isInstructorChatEnabled" [class.active]="chatMode === 'instructor'"
                 (click)="switchChatMode('instructor')">
                 <i class="bx bx-user"></i>
                 المدرب
                 <span *ngIf="loading.chat" class="loading-dot"></span>
               </button>
-              <button class="chat-mode-tab" [class.active]="chatMode === 'ai'" (click)="switchChatMode('ai')">
+              <button class="chat-mode-tab" *ngIf="currentLecture?.isAiChatEnabled" [class.active]="chatMode === 'ai'" (click)="switchChatMode('ai')">
                 <i class="bx bx-brain"></i>
                 الذكاء الاصطناعي
                 <span *ngIf="loading.aiChat" class="loading-dot"></span>

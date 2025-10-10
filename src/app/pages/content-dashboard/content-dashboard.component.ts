@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { InnerPageBannerComponent } from '../../common/inner-page-banner/inner-page-banner.component';
 import {
+    CoachingProgramStatus,
     ContentPassingRequirement,
     ContentType,
 } from '../../models/program/programs';
@@ -22,6 +23,8 @@ import { SharedService } from '../../shared/shared.service';
 import { ContentService } from '../../services/content.service';
 import { JsonPipe, NgIf } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { cwd } from 'process';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-content-dashboard',
@@ -40,6 +43,7 @@ export class ContentDashboardComponent implements OnInit {
     @ViewChild('editContentModal') editContentModal!: TemplateRef<any>;
 
     ContentType = ContentType;
+    CoachingProgramStatus = CoachingProgramStatus;
     ContentPassingRequirement = ContentPassingRequirement;
     oldContentUrl!: string;
     contentForm!: FormGroup;
@@ -53,7 +57,8 @@ export class ContentDashboardComponent implements OnInit {
         private fb: FormBuilder,
         public sharedService: SharedService,
         private contentService: ContentService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private toastr: ToastrService
     ) {
         // get id from route
         this.contentId = this.route.snapshot.params['id'];
@@ -87,8 +92,12 @@ export class ContentDashboardComponent implements OnInit {
                 this.contentData?.contentPassingRequirement,
                 Validators.required,
             ],
+            isAiChatEnabled: [this.contentData?.isAiChatEnabled],
+            isInstructorChatEnabled: [
+                this.contentData?.isInstructorChatEnabled,
+            ],
         });
-        
+
         if (this.contentData?.contentPassingRequirement) {
             this.togglePassingMarkValidators(
                 this.contentData.contentPassingRequirement
@@ -105,7 +114,10 @@ export class ContentDashboardComponent implements OnInit {
     private togglePassingMarkValidators(value: ContentPassingRequirement) {
         const passingMarkControl = this.contentForm.get('passingMark');
 
-        if (value === ContentPassingRequirement.Exam || value == ContentPassingRequirement.AiExam) {
+        if (
+            value === ContentPassingRequirement.Exam ||
+            value == ContentPassingRequirement.AiExam
+        ) {
             passingMarkControl?.setValidators([
                 Validators.required,
                 Validators.min(1),
@@ -131,12 +143,13 @@ export class ContentDashboardComponent implements OnInit {
         this.isLoading = true;
         this.contentService.getContentForEdit(this.contentId).subscribe({
             next: (response: ContentData | undefined) => {
+                debugger;
                 if (response) {
                     this.contentData = response;
-                    this.oldContentUrl = this.contentData.contentUrl!;
-                }
-                this.initializeForm();
 
+                    this.oldContentUrl = this.contentData.contentUrl!;
+                    this.initializeForm();
+                }
                 this.isLoading = false;
             },
             error: (error) => {
@@ -160,6 +173,9 @@ export class ContentDashboardComponent implements OnInit {
             textContent: this.contentData.contentText || '',
             contentPassingRequirement:
                 this.contentData.contentPassingRequirement,
+            isAiChatEnabled: this.contentData.isAiChatEnabled || false,
+            isInstructorChatEnabled:
+                this.contentData.isInstructorChatEnabled || false,
         });
 
         // Set up conditional validators based on current values
@@ -169,6 +185,16 @@ export class ContentDashboardComponent implements OnInit {
     private setupConditionalValidators(): void {
         if (!this.contentData) return;
 
+        const isInstructorChatEnabledControl = this.contentForm.get(
+            'isInstructorChatEnabled'
+        );
+
+        if (
+            this.contentData.contentPassingRequirement ==
+            ContentPassingRequirement.Comment
+        ) {
+            isInstructorChatEnabledControl?.setValue(true);
+        }
         // Set up content URL validation based on content type
         const contentUrlControl = this.contentForm.get('contentUrl');
         if (this.contentData.contentType === ContentType.File) {
@@ -178,7 +204,6 @@ export class ContentDashboardComponent implements OnInit {
         }
         contentUrlControl?.updateValueAndValidity();
 
-        ;
         // Set up passing mark validation based on passing requirement
         const passingMarkControl = this.contentForm.get('passingMark');
         if (this.isTypeOfExam()) {
@@ -237,6 +262,15 @@ export class ContentDashboardComponent implements OnInit {
     onPassingRequirementChange(event: Event) {
         const selectedValue = +(event.target as HTMLSelectElement).value;
         const passingMarkControl = this.contentForm.get('passingMark');
+        const isInstructorChatEnabledControl = this.contentForm.get(
+            'isInstructorChatEnabled'
+        );
+
+        debugger;
+
+        if (selectedValue == ContentPassingRequirement.Comment) {
+            isInstructorChatEnabledControl?.setValue(true);
+        }
 
         if (
             selectedValue === ContentPassingRequirement.Exam ||
@@ -255,15 +289,40 @@ export class ContentDashboardComponent implements OnInit {
         passingMarkControl?.updateValueAndValidity();
     }
 
+    onInstructorChatToggle(event: Event): void {
+        const checkbox = event.target as HTMLInputElement;
+        const currentPassingRequirement = this.contentForm.get(
+            'contentPassingRequirement'
+        )?.value;
+        debugger;
+        // If trying to turn OFF instructor chat while Comment is selected
+        if (
+            !checkbox.checked &&
+            currentPassingRequirement == ContentPassingRequirement.Comment
+        ) {
+            // Prevent the change
+            event.preventDefault();
+            checkbox.checked = true;
+            this.contentForm.get('isInstructorChatEnabled')?.setValue(true);
+
+            // Show warning message
+            this.toastr.warning(
+                'لا يمكن إيقاف الدردشة مع المدرب عندما يكون متطلب الاجتياز هو التعليق. يجب السماح للمتدرب بالتعليق.',
+                'تنبيه'
+            );
+        }
+    }
+
     onSubmit(): void {
         if (!this.contentForm.valid || !this.contentData) return;
 
         this.isSubmitting = true;
         const formData = new FormData();
         const form = this.contentForm.value;
+
+        debugger;
         // form.contentUrl = this.oldContentUrl;
 
-        ;
         // Add content ID for update
         formData.append('Id', this.contentData.id.toString());
         formData.append('Title', form.title);
@@ -271,14 +330,21 @@ export class ContentDashboardComponent implements OnInit {
         formData.append('RequiredEffort', form.requiredEffort);
         formData.append('Minutes', form.minutes.toString());
         formData.append('Index', form.index.toString());
+        formData.append('IsAiChatEnabled', form.isAiChatEnabled);
+        formData.append(
+            'IsInstructorChatEnabled',
+            form.isInstructorChatEnabled
+        );
         formData.append(
             'ContentPassingRequirement',
             form.contentPassingRequirement.toString()
         );
 
         if (
-            form.passingMark &&
-            form.contentPassingRequirement == ContentPassingRequirement.Exam ||form.contentPassingRequirement == ContentPassingRequirement.AiExam  
+            (form.passingMark &&
+                form.contentPassingRequirement ==
+                    ContentPassingRequirement.Exam) ||
+            form.contentPassingRequirement == ContentPassingRequirement.AiExam
         )
             formData.append('PassMark', form.passingMark.toString());
         if (form.textContent) formData.append('ContentText', form.textContent);
@@ -300,7 +366,6 @@ export class ContentDashboardComponent implements OnInit {
             },
         });
     }
-
     resetForm(): void {
         this.populateForm(); // Reset to original data
         this.selectedFile = null;

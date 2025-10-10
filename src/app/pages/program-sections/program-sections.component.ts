@@ -39,6 +39,7 @@ export type DashboardSectionUI = DahsboardSection & {
     contents: DashboardContentUI[];
 };
 type DashboardContentUI = DahsboardContent & { editingIndex: boolean };
+
 @Component({
     selector: 'app-program-sections',
     imports: [
@@ -81,6 +82,7 @@ export class ProgramSectionsComponent implements OnInit {
     get programIsNotActive(): boolean {
         return this.programStatus !== CoachingProgramStatus.Active;
     }
+
     constructor(
         private sectionService: SectionService,
         private fb: FormBuilder,
@@ -99,6 +101,7 @@ export class ProgramSectionsComponent implements OnInit {
             sectionName: ['', Validators.required],
             sectionIndex: [null, [Validators.required, Validators.min(0)]],
         });
+
         this.contentForm = this.fb.group({
             title: ['', Validators.required],
             contentType: [null, Validators.required],
@@ -107,15 +110,19 @@ export class ProgramSectionsComponent implements OnInit {
             minutes: [null, [Validators.required, Validators.min(1)]],
             passingMark: [null, [Validators.min(0), Validators.max(100)]],
             index: [null, [Validators.required, Validators.min(0)]],
-            textContent: [null, [Validators.required, Validators.min(0)]],
+            textContent: [null],
             contentPassingRequirement: ['', Validators.required],
+            isAiChatEnabled: [false],
+            isInstructorChatEnabled: [false],
         });
+
         this.addMentorForm = this.fb.group({
             email: ['', [Validators.required, Validators.email]],
         });
 
         config.closeOthers = true;
     }
+
     logFormStatus(): void {
         console.log('Form Valid:', this.contentForm.valid);
 
@@ -141,6 +148,7 @@ export class ProgramSectionsComponent implements OnInit {
             this.logFormStatus();
         });
     }
+
     getMentors() {
         this.contentService.getCourseMentors(this.programId).subscribe({
             next: (response: string[] | undefined) => {
@@ -155,7 +163,7 @@ export class ProgramSectionsComponent implements OnInit {
     }
 
     openMentorModal() {
-        this.addMentorForm.reset(); // clear old values
+        this.addMentorForm.reset();
         this.modalService.open(this.addMentorModalRef, { centered: true });
         setTimeout(() => {
             const input = document.querySelector(
@@ -174,7 +182,7 @@ export class ProgramSectionsComponent implements OnInit {
                     next: (response) => {
                         this.toastr.success('تمت إضافة المدرب بنجاح');
                         modal.close();
-                        this.getMentors(); // reload mentor list
+                        this.getMentors();
                     },
                     error: (err) => {
                         this.toastr.error('فشل في إضافة المدرب');
@@ -184,15 +192,16 @@ export class ProgramSectionsComponent implements OnInit {
             }
         }
     }
+
     getSections() {
         this.sectionService.getSectionsForDashboard(this.programId).subscribe({
             next: (response: DahsboardSection[] | undefined) => {
                 this.sections = (response ?? []).map((section) => ({
                     ...section,
-                    editingIndex: false, // UI field
+                    editingIndex: false,
                     contents: section.contents.map((content) => ({
                         ...content,
-                        editingIndex: false, // UI field
+                        editingIndex: false,
                     })),
                 }));
             },
@@ -205,8 +214,9 @@ export class ProgramSectionsComponent implements OnInit {
     createContent(sectionId: number) {
         console.log(sectionId);
     }
+
     openSectionModal() {
-        this.sectionForm.reset(); // reset before opening
+        this.sectionForm.reset();
         this.modalService.open(this.sectionModalRef, { centered: true });
     }
 
@@ -215,6 +225,7 @@ export class ProgramSectionsComponent implements OnInit {
             (section) => section.index == index && section.id !== sectionId
         );
     }
+
     openEditSectionModal(section: DashboardSectionUI) {
         this.editingSectionId = section.id;
         this.editSectionForm.patchValue({
@@ -224,11 +235,11 @@ export class ProgramSectionsComponent implements OnInit {
 
         this.modalService.open(this.editSectionModalRef, { centered: true });
     }
+
     submitEditSection(modal: any) {
         if (this.editSectionForm.valid && this.editingSectionId !== null) {
             const formValue = this.editSectionForm.value;
 
-            // validate no duplicate index
             if (
                 !this.isSectionIndexValid(
                     formValue.sectionIndex,
@@ -238,6 +249,7 @@ export class ProgramSectionsComponent implements OnInit {
                 this.toastr.error('لا يجب تكرار ترتيب القسم');
                 return;
             }
+
             this.sectionService
                 .updateSection(
                     this.editingSectionId,
@@ -253,25 +265,24 @@ export class ProgramSectionsComponent implements OnInit {
                 });
         }
     }
+
     isContentIndexValid(index: number, sectionId: number): boolean {
-        // return !this.sections?.find(
-        //     (section) => section.contents.find((content) => content.index == index)
-        // );
         return !this.sections?.find(
             (section) =>
                 section.contents?.find((content) => content.index === index) &&
                 section.id === sectionId
         );
     }
+
     onSubmit() {
         if (this.sectionForm.valid) {
-            // check if duplicate section index
             if (
                 !this.isSectionIndexValid(this.sectionForm.value.sectionIndex)
             ) {
                 this.toastr.error('لا يجب تكرار ترتيب الاقسام', 'Error');
                 return;
             }
+
             const newSection = {
                 name: this.sectionForm.value.sectionName,
                 index: this.sectionForm.value.sectionIndex,
@@ -281,7 +292,7 @@ export class ProgramSectionsComponent implements OnInit {
             this.sectionService.createSection(newSection).subscribe({
                 next: () => {
                     this.modalService.dismissAll();
-                    this.getSections(); // refresh the section list
+                    this.getSections();
                 },
                 error: (err) => console.error(err),
             });
@@ -302,6 +313,11 @@ export class ProgramSectionsComponent implements OnInit {
                 [],
                 500
             );
+            
+            this.contentForm.updateValueAndValidity();
+        } else {
+            this.selectedFile = null;
+            this.fileError = null;
         }
     }
 
@@ -309,38 +325,96 @@ export class ProgramSectionsComponent implements OnInit {
         const selectedValue = +(event.target as HTMLSelectElement).value;
 
         const contentUrlControl = this.contentForm.get('contentUrl');
-        if (selectedValue === ContentType.File) {
-            // ✅ File is required, URL is not
-            contentUrlControl?.clearValidators();
-            contentUrlControl?.setValue(null);
-            contentUrlControl?.updateValueAndValidity();
-        } else {
-            // ✅ URL is required, File is not
-            contentUrlControl?.setValidators([Validators.required]);
-            contentUrlControl?.updateValueAndValidity();
+        const textContentControl = this.contentForm.get('textContent');
+        
+        // Clear ALL content-related fields first
+        contentUrlControl?.clearValidators();
+        contentUrlControl?.setValue(null);
+        contentUrlControl?.setErrors(null);
+        
+        textContentControl?.clearValidators();
+        textContentControl?.setValue(null);
+        textContentControl?.setErrors(null);
+        
+        this.selectedFile = null;
+        this.fileError = null;
 
-            this.selectedFile = null;
+        // Then set validators based on selected type
+        if (selectedValue === ContentType.File || selectedValue === ContentType.Image) {
+            // File/Image is required, URL and text are not
+            // File validation will be done in onFileSelected and submitContent
+        } else if (
+            selectedValue === ContentType.Vimeo || 
+            selectedValue === ContentType.YouTube || 
+            selectedValue === ContentType.Website || 
+            selectedValue === ContentType.Loom
+        ) {
+            // URL is required
+            contentUrlControl?.setValidators([Validators.required]);
+        } else if (selectedValue === ContentType.Text) {
+            // Text content is required
+            textContentControl?.setValidators([Validators.required]);
         }
+        
+        // Update validity for all controls
+        contentUrlControl?.updateValueAndValidity();
+        textContentControl?.updateValueAndValidity();
     }
 
     onPassingRequirementChange(event: Event) {
         const selectedValue = +(event.target as HTMLSelectElement).value;
         const passingMarkControl = this.contentForm.get('passingMark');
-         
-        // If the selected value is 'Exam' or 'AiExam', make passing mark required
-        if (selectedValue === ContentPassingRequirement.Exam || selectedValue === ContentPassingRequirement.AiExam) {
-            passingMarkControl?.setValidators([Validators.required]);
-        } else {
-            passingMarkControl?.clearValidators();
-            passingMarkControl?.setValue(null); // Optional: clear value when not required
+        const isInstructorChatEnabledControl = this.contentForm.get('isInstructorChatEnabled');
+
+        // Clear validators and errors first
+        passingMarkControl?.clearValidators();
+        passingMarkControl?.setValue(null);
+        passingMarkControl?.setErrors(null);
+
+        // Then set validators based on selected requirement
+        if (
+            selectedValue === ContentPassingRequirement.Exam ||
+            selectedValue === ContentPassingRequirement.AiExam
+        ) {
+            passingMarkControl?.setValidators([
+                Validators.required,
+                Validators.min(0),
+                Validators.max(100)
+            ]);
+        }
+
+        // If Comment is selected, enable instructor chat automatically
+        if (selectedValue === ContentPassingRequirement.Comment) {
+            isInstructorChatEnabledControl?.setValue(true);
         }
 
         passingMarkControl?.updateValueAndValidity();
     }
 
+    // Add this new method to handle instructor chat toggle
+    onInstructorChatToggle(event: Event) {
+        const checkbox = event.target as HTMLInputElement;
+        const currentPassingRequirement = this.contentForm.get('contentPassingRequirement')?.value;
+        
+        // If trying to turn OFF instructor chat while Comment is selected
+        debugger
+        if (!checkbox.checked && currentPassingRequirement == ContentPassingRequirement.Comment) {
+            // Prevent the change
+            event.preventDefault();
+            checkbox.checked = true;
+            this.contentForm.get('isInstructorChatEnabled')?.setValue(true);
+            
+            // Show warning message
+            this.toastr.warning(
+                'لا يمكن إيقاف الدردشة مع المدرب عندما يكون متطلب الاجتياز هو التعليق. يجب السماح للمتدرب بالتعليق.',
+                'تنبيه'
+            );
+        }
+    }
+
     submitContent(modal: any) {
         let sectionId = this.selectedSectionId;
-        // check for content index duplication
+
         if (
             !this.isContentIndexValid(this.contentForm.value.index, sectionId)
         ) {
@@ -348,24 +422,101 @@ export class ProgramSectionsComponent implements OnInit {
             return;
         }
 
-        const formData = new FormData();
         const form = this.contentForm.value;
-        formData.append('SectionId', sectionId.toString());
-        formData.append('Title', form.title);
-        formData.append('ContentType', form.contentType.toString());
-        formData.append('RequiredEffort', form.requiredEffort);
-        formData.append('Minutes', form.minutes.toString());
-        formData.append('Index', form.index.toString());
-        formData.append(
-            'ContentPassingRequirement',
-            form.contentPassingRequirement.toString()
-        );
+        
+        // Validate based on content type
+        if (form.contentType === ContentType.File || form.contentType === ContentType.Image) {
+            if (!this.selectedFile) {
+                this.toastr.error('يجب اختيار ملف', 'Error');
+                return;
+            }
+            if (this.fileError) {
+                this.toastr.error(this.fileError, 'Error');
+                return;
+            }
+        } else if (
+            form.contentType === ContentType.Vimeo || 
+            form.contentType === ContentType.YouTube || 
+            form.contentType === ContentType.Website || 
+            form.contentType === ContentType.Loom
+        ) {
+            if (!form.contentUrl) {
+                this.toastr.error('يجب إدخال رابط المحتوى', 'Error');
+                return;
+            }
+        } else if (form.contentType === ContentType.Text) {
+            if (!form.textContent) {
+                this.toastr.error('يجب إدخال المحتوى النصي', 'Error');
+                return;
+            }
+        }
+        
+        // Validate passing mark if required
+        if (
+            (form.contentPassingRequirement === ContentPassingRequirement.Exam ||
+            form.contentPassingRequirement === ContentPassingRequirement.AiExam) &&
+            (form.passingMark === null || form.passingMark === undefined)
+        ) {
+            this.toastr.error('يجب إدخال درجة النجاح', 'Error');
+            return;
+        }
 
-        if (form.passingMark) formData.append('PassingMark', form.passingMark);
-        if (form.textContent) formData.append('TextContent', form.textContent);
-        if (form.contentUrl) formData.append('ContentUrl', form.contentUrl);
-        if (this.selectedFile)
+        // Check if form is valid
+        if (!this.contentForm.valid) {
+            this.toastr.error('يرجى ملء جميع الحقول المطلوبة بشكل صحيح', 'Error');
+            return;
+        }
+
+        const formData = new FormData();
+        
+        // Append required fields with null checks
+        if (sectionId !== null && sectionId !== undefined) {
+            formData.append('SectionId', sectionId.toString());
+        }
+        
+        if (form.title) {
+            formData.append('Title', form.title);
+        }
+        
+        if (form.contentType !== null && form.contentType !== undefined) {
+            formData.append('ContentType', form.contentType.toString());
+        }
+        
+        if (form.requiredEffort) {
+            formData.append('RequiredEffort', form.requiredEffort);
+        }
+        
+        if (form.minutes !== null && form.minutes !== undefined) {
+            formData.append('Minutes', form.minutes.toString());
+        }
+        
+        if (form.index !== null && form.index !== undefined) {
+            formData.append('Index', form.index.toString());
+        }
+        
+        if (form.contentPassingRequirement !== null && form.contentPassingRequirement !== undefined) {
+            formData.append('ContentPassingRequirement', form.contentPassingRequirement.toString());
+        }
+
+        formData.append('IsAiChatEnabled', (form.isAiChatEnabled || false).toString());
+        formData.append('IsInstructorChatEnabled', (form.isInstructorChatEnabled || false).toString());
+
+        // Append optional fields
+        if (form.passingMark !== null && form.passingMark !== undefined) {
+            formData.append('PassingMark', form.passingMark.toString());
+        }
+        
+        if (form.textContent) {
+            formData.append('TextContent', form.textContent);
+        }
+        
+        if (form.contentUrl) {
+            formData.append('ContentUrl', form.contentUrl);
+        }
+        
+        if (this.selectedFile) {
             formData.append('ContentFile', this.selectedFile);
+        }
 
         this.contentService.createContent(formData).subscribe({
             next: () => {
@@ -379,6 +530,4 @@ export class ProgramSectionsComponent implements OnInit {
             error: (err) => console.error(err),
         });
     }
-
-
 }

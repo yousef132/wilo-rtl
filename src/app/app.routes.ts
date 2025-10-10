@@ -9,7 +9,7 @@ import { UserProgramsComponent } from './pages/user-programs/user-programs.compo
 import { AdminProgramsComponent } from './pages/admin-programs/admin-programs.component';
 import { CreateProgramComponent } from './pages/create-program/create-program.component';
 import { ProgramDashboardComponent } from './pages/program-dashboard/program-dashboard.component';
-import { ContentDetailsComponent } from './pages/content-details/content-details.component';
+import { InstructorContentDetailsComponent } from './pages/content-details/content-details.component';
 import { CreateQuestionComponent } from './pages/create-question/create-question.component';
 import { ContentDashboardComponent } from './pages/content-dashboard/content-dashboard.component';
 import { ExamComponent } from './pages/exam/exam.component';
@@ -29,6 +29,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { EditProgramComponent } from './pages/edit-program/edit-program.component';
 import { ProfileEditComponent } from './pages/edit-profile/edit-profile.component';
 import { AiExamComponent } from './pages/ai-exam/ai-exam.component';
+import { instructorGuard } from './Gaurds/instructor-guard.guard';
 // import { LectureViewerComponent } from './pages/lecture-viewer/lecture-viewer.component';
 
 export const routes: Routes = [
@@ -81,7 +82,9 @@ export const routes: Routes = [
     { path: 'program-details/:id', component: CourseDetailsPageComponent },
     {
         path: 'content-details/:contentId/:userId/:programId',
-        component: ContentDetailsComponent,
+        component: InstructorContentDetailsComponent,
+        // add gaurd
+        canActivate: [instructorGuard],
     },
 
     { path: 'register', component: RegisterComponent },

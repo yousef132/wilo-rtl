@@ -15,7 +15,6 @@ import {
     ContentAIChatMessage,
     ContentDetails,
     CourseStructureResponse,
-    IsLastContentResponse,
     LoadingState,
     Message,
     NextContentResponse,
@@ -72,7 +71,6 @@ export class LectureViewerComponent implements OnInit {
     // Course structure and navigation
     courseStructure: CourseStructureResponse | null = null;
     allContents: CourseLecture[] = [];
-    isLastContent!: IsLastContentResponse;
 
     // Chat data
     messages: Message[] | null = null;
@@ -370,7 +368,6 @@ export class LectureViewerComponent implements OnInit {
                 this.expandSectionForContent(this.contentId);
             }
 
-            // this.checkIsLastContent();
         } catch (err) {
             console.error('Critical error loading data:', err);
             this.error = 'حدث خطأ في تحميل المحتوى. يرجى إعادة المحاولة.';
@@ -537,16 +534,6 @@ export class LectureViewerComponent implements OnInit {
         this.navigateToContent(lecture.id);
     }
 
-    // private checkIsLastContent() {
-    //     this.contentService
-    //         .isLastContent(this.programId, this.contentId)
-    //         .subscribe({
-    //             next: (response: IsLastContentResponse | undefined) => {
-    //                 if (response) this.isLastContent = response;
-    //             },
-    //             error: () => {},
-    //         });
-    // }
 
     private processContentData(content: ContentDetails | undefined): void {
         this.currentLecture = content || null;
@@ -615,8 +602,7 @@ export class LectureViewerComponent implements OnInit {
                 await this.disconnectSignalR();
                 await this.connectToSignalR();
 
-                // Check isLastContent in background
-                // this.checkIsLastContent();
+               
             } else {
                 this.error = 'فشل في تحميل المحتوى المطلوب.';
             }

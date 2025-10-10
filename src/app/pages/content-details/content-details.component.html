@@ -1,4 +1,5 @@
-<app-inner-page-banner [pageTitle]="'تفاصيل المحتوى'" />
+<app-inner-page-banner [pageTitle]="'متابعة تقدم الطالب'" />
+
 <!-- Error Message -->
 <div *ngIf="error && !isInitialLoading" class="alert alert-danger m-4">
   <i class="bx bx-error-circle"></i>
@@ -8,252 +9,259 @@
   </button>
 </div>
 
-<!-- Main Content Loading Skeleton -->
-<div *ngIf="isInitialLoading" class="content-skeleton">
+<!-- Loading Skeleton -->
+<div *ngIf="isInitialLoading" class="instructor-content-skeleton">
   <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <div class="skeleton-header">
-          <div class="skeleton-title"></div>
-          <div class="skeleton-badges">
-            <div class="skeleton-badge"></div>
-            <div class="skeleton-badge"></div>
-          </div>
-        </div>
+    <div class="skeleton-grid">
+      <div class="skeleton-card">
+        <div class="skeleton-header"></div>
         <div class="skeleton-content"></div>
-        <div class="skeleton-media"></div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="content-details-container" *ngIf="content && !isInitialLoading">
-  <!-- Main Tabs -->
-  <div class="main-tabs">
-    <button class="main-tab" [class.active]="activeMainTab === 'content'" (click)="switchMainTab('content')">
-      <i class="bx bx-book-content"></i>
-      محتوى المحاضرة
-    </button>
-    <button class="main-tab" [class.active]="activeMainTab === 'chat'" (click)="switchMainTab('chat')">
-      <i class="bx bx-message-dots"></i>
-      المحادثة
-    </button>
-  </div>
+<!-- Main Content -->
+<div class="instructor-content-container" *ngIf="content && !isInitialLoading">
+  <div class="container">
+    <div class="content-grid">
 
-  <!-- Tab Content -->
-  <div class="tab-content-wrapper">
-    <!-- Content Tab -->
-    <div class="tab-pane" [class.active]="activeMainTab === 'content'">
-      <div class="content-section">
-        <!-- Content Header -->
-        <div class="content-header">
-          <div class="content-title-wrapper">
-            <h1 class="content-title">{{ content.title }}</h1>
-            <div class="content-badges">
-              <span class="badge content-type-badge">{{ ContentType[content.contentType] }}</span>
-              <span class="badge duration-badge">
-                <i class="bx bx-time"></i>
-                {{ content.minutes }} دقيقة
-              </span>
+      <!-- Left Column: Content Details & Student Progress -->
+      <div class="left-column">
+
+        <!-- Student Info Card -->
+        <div class="info-card student-info-card">
+          <div class="card-header">
+            <div class="header-icon">
+              <i class="bx bx-user-circle"></i>
+            </div>
+            <h3>معلومات الطالب</h3>
+          </div>
+          <div class="card-body">
+            <div class="student-details">
+              <div class="detail-row">
+                <span class="detail-label">الاسم:</span>
+                <span class="detail-value">{{ content.userName || 'غير متاح' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">حالة الاجتياز:</span>
+                <span class="status-badge" [class.passed]="passedStudent || content.isPassed"
+                  [class.pending]="!(passedStudent || content.isPassed)">
+                  <i class="bx" [ngClass]="(passedStudent || content.isPassed) ? 'bx-check-circle' : 'bx-time'"></i>
+                  {{ (passedStudent || content.isPassed) ? 'تم الاجتياز' : 'قيد الانتظار' }}
+                </span>
+              </div>
+              <div class="detail-row" *ngIf="content.examResult !== null">
+                <span class="detail-label">نتيجة الامتحان:</span>
+                <span class="detail-value score">
+                  <strong>{{ content.examResult }}%</strong>
+                  <span class="score-details">({{ content.examResult }} من {{ content.examTotal }})</span>
+                </span>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div class="content-meta">
-            <div class="meta-item">
-              <i class="bx bx-calendar"></i>
-              <span>تاريخ الإضافة: {{ content.recordDate | date:'shortDate' }}</span>
+        <!-- Content Details Card -->
+        <div class="info-card content-info-card">
+          <div class="card-header">
+            <div class="header-icon">
+              <i class="bx bx-book-content"></i>
             </div>
-            <div class="meta-item">
-              <i class="bx bx-trending-up"></i>
-              <span>الجهد المطلوب: {{ content.requiredEffort }}</span>
+            <h3>تفاصيل المحتوى</h3>
+          </div>
+          <div class="card-body">
+            <h2 class="content-title">{{ content.title }}</h2>
+
+            <div class="content-meta-grid">
+              <div class="meta-item">
+                <i class="bx bx-category"></i>
+                <span>{{ ContentType[content.contentType] }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="bx bx-time"></i>
+                <span>{{ content.minutes }} دقيقة</span>
+              </div>
+              <div class="meta-item">
+                <i class="bx bx-calendar"></i>
+                <span>{{ content.recordDate | date:'shortDate' }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="bx bx-trending-up"></i>
+                <span>جهد: {{ content.requiredEffort }}</span>
+              </div>
             </div>
 
-            <!-- Pass Student Button with Loading -->
-            <div *ngIf="
-        content.isOwner &&
-        content.contentPassingRequirement == ContentPassingRequirement.Manually &&
-        (!content.isPassed || !passedStudent) 
-      " class="meta-item">
-              <button class="btn btn-sm btn-success d-flex align-items-center gap-1" (click)="passStudent()"
-                [disabled]="loading.navigation" title="اجتياز الطالب">
+            <div class="content-description" *ngIf="content.contentText">
+              <p>{{ content.contentText }}</p>
+            </div>
+
+            <!-- Content Media Preview -->
+            <div class="content-preview">
+              <ng-container [ngSwitch]="content.contentType">
+                <!-- Video Content -->
+                <div *ngIf="content.contentType == ContentType.Loom || 
+                           content.contentType == ContentType.Vimeo || 
+                           content.contentType == ContentType.YouTube" class="video-preview">
+                  <div *ngIf="safeContentHtml" [innerHTML]="safeContentHtml"></div>
+                </div>
+
+                <!-- File Content -->
+                <div *ngSwitchCase="ContentType.File" class="file-preview">
+                  <a [href]="content.contentUrl" target="_blank" class="preview-link">
+                    <i class="bx bx-file"></i>
+                    <span>عرض الملف</span>
+                    <i class="bx bx-link-external"></i>
+                  </a>
+                </div>
+
+                <!-- Website Link -->
+                <div *ngSwitchCase="ContentType.Website" class="website-preview">
+                  <a [href]="content.contentUrl" target="_blank" class="preview-link">
+                    <i class="bx bx-globe"></i>
+                    <span>فتح الرابط</span>
+                    <i class="bx bx-link-external"></i>
+                  </a>
+                </div>
+
+                <!-- Image Content -->
+                <div *ngSwitchCase="ContentType.Image" class="image-preview">
+                  <img [src]="content.contentUrl" alt="صورة المحتوى" />
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requirements Card -->
+        <div class="info-card requirements-card">
+          <div class="card-header">
+            <div class="header-icon">
+              <i class="bx bx-task"></i>
+            </div>
+            <h3>متطلبات الاجتياز</h3>
+          </div>
+          <div class="card-body">
+            <div class="requirement-info">
+              <i class="bx bx-info-circle"></i>
+              <p>{{ alertMessage }}</p>
+            </div>
+
+            <div class="pass-mark" *ngIf="content.passMark && 
+                 (content.contentPassingRequirement === ContentPassingRequirement.Exam || 
+                  content.contentPassingRequirement === ContentPassingRequirement.AiExam)">
+              <i class="bx bx-target-lock"></i>
+              <span>النسبة المطلوبة: {{ content.passMark }}%</span>
+            </div>
+
+            <!-- Manual Pass Button -->
+            <div class="action-section" *ngIf="content.contentPassingRequirement == ContentPassingRequirement.Manually && 
+                        (!content.isPassed && !passedStudent)">
+              <button class="btn-pass-student" (click)="passStudent()" [disabled]="loading.navigation">
                 <i class="bx" [ngClass]="loading.navigation ? 'bx-loader-alt bx-spin' : 'bx-check-circle'"></i>
                 <span>{{ loading.navigation ? 'جاري التحديث...' : 'اجتياز الطالب' }}</span>
               </button>
             </div>
-
-            <!-- Pass Status -->
-            <div *ngIf="content.isPassed || passedStudent " class="meta-item">
-              <span class="badge bg-success d-flex align-items-center gap-1">
-                <i class="bx bx-badge-check"></i>
-                <span>تم الاجتياز</span>
-              </span>
-              <span class="badge d-flex align-items-center gap-1"
-                [title]="'Score: ' + content.examResult + ' out of ' + content.examTotal" [ngClass]="'bg-success'"
-                *ngIf="content.examResult!=null">
-                <i class="bx bx-badge-check"></i>
-                <span>{{ content.examResult }}%</span>
-              </span>
-            </div>
           </div>
         </div>
 
-        <!-- Content Description -->
-        <div class="content-description" *ngIf="content.contentText">
-          <p>{{ content.contentText }}</p>
-        </div>
 
-        <!-- Content Media/Files -->
-        <div class="content-media">
-          <ng-container [ngSwitch]="content.contentType">
-            <!-- Video Content -->
-            <div *ngIf="content.contentType == ContentType.Loom || 
-                       content.contentType == ContentType.Vimeo || 
-                       content.contentType == ContentType.YouTube" class="video-container">
-              <div *ngIf="safeContentHtml" [innerHTML]="safeContentHtml" class="video-wrapper"></div>
+        <!-- Navigation Card -->
+        <ng-container *ngIf="nextPreviewContent">
+          <div class="info-card navigation-card">
+            <div class="card-header">
+              <div class="header-icon">
+                <i class="bx bx-navigation"></i>
+              </div>
+              <h3>التنقل بين المحتويات</h3>
             </div>
+            <div class="card-body">
+              <div class="navigation-buttons">
 
-            <!-- File Content -->
-            <div *ngSwitchCase="ContentType.File" class="file-container">
-              <a [href]="content.contentUrl" target="_blank" class="file-link">
-                <i class="bx bx-file"></i>
-                <span>عرض الملف</span>
-                <i class="bx bx-link-external"></i>
-              </a>
-            </div>
+                <!-- Previous Content -->
+                <ng-container *ngIf="nextPreviewContent[0] as prev">
+                  <button class="nav-btn prev-btn" *ngIf="prev" [disabled]="!prev.isOpened"
+                    [routerLink]="prev.isOpened ? ['/content-details', prev.id, studentId, programId] : null">
+                    <i class="bx bx-chevron-right"></i>
+                    <div class="nav-btn-content">
+                      <span class="nav-label">السابق</span>
+                      <span class="nav-title">{{ prev.title }}</span>
+                    </div>
+                  </button>
+                </ng-container>
 
-            <!-- Website Link -->
-            <div *ngSwitchCase="ContentType.Website" class="website-container">
-              <a [href]="content.contentUrl" target="_blank" class="website-link">
-                <i class="bx bx-globe"></i>
-                <span>فتح الرابط</span>
-                <i class="bx bx-link-external"></i>
-              </a>
-            </div>
+                <!-- Next Content -->
+                <ng-container *ngIf="nextPreviewContent[1] as next">
 
-            <!-- Image Content -->
-            <div *ngSwitchCase="ContentType.Image" class="image-container">
-              <img [src]="content.contentUrl" alt="صورة المحتوى" class="content-image" />
-            </div>
-          </ng-container>
-        </div>
-
-        <!-- Requirements Alert -->
-        <div *ngIf="!content.isPassed && !content.isOwner" class="requirements-alert">
-          <div class="alert-content">
-            <i class="bx bx-info-circle"></i>
-            <div class="alert-text">
-              <span>{{ alertMessage }}</span>
+                  <button class="nav-btn next-btn" *ngIf="next" [disabled]="!next.isOpened"
+                    [routerLink]="next.isOpened ? ['/content-details', next.id, studentId, programId] : null">
+                    <div class="nav-btn-content">
+                      <span class="nav-label">التالي</span>
+                      <span class="nav-title">{{ next.title }}</span>
+                    </div>
+                    <i class="bx bx-chevron-left"></i>
+                  </button>
+                </ng-container>
 
 
+                <div class="info-card navigation-card empty-nav" *ngIf="!nextPreviewContent[0] && !nextPreviewContent[1]">
+                  <div class="card-body text-center">
+                    <p>لا يوجد محتوى للتنقل حالياً</p>
+                  </div>
+                </div>
 
-              <!-- Normal Exam Link -->
-              <a [routerLink]="['/exam', content.id, programId]"
-                *ngIf="content.contentPassingRequirement == ContentPassingRequirement.Exam " class="exam-link">
-                الذهاب للامتحان
-              </a>
-
-              <!-- AI Exam Link -->
-              <a [routerLink]="['/ai-exam', content.id, programId]"
-                *ngIf="content.contentPassingRequirement == ContentPassingRequirement.AiExam"
-                class="exam-link ai-exam-link">
-                <i class="bx bx-brain"></i>
-                الذهاب للامتحان الذكي
-              </a>
+              </div>
             </div>
           </div>
+        </ng-container>
 
-          <div *ngIf="content.passMark && content.contentPassingRequirement === ContentPassingRequirement.Exam || 
-                      content.contentPassingRequirement === ContentPassingRequirement.AiExam"
-            class="pass-mark">
-            <i class="bx bx-target-lock"></i>
-            <span>النسبه المطلوبة للنجاح: {{ content.passMark }} %</span>
-          </div>
-        </div>
 
-        <!-- Navigation Buttons -->
-        <div class="navigation-buttons mt-4 d-flex justify-content-between"
-          *ngIf="nextPreviewContent && content.isOwner == false">
-          <!-- Next Content -->
-          <ng-container *ngIf="nextPreviewContent[1] as next">
-            <button class="btn btn-outline-primary " *ngIf="next" [disabled]="!next.isOpened"
-              [routerLink]="next.isOpened ? ['/content-details', next.id,userId,programId]: null"
-              [attr.aria-disabled]="!next.isOpened">
-              التالي: {{ next.title }}
-              <i class="bx bx-right-arrow-alt"></i>
-            </button>
-          </ng-container>
 
-          <!-- Previous Content -->
-          <ng-container *ngIf="nextPreviewContent[0] as prev">
-            <button class="btn btn-outline-primary ms-auto" *ngIf="prev" [disabled]="!prev.isOpened"
-              [routerLink]="prev.isOpened ? ['/content-details', prev.id,userId,programId] : null"
-              [attr.aria-disabled]="!prev.isOpened">
-              <i class="bx bx-left-arrow-alt"></i>
-              السابق: {{ prev.title }}
-            </button>
-          </ng-container>
-        </div>
       </div>
-    </div>
 
-    <!-- Chat Tab -->
-    <div class="tab-pane" [class.active]="activeMainTab === 'chat'">
-      <div class="chat-section">
-        <!-- Chat Header -->
-        <div class="chat-header">
-          <div class="chat-title">
-            <i class="bx bx-message-dots"></i>
-            <h3>المحادثة</h3>
+      <!-- Right Column: Chat with Student -->
+      <div class="right-column">
+        <div class="chat-card">
+          <div class="chat-header">
+            <div class="header-content">
+              <div class="header-icon">
+                <i class="bx bx-message-dots"></i>
+              </div>
+              <div class="header-text">
+                <h3>المحادثة مع الطالب</h3>
+                <p style="color: white;">تواصل مباشر مع الطالب حول المحتوى</p>
+              </div>
+            </div>
+            <span *ngIf="loading.chat" class="loading-indicator">
+              <i class="bx bx-loader-alt bx-spin"></i>
+            </span>
           </div>
 
-          <!-- Chat Sub-tabs -->
-          <div class="chat-tabs">
-            <button class="chat-tab" [class.active]="activeChatTab === 'instructor'"
-              (click)="switchChatTab('instructor')">
-              مدرب
-              <span *ngIf="loading.chat" class="spinner-border spinner-border-sm ms-1"></span>
-            </button>
-            <button class="chat-tab" [class.active]="activeChatTab === 'ai'" (click)="switchChatTab('ai')">
-              AI
-              <span *ngIf="loading.aiChat" class="spinner-border spinner-border-sm ms-1"></span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Chat Body -->
-        <div class="chat-body">
-          <!-- Instructor Chat -->
-          <div *ngIf="activeChatTab === 'instructor'" class="chat-content">
+          <div class="chat-body">
             <!-- Chat Loading State -->
             <div *ngIf="loading.chat" class="chat-loading">
-              <div class="d-flex justify-content-center align-items-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">جاري التحميل...</span>
-                </div>
-                <span class="ms-2">جاري تحميل الرسائل...</span>
-              </div>
+              <div class="spinner-border text-primary"></div>
+              <span>جاري تحميل الرسائل...</span>
             </div>
 
             <!-- Messages Container -->
             <div class="messages-container" #messagesContainer
-              *ngIf="!loading.chat && messages?.length; else noInstructorMessages">
+              *ngIf="!loading.chat && messages?.length; else noMessages">
               <div *ngFor="let msg of messages" class="message-wrapper">
                 <div class="message" [ngClass]="{
                        'message-sent': msg.userId === currentUserId,
                        'message-received': msg.userId !== currentUserId
                      }">
+                  <div class="message-avatar" *ngIf="msg.userId !== currentUserId">
+                    {{ getUserInitials(msg.userName) }}
+                  </div>
                   <div class="message-content">
                     <div class="message-header" *ngIf="msg.userId !== currentUserId">
-                      <div class="user-avatar">
-                        {{ getUserInitials(msg.userName) }}
-                      </div>
-                      <span class="user-name">{{ msg.userName }}</span>
+                      <span class="message-author">{{ msg.userName }}</span>
                     </div>
-
                     <div class="message-text">
                       {{ msg.textMessage }}
                     </div>
-
                     <div class="message-time">
                       {{ msg.messageDate | date:'shortTime' }}
                       <span class="message-date">{{ msg.messageDate | date:'shortDate' }}</span>
@@ -262,18 +270,15 @@
                 </div>
               </div>
 
-              <!-- Sending Message Indicator -->
+              <!-- Sending Indicator -->
               <div *ngIf="loading.sendingMessage" class="message-wrapper">
                 <div class="message message-sent sending">
                   <div class="message-content">
                     <div class="message-text">
                       <div class="typing-indicator">
-                        <div class="typing-dots">
-                          <span class="dot"></span>
-                          <span class="dot"></span>
-                          <span class="dot"></span>
-                        </div>
-                        <span class="typing-text">جاري الإرسال...</span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
                       </div>
                     </div>
                   </div>
@@ -281,130 +286,35 @@
               </div>
             </div>
 
-            <ng-template #noInstructorMessages>
+            <ng-template #noMessages>
               <div class="no-messages" *ngIf="!loading.chat">
                 <i class="bx bx-message-x"></i>
-                <h4>لا توجد رسائل مع المدرب حتى الآن</h4>
-                <p>ابدأ المحادثة مع المدرب بإرسال أول رسالة</p>
+                <h4>لا توجد رسائل بعد</h4>
+                <p>ابدأ المحادثة مع الطالب بإرسال أول رسالة</p>
               </div>
             </ng-template>
           </div>
 
-          <!-- AI Chat -->
-          <div *ngIf="activeChatTab === 'ai'" class="chat-content">
-            <!-- AI Chat Loading State -->
-            <div *ngIf="loading.aiChat" class="chat-loading">
-              <div class="d-flex justify-content-center align-items-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">جاري التحميل...</span>
-                </div>
-                <span class="ms-2">جاري تحميل المحادثة مع المساعد الذكي...</span>
-              </div>
-            </div>
-
-            <!-- AI Messages Container -->
-            <div class="messages-container" #aiMessagesContainer
-              *ngIf="!loading.aiChat && aiMessages?.length; else noAiMessages">
-              <div *ngFor="let msg of aiMessages" class="message-wrapper">
-                <div class="message" [ngClass]="{
-                       'message-sent': msg.role === AIChatRole.User,
-                       'message-received': msg.role === AIChatRole.Assistant,
-                       'message-ai': msg.role === AIChatRole.Assistant
-                     }">
-                  <div class="message-content">
-                    <div class="message-header" *ngIf="msg.role === AIChatRole.Assistant">
-                      <div class="user-avatar ai-avatar">
-                        <i class="bx bx-brain"></i>
-                      </div>
-                      <span class="user-name">المساعد الذكي</span>
-                    </div>
-
-                    <div class="message-text">
-                      {{ msg.messageText }}
-                    </div>
-
-                    <div class="message-time">
-                      {{ msg.sentAt | date:'shortTime' }}
-                      <span class="message-date">{{ msg.sentAt | date:'shortDate' }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- AI Thinking Animation -->
-              <div *ngIf="aiIsThinking" class="message-wrapper">
-                <div class="message message-received message-ai">
-                  <div class="message-content">
-                    <div class="message-header">
-                      <div class="user-avatar ai-avatar">
-                        <i class="bx bx-brain"></i>
-                      </div>
-                      <span class="user-name">المساعد الذكي</span>
-                    </div>
-
-                    <div class="message-text">
-                      <div class="typing-indicator">
-                        <div class="typing-dots">
-                          <span class="dot"></span>
-                          <span class="dot"></span>
-                          <span class="dot"></span>
-                        </div>
-                        <span class="typing-text">يكتب...</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <ng-template #noAiMessages>
-              <div class="no-messages" *ngIf="!loading.aiChat">
-                <i class="bx bx-brain"></i>
-                <h4>لا توجد رسائل مع المساعد الذكي حتى الآن</h4>
-                <p>اسأل المساعد الذكي أي سؤال متعلق بالمحتوى</p>
-              </div>
-            </ng-template>
-          </div>
-        </div>
-
-        <!-- Chat Footer -->
-        <div class="chat-footer">
-          <div class="message-input-container">
-            <!-- Instructor Chat Input -->
-            <div class="input-group" *ngIf="activeChatTab === 'instructor'">
-              <input [(ngModel)]="newMessage" type="text" class="message-input" placeholder="اكتب رسالتك للمدرب هنا..."
+          <div class="chat-footer">
+            <div class="message-input-wrapper">
+              <input [(ngModel)]="newMessage" type="text" class="message-input" placeholder="اكتب رسالتك للطالب..."
                 (keyup.enter)="sendMessage()" [disabled]="loading.sendingMessage" maxlength="500" />
               <button class="send-button" (click)="sendMessage()"
                 [disabled]="!newMessage.trim() || loading.sendingMessage">
                 <i class="bx" [ngClass]="loading.sendingMessage ? 'bx-loader-alt bx-spin' : 'bx-send'"></i>
               </button>
             </div>
-
-            <!-- AI Chat Input -->
-            <div class="input-group" *ngIf="activeChatTab === 'ai'">
-              <input [(ngModel)]="prompt" type="text" class="message-input" placeholder="اسأل المساعد الذكي..."
-                (keyup.enter)="sendAiMessage()" maxlength="500" [disabled]="loading.sendingAiMessage" />
-              <button class="send-button" (click)="sendAiMessage()"
-                [disabled]="!prompt.trim() || loading.sendingAiMessage">
-                <i class="bx" [ngClass]="loading.sendingAiMessage ? 'bx-loader-alt bx-spin' : 'bx-send'"></i>
-              </button>
-            </div>
-
-            <!-- Character Count -->
-            <div class="input-footer"
-              *ngIf="(activeChatTab === 'instructor' && newMessage) || (activeChatTab === 'ai' && prompt)">
-              <span class="char-count">
-                {{ activeChatTab === 'instructor' ? newMessage.length : prompt.length }}/500
-              </span>
+            <div class="input-footer" *ngIf="newMessage">
+              <span class="char-count">{{ newMessage.length }}/500</span>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
-
-<ngx-spinner bdColor="rgba(34, 22, 56, 0.8)" size="default" color="#ff5d22" type="cube-transition" [fullScreen]="true"
+<ngx-spinner bdColor="rgba(79, 70, 229, 0.1)" size="default" color="#4f46e5" type="cube-transition" [fullScreen]="true"
   [zIndex]="9999">
 </ngx-spinner>

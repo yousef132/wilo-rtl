@@ -31,5 +31,14 @@ export interface FinalEvaluationResponse {
 }
 
 export interface QuestionResponse {
-  questions: string[];
+  id:number;
+  description: string;
+  mark:number;
+  choices: AiQuestionChoice[];
+
+}
+
+export interface AiQuestionChoice{
+  id:string;
+  text:string;
 }

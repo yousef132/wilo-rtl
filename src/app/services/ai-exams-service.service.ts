@@ -6,6 +6,7 @@ import { map } from 'rxjs';
 import {
     EvaluationResponse,
     FinalEvaluationResponse,
+    QuestionResponse,
     StudentAnswer,
 } from '../models/aiExam';
 
@@ -19,7 +20,7 @@ export class AiExamsServiceService {
 
     generateQuestions(contentId: number) {
         return this.http
-            .get<Result<string[]>>(
+            .get<Result<QuestionResponse[]>>(
                 this.baseUrl +
                     API_CONSTANTS.AIEXAM.GENERATE_QUESTIONS +
                     contentId

@@ -16,7 +16,6 @@ import { AuthService } from '../../services/authr/auth.service';
 import { debug } from 'node:console';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 import {
-    IsLastContentResponse,
     PassResponse,
 } from '../../models/content/content';
 import { PdfGeneratorService } from '../../services/pdf-generator.service';
@@ -43,7 +42,6 @@ export class ExamComponent {
     contentId: number = 0;
     userId: string = '';
     programId: number = 0;
-    isLastContent!: IsLastContentResponse;
 
     // For component cleanup
     private destroy$ = new Subject<void>();
@@ -125,16 +123,12 @@ export class ExamComponent {
 
         forkJoin({
             questions: this.questionService.getContentQuestions(this.contentId),
-            isLast: this.contentService.isLastContent(
-                this.programId,
-                this.contentId
-            ),
+ 
         })
             .pipe(takeUntil(this.destroy$))
             .subscribe({
-                next: ({ questions, isLast }) => {
+                next: ({ questions }) => {
                     this.questions = questions ?? [];
-                    this.isLastContent = isLast!;
 
                     this.isLoadingQuestions = false;
 

@@ -8,7 +8,6 @@ import {
     ContentData,
     ContentDetails,
     CourseStructureResponse,
-    IsLastContentResponse,
     Message,
     NextContentResponse,
     PassResponse,
@@ -149,18 +148,7 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
-    isLastContent(programId: number, contentId: number) {
-        const params = new HttpParams()
-            .set('ProgramId', programId)
-            .set('ContentId', contentId);
-
-        return this.http
-            .get<Result<IsLastContentResponse>>(
-                `${this.baseUrl}${API_CONSTANTS.CONTENT.IS_LAST_CONTENT}`,
-                { params }
-            )
-            .pipe(map((response) => response.data));
-    }
+   
 
     addMentor(programId: number, mentorEmail: string) {
         // params
@@ -222,10 +210,11 @@ export class ContentService {
         );
     }
 
-    getNextPrevContent(contentId: number, programId: number) {
+    getNextPrevContent(contentId: number, programId: number,studentId:string) {
         const params = new HttpParams()
-            .set('id', contentId.toString())
-            .set('ProgramId', programId);
+            .set('Id', contentId.toString())
+            .set('ProgramId', programId)
+            .set("UserId",studentId);
 
         return this.http
             .get<Result<NextContentResponse[]>>(

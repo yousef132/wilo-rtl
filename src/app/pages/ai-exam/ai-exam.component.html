@@ -8,7 +8,7 @@
       </div>
     </div>
     <h1 class="ai-title">المساعد الذكي للتعلم</h1>
-    <div class="progress-indicator" *ngIf="examState !== 'loading' && examState !== 'final-results' && examState !== 'generating-certificate' && examState !== 'course-completed' && examState !== 'exam-failed'">
+    <div class="progress-indicator" *ngIf="examState === 'question'">
       <div class="progress-bar">
         <div class="progress-fill" [style.width.%]="progressPercentage"></div>
       </div>
@@ -35,169 +35,52 @@
   </div>
 
   <!-- Question Phase -->
-  <div *ngIf="examState === 'question'" class="question-phase">
+  <div *ngIf="examState === 'question' && currentQuestion" class="question-phase">
     <div class="ai-card">
       <div class="ai-message-bubble">
         <div class="ai-avatar-small"><i class='bx bx-bot'></i></div>
         <div class="message-content">
           <div class="ai-badge">مولد الأسئلة الذكي</div>
           <h3 class="question-title">السؤال {{ currentQuestionIndex + 1 }}</h3>
-          <p class="question-text">{{ currentQuestion }}</p>
+          <p class="question-text">{{ currentQuestion.description }}</p>
+          <div class="question-mark">
+            <span class="mark-badge">{{ currentQuestion.mark }} نقطة</span>
+          </div>
         </div>
       </div>
 
-      <div class="user-response-area">
-        <div class="response-header">
-          <span class="user-avatar">👤</span>
-          <span class="response-label">إجابتك</span>
+      <div class="choices-area">
+        <div class="choices-header">
+          <span class="choices-icon">📝</span>
+          <span class="choices-label">اختر الإجابة الصحيحة</span>
         </div>
-        <textarea
-          [(ngModel)]="currentAnswer"
-          placeholder="اكتب إجابتك هنا... الذكاء الاصطناعي في انتظار ردك."
-          class="ai-answer-input"
-          rows="4"
-          [disabled]="isLoading">
-        </textarea>
+        <div class="choices-list">
+          <div 
+            *ngFor="let choice of currentQuestion.choices"
+            class="choice-item"
+            [class.selected]="selectedChoiceId === choice.id"
+            (click)="selectChoice(choice.id)">
+            <div class="choice-radio">
+              <div class="radio-dot" *ngIf="selectedChoiceId === choice.id"></div>
+            </div>
+            <div class="choice-text">{{ choice.text }}</div>
+          </div>
+        </div>
         <button
           (click)="submitAnswer()"
-          [disabled]="!currentAnswer.trim() || isLoading"
+          [disabled]="!selectedChoiceId || isLoading"
           class="ai-submit-btn">
-          <span *ngIf="!isLoading">🚀 إرسال للذكاء الاصطناعي</span>
+          <span *ngIf="!isLoading && hasMoreQuestions()">⚡ التالي</span>
+          <span *ngIf="!isLoading && !hasMoreQuestions()">🏁 إنهاء الامتحان</span>
           <span *ngIf="isLoading" class="loading-text">
             <span class="thinking-dots-inline">
               <span class="dot-inline"></span>
               <span class="dot-inline"></span>
               <span class="dot-inline"></span>
             </span>
-            يتم تحليل إجابتك...
+            جاري الإرسال...
           </span>
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Feedback Phase -->
-  <div *ngIf="examState === 'feedback'" class="feedback-phase">
-    <div class="ai-card">
-      <div class="ai-feedback-header">
-        <div class="ai-avatar-feedback">
-          <div class="feedback-pulse"></div>
-          🎯
-        </div>
-        <div class="feedback-score">
-          <div class="score-circle" [class]="getScoreClass(lastEvaluation?.score || 0)">
-            <span class="score-number">{{ lastEvaluation?.score || 0 }}</span>
-            <span class="score-label">النتيجة</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="ai-feedback-bubble">
-        <div class="ai-avatar-small"><i class='bx bx-bot'></i></div>
-        <div class="feedback-content">
-          <div class="ai-badge">محرك التغذية الراجعة</div>
-          <p class="feedback-text">{{ lastEvaluation?.feedback }}</p>
-        </div>
-      </div>
-
-      <div class="answer-review-section">
-        <div class="review-header">
-          <span class="review-icon">📝</span>
-          <span>مراجعة إجابتك</span>
-        </div>
-        <div class="your-answer-display">{{ studentAnswers[currentQuestionIndex]?.answer }}</div>
-      </div>
-
-      <div class="next-question-area">
-        <div *ngIf="isWaitingForNext" class="ai-generating">
-          <div class="thinking-dots">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-          </div>
-          <p>الذكاء الاصطناعي يحضّر السؤال التالي...</p>
-        </div>
-        <button
-          *ngIf="!isWaitingForNext"
-          (click)="proceedToNext()"
-          class="ai-next-btn">
-          <span *ngIf="hasMoreQuestions()">⚡ جاهز للسؤال التالي</span>
-          <span *ngIf="!hasMoreQuestions()">🏁 عرض التقييم النهائي</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Certificate Generation Phase -->
-  <div *ngIf="examState === 'generating-certificate'" class="certificate-generation-phase">
-    <div class="ai-card">
-      <div class="certificate-header">
-        <div class="certificate-icon">🎓</div>
-        <h2>تهانينا! لقد أكملت الدورة بنجاح</h2>
-        <div class="final-score-display" [class]="getFinalScoreClass()">
-          <div class="final-score-number">{{ finalEvaluation?.finalScore || 0 }}</div>
-          <div class="final-score-suffix">/100</div>
-        </div>
-      </div>
-
-      <div class="certificate-generation">
-        <div class="certificate-animation">
-          <div class="certificate-generating-icon">📜</div>
-          <div class="generation-pulse"></div>
-        </div>
-        <h3>جاري إنشاء شهادة الإتمام...</h3>
-        <p>يتم إنتاج شهادتك الرسمية ورفعها إلى النظام</p>
-        <div class="certificate-loading-bar">
-          <div class="certificate-progress"></div>
-        </div>
-        <div class="generation-steps">
-          <div class="step active">✅ تقييم الأداء</div>
-          <div class="step active">✅ إنشاء الشهادة</div>
-          <div class="step" [class.active]="certificateGenerating">⏳ رفع الشهادة</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Course Completed Phase -->
-  <div *ngIf="examState === 'course-completed'" class="course-completed-phase">
-    <div class="ai-card">
-      <div class="completion-celebration">
-        <div class="celebration-icons">
-          <div class="celebration-icon">🎉</div>
-          <div class="celebration-icon">🏆</div>
-          <div class="celebration-icon">🎓</div>
-        </div>
-        <h2>مبروك! تم إكمال الدورة بنجاح</h2>
-        <div class="course-name">{{ programName }}</div>
-        <div class="final-score-display excellent">
-          <div class="final-score-number">{{ finalEvaluation?.finalScore || 0 }}</div>
-          <div class="final-score-suffix">/100</div>
-        </div>
-      </div>
-
-      <div class="completion-message">
-        <div class="ai-avatar-small">
-          <i class='bx bx-bot'></i>
-
-        </div>
-        <div class="message-content">
-          <div class="ai-badge">تهاني الذكاء الاصطناعي</div>
-          <p>{{ finalEvaluation?.feedback }}</p>
-          <div class="certificate-ready">
-            <span class="certificate-icon">📜</span>
-            <span>تم إنشاء شهادة الإتمام بنجاح وحفظها في حسابك</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="completion-actions">
-        <button (click)="goToCourses()" class="primary-btn">
-          📚 عرض الدورات الأخرى
-        </button>
-        <!-- <button (click)="restartExam()" class="secondary-btn">
-          🔄 إعادة الاختبار
-        </button> -->
       </div>
     </div>
   </div>
@@ -208,18 +91,14 @@
       <div class="failure-header">
         <div class="failure-icon">😔</div>
         <h2>لم تجتز الامتحان هذه المرة</h2>
-        <div class="final-score-display poor">
-          <div class="final-score-number">{{ finalEvaluation?.finalScore || 0 }}</div>
-          <div class="final-score-suffix">/100</div>
-        </div>
-        <p class="passing-message">تحتاج إلى نتيجة أعلى للنجاح في هذا الامتحان</p>
+        <p class="passing-message">يرجى المحاولة مرة أخرى أو مراجعة المحتوى</p>
       </div>
 
       <div class="failure-feedback">
         <div class="ai-avatar-small"><i class='bx bx-bot'></i></div>
         <div class="feedback-content">
-          <div class="ai-badge">تحليل الأداء</div>
-          <p>{{ finalEvaluation?.feedback }}</p>
+          <div class="ai-badge">نصيحة الذكاء الاصطناعي</div>
+          <p>راجع المحتوى بعناية وحاول مرة أخرى. التعلم عملية تستغرق وقتاً.</p>
         </div>
       </div>
 
@@ -227,59 +106,9 @@
         <button (click)="restartExam()" class="retry-btn">
           🔄 إعادة المحاولة
         </button>
-        <button (click)="goToCourses()" class="back-btn">
+        <button (click)="goToCurrentContent()" class="back-btn">
           ← العودة للدرس
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Final Results Phase (for passed but not completed course) -->
-  <div *ngIf="examState === 'final-results'" class="final-results-phase">
-    <div class="ai-card">
-      <div class="final-assessment-header">
-        <div class="ai-trophy">🏆</div>
-        <h2>أحسنت! لقد اجتزت الامتحان</h2>
-        <div class="final-score-display" [class]="getFinalScoreClass()">
-          <div class="final-score-number">{{ finalEvaluation?.finalScore || 0 }}</div>
-          <div class="final-score-suffix">/100</div>
-        </div>
-      </div>
-
-      <div class="ai-summary-bubble">
-        <div class="ai-avatar-small"><i class='bx bx-bot'></i></div>
-        <div class="summary-content">
-          <div class="ai-badge">تحليل الأداء</div>
-          <p class="summary-text">{{ finalEvaluation?.feedback }}</p>
-        </div>
-      </div>
-
-      <div class="next-content-notification">
-        <h3>جاهز للمحتوى التالي؟</h3>
-        <p style="color: white;">تم فتح المحتوى التالي في الدورة</p>
-      </div>
-
-      <div class="detailed-review">
-        <h4 class="review-section-title">📊 مراجعة تفصيلية للإجابات</h4>
-        <div *ngFor="let answer of studentAnswers; let i = index" class="detailed-answer-item">
-          <div class="question-number-badge">س{{ i + 1 }}</div>
-          <div class="question-content">
-            <div class="original-question">{{ questions[i] }}</div>
-            <div class="student-response">
-              <span class="response-icon">👤</span>
-              <span class="response-text">{{ answer.answer }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="final-actions">
-        <button (click)="goToNextContent()" class="next-content-btn">
-          ➡️ الانتقال للمحتوى التالي
-        </button>
-        <!-- <button (click)="restartExam()" class="secondary-btn">
-          🔄 إعادة الاختبار
-        </button> -->
       </div>
     </div>
   </div>
