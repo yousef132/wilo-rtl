@@ -12,6 +12,8 @@ import {
     NextContentResponse,
     PassResponse,
     SendMessage,
+    AiChatResponse,
+    VideoStatusDto,
 } from '../models/content/content';
 
 import { SendAIMessage } from '../models/content/content';
@@ -92,22 +94,51 @@ export class ContentService {
             .pipe(map((response) => response.data));
     }
 
-    sendAIMessage(SendAIMessage: SendAIMessage) {
+    // sendAIMessage(SendAIMessage: SendAIMessage) {
+    //     return this.http
+    //         .post<Result<string>>(
+    //             this.baseUrl + API_CONSTANTS.CONTENT.SEND_AI_MESSAGE,
+    //             SendAIMessage
+    //         )
+    //         .pipe(map((response) => response.data));
+    // }
+
+    // getAiChat(contentId: number) {
+    //     return this.http
+    //         .get<Result<ContentAIChatMessage[]>>(
+    //             this.baseUrl + API_CONSTANTS.CONTENT.GET_AI_CHAT + contentId
+    //         )
+    //         .pipe(map((response) => response.data));
+    // }
+
+ // Updated to return AiChatResponse instead of string
+    sendAIMessage(SendAIMessage: SendAIMessage): Observable<AiChatResponse | undefined> {
         return this.http
-            .post<Result<string>>(
+            .post<Result<AiChatResponse>>(
                 this.baseUrl + API_CONSTANTS.CONTENT.SEND_AI_MESSAGE,
                 SendAIMessage
             )
             .pipe(map((response) => response.data));
     }
 
-    getAiChat(contentId: number) {
+    // New method to check video status
+    checkVideoStatus(videoTaskId: string): Observable<VideoStatusDto | undefined> {
+        return this.http
+            .get<Result<VideoStatusDto>>(
+                `${this.baseUrl}${API_CONSTANTS.CONTENT.CHECK_VIDEO_STATUS}?videoTaskId=${videoTaskId}`
+            )
+            .pipe(map((response) => response.data));
+    }
+
+     getAiChat(contentId: number) {
         return this.http
             .get<Result<ContentAIChatMessage[]>>(
                 this.baseUrl + API_CONSTANTS.CONTENT.GET_AI_CHAT + contentId
             )
             .pipe(map((response) => response.data));
     }
+
+
 
     passStudent(contentId: number, studentId: string) {
         return this.http

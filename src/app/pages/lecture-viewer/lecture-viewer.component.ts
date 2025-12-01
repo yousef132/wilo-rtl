@@ -23,6 +23,8 @@ import {
     SendMessage,
     CourseLecture,
     CourseSection,
+    AiChatResponse,       
+    VideoStatusDto       
 } from '../../models/content/content';
 
 import {
@@ -816,6 +818,63 @@ export class LectureViewerComponent implements OnInit {
             });
     }
 
+    // sendAiMessage(): void {
+    //     const trimmed = this.prompt.trim();
+    //     if (!trimmed || this.loading.sendingAiMessage) return;
+
+    //     const userMessage: ContentAIChatMessage = {
+    //         messageText: trimmed,
+    //         role: AIChatRole.User,
+    //         sentAt: new Date(),
+    //     };
+
+    //     this.aiMessages.push(userMessage);
+    //     this.prompt = '';
+    //     this.scrollAiToBottom();
+
+    //     this.loading.sendingAiMessage = true;
+    //     this.aiIsThinking = true;
+
+    //     const sendMessage: SendAIMessage = {
+    //         contentId: this.contentId,
+    //         question: trimmed,
+    //     };
+
+    //     this.contentService
+    //         .sendAIMessage(sendMessage)
+    //         .pipe(
+    //             takeUntil(this.destroy$),
+    //             finalize(() => {
+    //                 this.loading.sendingAiMessage = false;
+    //                 this.aiIsThinking = false;
+    //             })
+    //         )
+    //         .subscribe({
+    //             next: (response: string | undefined) => {
+    //                 if (response) {
+    //                     const aiResponse: ContentAIChatMessage = {
+    //                         messageText: response,
+    //                         role: AIChatRole.Assistant,
+    //                         sentAt: new Date(),
+    //                     };
+    //                     this.aiMessages.push(aiResponse);
+    //                 }
+    //                 this.scrollAiToBottom();
+    //             },
+    //             error: (error) => {
+    //                 console.error('Send AI message failed:', error);
+    //                 this.aiMessages = this.aiMessages.filter(
+    //                     (msg) => msg !== userMessage
+    //                 );
+    //                 alert(
+    //                     'فشل في إرسال الرسالة للمساعد الذكي. يرجى المحاولة مرة أخرى.'
+    //                 );
+    //             },
+    //         });
+    // }
+
+    // SignalR Methods
+    
     sendAiMessage(): void {
         const trimmed = this.prompt.trim();
         if (!trimmed || this.loading.sendingAiMessage) return;
@@ -848,14 +907,22 @@ export class LectureViewerComponent implements OnInit {
                 })
             )
             .subscribe({
-                next: (response: string | undefined) => {
+                next: (response: AiChatResponse | undefined) => {
                     if (response) {
                         const aiResponse: ContentAIChatMessage = {
-                            messageText: response,
+                            messageText: response.reply,
                             role: AIChatRole.Assistant,
                             sentAt: new Date(),
+                            videoTaskId: response.videoTaskId,
+                            videoStatus: response.videoTaskId ? 'processing' : undefined
                         };
+                        
                         this.aiMessages.push(aiResponse);
+                        
+                        // Start polling for video if we have a task ID
+                        if (response.videoTaskId) {
+                            this.pollVideoStatus(response.videoTaskId, this.aiMessages.length - 1);
+                        }
                     }
                     this.scrollAiToBottom();
                 },
@@ -871,7 +938,94 @@ export class LectureViewerComponent implements OnInit {
             });
     }
 
-    // SignalR Methods
+    // Add this new method for polling video status
+   
+private pollVideoStatus(videoTaskId: string, messageIndex: number): void {
+    const maxAttempts = 90; // 3 minutes with 2 second intervals (increased for HeyGen)
+    let attempts = 0;
+
+    const poll = () => {
+        if (attempts >= maxAttempts) {
+            // Timeout - update message status
+            if (this.aiMessages[messageIndex]) {
+                this.aiMessages[messageIndex].videoStatus = 'failed';
+                console.error('Video generation timeout after 3 minutes');
+            }
+            return;
+        }
+
+        attempts++;
+        console.log(`Polling video status - Attempt ${attempts}/${maxAttempts} for task: ${videoTaskId}`);
+
+        this.contentService.checkVideoStatus(videoTaskId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (statusData) => {
+                    console.log('Video status response:', statusData);
+
+                    if (!statusData) {
+                        console.warn('No status data received, retrying...');
+                        setTimeout(poll, 2000);
+                        return;
+                    }
+
+                    const status = statusData.status?.toLowerCase();
+
+                    if (status === 'completed' && statusData.videoUrl) {
+                        // Success! Update the message with video URL
+                        console.log('Video completed successfully:', statusData.videoUrl);
+                        if (this.aiMessages[messageIndex]) {
+                            this.aiMessages[messageIndex].videoUrl = statusData.videoUrl;
+                            this.aiMessages[messageIndex].videoStatus = 'completed';
+                        }
+                    } else if (status === 'failed' || status === 'error') {
+                        console.error('Video generation failed with status:', status);
+                        if (this.aiMessages[messageIndex]) {
+                            this.aiMessages[messageIndex].videoStatus = 'failed';
+                        }
+                    } else if (status === 'processing' || status === 'pending' || status === 'queued') {
+                        // Still processing, poll again
+                        console.log('Video still processing, checking again in 2 seconds...');
+                        setTimeout(poll, 2000);
+                    } else {
+                        // Unknown status, keep polling
+                        console.warn('Unknown status received:', status, '- continuing to poll');
+                        setTimeout(poll, 2000);
+                    }
+                },
+                error: (error) => {
+                    console.error('Video status check failed:', error);
+                    
+                    // Don't fail immediately on error, keep trying
+                    if (attempts < maxAttempts) {
+                        console.log('Retrying after error...');
+                        setTimeout(poll, 2000);
+                    } else {
+                        if (this.aiMessages[messageIndex]) {
+                            this.aiMessages[messageIndex].videoStatus = 'failed';
+                        }
+                    }
+                }
+            });
+    };
+
+    // Start polling after 3 seconds (give HeyGen time to register the task)
+    console.log('Starting video polling in 3 seconds for task:', videoTaskId);
+    setTimeout(poll, 3000);
+}
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     private async connectToSignalR(): Promise<void> {
         if (!this.currentLecture?.userContentRegistrationId) return;
 

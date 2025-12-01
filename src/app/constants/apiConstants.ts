@@ -44,7 +44,8 @@ export const API_CONSTANTS = {
         GET_AI_CHAT: 'Content/ai/chat/',
         IS_LAST_CONTENT: 'Content/last',
         GET_FIRST_CONTENT:'Content/first/',
-        GET_CURRENT_CONTENT:'Content/current/'
+        GET_CURRENT_CONTENT:'Content/current/',
+        CHECK_VIDEO_STATUS: 'Content/check-video-status'
     },
     QUESTION: {
         CREATE_QUESTION: 'Exam',

@@ -450,78 +450,109 @@
 
           <!-- AI Chat -->
           <div *ngIf="chatMode === 'ai'" class="chat-content">
-            <!-- Loading State -->
-            <div *ngIf="loading.aiChat" class="chat-loading">
-              <div class="loading-spinner">
-                <i class="bx bx-loader-alt bx-spin"></i>
-              </div>
-              <p>جاري تحميل المحادثة مع المساعد الذكي...</p>
-            </div>
-
-            <!-- AI Messages Container -->
-            <div class="messages-container" #aiMessagesContainer
-              *ngIf="!loading.aiChat && aiMessages?.length; else noAiMessages">
-              <div *ngFor="let msg of aiMessages" class="message-wrapper">
-                <div class="message" [ngClass]="{
-                      'message-sent': msg.role === AIChatRole.User,
-                      'message-received': msg.role === AIChatRole.Assistant,
-                      'message-ai': msg.role === AIChatRole.Assistant
-                    }">
-                  <div class="message-content">
-                    <div class="message-header" *ngIf="msg.role === AIChatRole.Assistant">
-                      <div class="user-avatar ai-avatar">
-                        <i class="bx bx-brain"></i>
-                      </div>
-                      <span class="user-name">المساعد الذكي</span>
-                    </div>
-
-                    <div class="message-text">
-                      {{ msg.messageText }}
-                    </div>
-
-                    <div class="message-time">
-                      {{ msg.sentAt | date:'shortTime' }}
-                      <span class="message-date">{{ msg.sentAt | date:'shortDate' }}</span>
-                    </div>
+              <!-- Loading State -->
+              <div *ngIf="loading.aiChat" class="chat-loading">
+                  <div class="loading-spinner">
+                      <i class="bx bx-loader-alt bx-spin"></i>
                   </div>
-                </div>
+                  <p>جاري تحميل المحادثة مع المساعد الذكي...</p>
               </div>
 
-              <!-- AI Thinking Animation -->
-              <div *ngIf="aiIsThinking" class="message-wrapper">
-                <div class="message message-received message-ai">
-                  <div class="message-content">
-                    <div class="message-header">
-                      <div class="user-avatar ai-avatar">
-                        <i class="bx bx-brain"></i>
-                      </div>
-                      <span class="user-name">المساعد الذكي</span>
-                    </div>
+              <!-- AI Messages Container -->
+              <div class="messages-container" #aiMessagesContainer
+                  *ngIf="!loading.aiChat && aiMessages?.length; else noAiMessages">
+                  <div *ngFor="let msg of aiMessages" class="message-wrapper">
+                      <div class="message" [ngClass]="{
+                          'message-sent': msg.role === AIChatRole.User,
+                          'message-received': msg.role === AIChatRole.Assistant,
+                          'message-ai': msg.role === AIChatRole.Assistant
+                      }">
+                          <div class="message-content">
+                              <div class="message-header" *ngIf="msg.role === AIChatRole.Assistant">
+                                  <div class="user-avatar ai-avatar">
+                                      <i class="bx bx-brain"></i>
+                                  </div>
+                                  <span class="user-name">المساعد الذكي</span>
+                              </div>
 
-                    <div class="message-text">
-                      <div class="typing-indicator">
-                        <div class="typing-dots">
-                          <span class="dot"></span>
-                          <span class="dot"></span>
-                          <span class="dot"></span>
-                        </div>
-                        <span class="typing-text">يفكر...</span>
+                              <div class="message-text">
+                                  {{ msg.messageText }}
+                              </div>
+
+                              <!-- Video Player Section -->
+                              <div class="message-video" *ngIf="msg.role === AIChatRole.Assistant && msg.videoTaskId">
+                                  <!-- Video is processing -->
+                                  <div class="video-processing" *ngIf="msg.videoStatus === 'processing'">
+                                      <div class="video-loading">
+                                          <i class="bx bx-loader-alt bx-spin"></i>
+                                          <span>جاري إنشاء الفيديو...</span>
+                                      </div>
+                                  </div>
+
+                                  <!-- Video is ready -->
+                                  <div class="video-ready" *ngIf="msg.videoStatus === 'completed' && msg.videoUrl">
+                                      <div class="video-player-wrapper">
+                                          <video 
+                                              [src]="msg.videoUrl" 
+                                              controls 
+                                              class="ai-video-player"
+                                              preload="metadata">
+                                              متصفحك لا يدعم تشغيل الفيديو
+                                          </video>
+                                      </div>
+                                  </div>
+
+                                  <!-- Video failed -->
+                                  <div class="video-failed" *ngIf="msg.videoStatus === 'failed'">
+                                      <div class="video-error">
+                                          <i class="bx bx-error-circle"></i>
+                                          <span>فشل في إنشاء الفيديو</span>
+                                      </div>
+                                  </div>
+                              </div>
+
+                              <div class="message-time">
+                                  {{ msg.sentAt | date:'shortTime' }}
+                                  <span class="message-date">{{ msg.sentAt | date:'shortDate' }}</span>
+                              </div>
+                          </div>
                       </div>
-                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            <ng-template #noAiMessages>
-              <div class="no-messages" *ngIf="!loading.aiChat">
-                <i class="bx bx-brain"></i>
-                <h4>لا توجد رسائل مع المساعد الذكي حتى الآن</h4>
-                <p>اسأل المساعد الذكي أي سؤال متعلق بالمحتوى</p>
+                  <!-- AI Thinking Animation -->
+                  <div *ngIf="aiIsThinking" class="message-wrapper">
+                      <div class="message message-received message-ai">
+                          <div class="message-content">
+                              <div class="message-header">
+                                  <div class="user-avatar ai-avatar">
+                                      <i class="bx bx-brain"></i>
+                                  </div>
+                                  <span class="user-name">المساعد الذكي</span>
+                              </div>
+
+                              <div class="message-text">
+                                  <div class="typing-indicator">
+                                      <div class="typing-dots">
+                                          <span class="dot"></span>
+                                          <span class="dot"></span>
+                                          <span class="dot"></span>
+                                      </div>
+                                      <span class="typing-text">يفكر...</span>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
               </div>
-            </ng-template>
+
+              <ng-template #noAiMessages>
+                  <div class="no-messages" *ngIf="!loading.aiChat">
+                      <i class="bx bx-brain"></i>
+                      <h4>لا توجد رسائل مع المساعد الذكي حتى الآن</h4>
+                      <p>اسأل المساعد الذكي أي سؤال متعلق بالمحتوى</p>
+                  </div>
+              </ng-template>
           </div>
-        </div>
 
         <!-- Chat Input -->
         <div class="chat-modal-footer">

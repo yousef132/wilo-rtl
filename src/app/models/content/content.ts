@@ -12,10 +12,30 @@ export interface CreateContent {
     content: string;
     contentType: number;
 }
+// export interface ContentAIChatMessage {
+//     messageText: string;
+//     role: AIChatRole;
+//     sentAt: Date;
+// }
 export interface ContentAIChatMessage {
     messageText: string;
     role: AIChatRole;
     sentAt: Date;
+    videoTaskId?: string;
+    videoUrl?: string;
+    videoStatus?: 'processing' | 'completed' | 'failed';
+}
+// New response interface for AI Chat with video
+export interface AiChatResponse {
+    reply: string;
+    videoTaskId?: string;
+}
+
+// New interface for video status checking
+export interface VideoStatusDto {
+    status: string;
+    videoUrl?: string;
+    videoTaskId: string;
 }
 export interface LoadingState {
     content: boolean;
